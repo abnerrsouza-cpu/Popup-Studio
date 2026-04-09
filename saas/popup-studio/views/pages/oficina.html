@@ -1,0 +1,223 @@
+<!-- ══════ OFICINA ══════ -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Oficina de Templates</h1>
+    <p class="page-desc">Customize cada detalhe do seu popup gamificado</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-action btn-outline" id="btnPreview">&#128065; Pré-visualizar</button>
+    <button class="btn-action btn-purple" id="btnEmbed">&#128187; Gerar Código</button>
+    <button class="btn-action btn-green" id="btnSave">&#128190; Salvar</button>
+  </div>
+</div>
+
+<div class="oficina-layout">
+  <!-- ── Editor Panel ── -->
+  <div class="editor-sidebar">
+    <div class="editor-tabs">
+      <button class="ed-tab active" data-tab="cores">&#127912; Cores</button>
+      <button class="ed-tab" data-tab="textos">&#9999; Textos</button>
+      <button class="ed-tab" data-tab="cupom">&#127873; Cupom</button>
+      <button class="ed-tab" data-tab="marca">&#127978; Marca</button>
+    </div>
+
+    <!-- CORES -->
+    <div class="ed-panel active" id="panel-cores">
+      <div class="ed-section">Fundo do Popup</div>
+      <div class="ed-field">
+        <label>Cor principal</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#1a0a2e" data-key="bg1"></div>
+          <input class="ed-input color-hex" value="#1a0a2e" data-key="bg1">
+        </div>
+      </div>
+      <div class="ed-field">
+        <label>Cor secundária</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#0a0416" data-key="bg2"></div>
+          <input class="ed-input color-hex" value="#0a0416" data-key="bg2">
+        </div>
+      </div>
+
+      <div class="ed-section">Botões</div>
+      <div class="ed-field">
+        <label>Botão cadastro</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#ffd700" data-key="btnColor1"></div>
+          <input class="ed-input color-hex" value="#ffd700" data-key="btnColor1">
+        </div>
+      </div>
+      <div class="ed-field">
+        <label>Botão girar</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#ff2d2d" data-key="btnColor2"></div>
+          <input class="ed-input color-hex" value="#ff2d2d" data-key="btnColor2">
+        </div>
+      </div>
+
+      <div class="ed-section">Destaques</div>
+      <div class="ed-field">
+        <label>Cor do título</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#ffd700" data-key="titleColor"></div>
+          <input class="ed-input color-hex" value="#ffd700" data-key="titleColor">
+        </div>
+      </div>
+      <div class="ed-field">
+        <label>Cor da badge</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#ff2d2d" data-key="badgeColor"></div>
+          <input class="ed-input color-hex" value="#ff2d2d" data-key="badgeColor">
+        </div>
+      </div>
+      <div class="ed-field">
+        <label>Borda da máquina</label>
+        <div class="color-row">
+          <div class="color-swatch"><input type="color" value="#ffd700" data-key="borderColor"></div>
+          <input class="ed-input color-hex" value="#ffd700" data-key="borderColor">
+        </div>
+      </div>
+    </div>
+
+    <!-- TEXTOS -->
+    <div class="ed-panel" id="panel-textos">
+      <div class="ed-section">Cabeçalho</div>
+      <div class="ed-field">
+        <label>Badge</label>
+        <input class="ed-input" data-text="badge" value="Exclusivo">
+      </div>
+      <div class="ed-field">
+        <label>Título principal</label>
+        <input class="ed-input" data-text="title" value="Jogue & Ganhe!">
+      </div>
+      <div class="ed-field">
+        <label>Subtítulo</label>
+        <textarea class="ed-input" data-text="subtitle" rows="2">Cadastre-se e gire a slot machine para ganhar um desconto!</textarea>
+      </div>
+      <div class="ed-section">Formulário</div>
+      <div class="ed-field">
+        <label>Placeholder e-mail</label>
+        <input class="ed-input" data-text="emailPh" value="Seu e-mail">
+      </div>
+      <div class="ed-field">
+        <label>Placeholder celular</label>
+        <input class="ed-input" data-text="phonePh" value="(11) 99999-9999">
+      </div>
+      <div class="ed-section">Botões & Mensagens</div>
+      <div class="ed-field">
+        <label>Botão cadastro</label>
+        <input class="ed-input" data-text="btnText" value="Cadastrar & Jogar">
+      </div>
+      <div class="ed-field">
+        <label>Texto do cadeado</label>
+        <input class="ed-input" data-text="lockText" value="Cadastre-se para jogar">
+      </div>
+      <div class="ed-field">
+        <label>Consentimento</label>
+        <textarea class="ed-input" data-text="consent" rows="2">Ao continuar, você aceita receber ofertas exclusivas.</textarea>
+      </div>
+    </div>
+
+    <!-- CUPOM -->
+    <div class="ed-panel" id="panel-cupom">
+      <div class="ed-section">Configuração do Cupom</div>
+      <div class="ed-field">
+        <label>Código do cupom</label>
+        <input class="ed-input" data-text="couponCode" value="GANHEI15" style="text-transform:uppercase;font-weight:700;letter-spacing:2px;">
+      </div>
+      <div class="ed-field">
+        <label>Tipo de desconto</label>
+        <select class="ed-select" id="discountType">
+          <option value="percent">Porcentagem (%)</option>
+          <option value="fixed">Valor fixo (R$)</option>
+          <option value="frete">Frete grátis</option>
+        </select>
+      </div>
+      <div class="ed-field" id="discountValueField">
+        <label>Valor do desconto</label>
+        <input class="ed-input" data-text="discountValue" value="15" type="number" min="1">
+      </div>
+      <div class="ed-section">Tela de Vitória</div>
+      <div class="ed-field">
+        <label>Título da vitória</label>
+        <input class="ed-input" data-text="winTitle" value="Você Ganhou!">
+      </div>
+      <div class="ed-field">
+        <label>Mensagem</label>
+        <textarea class="ed-input" data-text="winMsg" rows="2">Parabéns! Aqui está seu cupom exclusivo:</textarea>
+      </div>
+      <div class="ed-section">Mensagens do Jogo</div>
+      <div class="ed-field">
+        <label>1ª derrota</label>
+        <input class="ed-input" data-text="lose1" value="Quase! Tente novamente...">
+      </div>
+      <div class="ed-field">
+        <label>2ª derrota</label>
+        <input class="ed-input" data-text="lose2" value="Não foi dessa vez... Última chance!">
+      </div>
+    </div>
+
+    <!-- MARCA -->
+    <div class="ed-panel" id="panel-marca">
+      <div class="ed-section">Logo da Loja</div>
+      <div class="ed-field">
+        <div class="logo-drop" id="logoDrop">
+          <input type="file" accept="image/*" id="logoFile">
+          <div class="logo-drop-content">
+            <span style="font-size:28px;">&#128247;</span>
+            <p>Clique ou arraste o <strong>logo</strong></p>
+            <small>PNG, JPG ou SVG (max 2MB)</small>
+          </div>
+        </div>
+        <div class="logo-loaded hidden" id="logoLoaded">
+          <img id="logoThumb" src="">
+          <div class="logo-loaded-info">
+            <span id="logoName">logo.png</span>
+            <button class="btn-remove-logo" id="btnRemoveLogo">Remover</button>
+          </div>
+        </div>
+      </div>
+      <div class="ed-field">
+        <label>Exibir logo no popup</label>
+        <select class="ed-select" id="showLogo">
+          <option value="no" selected>Não exibir</option>
+          <option value="yes">Sim, acima do título</option>
+        </select>
+      </div>
+      <div class="ed-section">Emojis dos Rolos</div>
+      <div class="ed-field">
+        <label>Item 1 (vencedor)</label>
+        <input class="ed-input" data-text="emoji1" value="👟" maxlength="2">
+      </div>
+      <div class="ed-field">
+        <label>Item 2</label>
+        <input class="ed-input" data-text="emoji2" value="👕" maxlength="2">
+      </div>
+      <div class="ed-field">
+        <label>Item 3</label>
+        <input class="ed-input" data-text="emoji3" value="🧢" maxlength="2">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Live Preview ── -->
+  <div class="preview-zone">
+    <div class="preview-label">&#128065; Preview ao vivo</div>
+    <div class="preview-container" id="previewContainer">
+      <!-- Rendered by oficina.js -->
+    </div>
+  </div>
+</div>
+
+<!-- Embed Modal -->
+<div class="modal-bg hidden" id="modalEmbed">
+  <div class="modal-box">
+    <h3>Código de Instalação</h3>
+    <p class="modal-desc">Cole antes do <code>&lt;/body&gt;</code> na sua Nuvemshop.</p>
+    <pre class="code-block" id="embedCode"></pre>
+    <div class="modal-footer">
+      <button class="btn-action btn-outline" onclick="document.getElementById('modalEmbed').classList.add('hidden')">Fechar</button>
+      <button class="btn-action btn-purple" id="btnCopyEmbed">Copiar Código</button>
+    </div>
+  </div>
+</div>

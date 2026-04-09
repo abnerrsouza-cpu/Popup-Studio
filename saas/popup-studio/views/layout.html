@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PopUp Studio - {{TITLE}}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<nav class="sidebar-nav">
+  <div class="nav-brand">
+    <div class="nav-logo">P</div>
+    <div class="nav-brand-text">
+      <span class="nav-brand-name">PopUp Studio</span>
+      <span class="nav-brand-sub">Gamified Popups</span>
+    </div>
+  </div>
+  <div class="nav-section-label">PRINCIPAL</div>
+  <a href="/dashboard" id="nav-dashboard" class="nav-item">
+    <span class="nav-icon">&#128202;</span><span>Dashboard</span>
+  </a>
+  <a href="/oficina" id="nav-oficina" class="nav-item">
+    <span class="nav-icon">&#127912;</span><span>Oficina</span>
+  </a>
+  <a href="/biblioteca" id="nav-biblioteca" class="nav-item">
+    <span class="nav-icon">&#127922;</span><span>Biblioteca de Jogos</span>
+  </a>
+  <div class="nav-section-label">CONFIGURA&Ccedil;&Otilde;ES</div>
+  <a href="#" class="nav-item">
+    <span class="nav-icon">&#128279;</span><span>Integra&ccedil;&otilde;es</span>
+  </a>
+  <a href="#" class="nav-item">
+    <span class="nav-icon">&#9881;</span><span>Configura&ccedil;&otilde;es</span>
+  </a>
+  <div class="nav-bottom">
+    <div class="nav-plan-badge"><span class="plan-dot"></span>Plano Pro Ativo</div>
+  </div>
+</nav>
+
+<main class="main-content">
+  {{PAGE_CONTENT}}
+</main>
+
+<script src="/js/app.js"></script>
+<!--IF:dashboard--><script src="/js/dashboard.js"></script><!--ENDIF-->
+<!--IF:oficina--><script src="/js/oficina.js"></script><!--ENDIF-->
+<!--IF:biblioteca--><script src="/js/biblioteca.js"></script><!--ENDIF-->
+</body>
+</html>

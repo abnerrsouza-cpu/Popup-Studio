@@ -1,0 +1,36 @@
+<!-- ══════ BIBLIOTECA DE JOGOS ══════ -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Biblioteca de Jogos</h1>
+    <p class="page-desc">Escolha um jogo gamificado para o seu popup e aumente suas conversões</p>
+  </div>
+  <div class="header-actions">
+    <div class="search-box">
+      <span>&#128269;</span>
+      <input type="text" placeholder="Buscar jogo..." id="searchGames">
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-row">
+  <button class="filter-chip active" data-cat="all">Todos</button>
+  <button class="filter-chip" data-cat="sorte">Sorte</button>
+  <button class="filter-chip" data-cat="habilidade">Habilidade</button>
+  <button class="filter-chip" data-cat="quiz">Quiz</button>
+  <button class="filter-chip" data-cat="social">Social</button>
+  <button class="filter-chip" data-cat="urgencia">Urgência</button>
+</div>
+
+<!-- Games Grid -->
+<div class="games-grid" id="gamesGrid">
+  <!-- Rendered by biblioteca.js -->
+</div>
+
+<!-- Game Detail Modal -->
+<div class="modal-bg hidden" id="modalGame">
+  <div class="modal-box modal-lg">
+    <button class="modal-close" onclick="document.getElementById('modalGame').classList.add('hidden')">&times;</button>
+    <div id="modalGameContent"></div>
+  </div>
+</div>

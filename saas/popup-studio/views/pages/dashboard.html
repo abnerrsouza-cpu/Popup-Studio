@@ -1,0 +1,97 @@
+<!-- ══════ DASHBOARD ══════ -->
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-desc">Acompanhe o desempenho dos seus popups gamificados</p>
+  </div>
+  <div class="header-actions">
+    <select class="period-select" id="periodSelect">
+      <option value="7">Últimos 7 dias</option>
+      <option value="14">Últimos 14 dias</option>
+      <option value="30" selected>Últimos 30 dias</option>
+    </select>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:rgba(139,92,246,.12);color:#a78bfa;">&#128065;</div>
+    <div class="kpi-data">
+      <div class="kpi-value" id="kpiVisitors">-</div>
+      <div class="kpi-label">Visitantes Impactados</div>
+    </div>
+    <div class="kpi-trend up" id="kpiVisitorsTrend">+12.4%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:rgba(16,185,129,.12);color:#34d399;">&#128100;</div>
+    <div class="kpi-data">
+      <div class="kpi-value" id="kpiLeads">-</div>
+      <div class="kpi-label">Novos Inscritos</div>
+    </div>
+    <div class="kpi-trend up" id="kpiLeadsTrend">+18.2%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:rgba(251,191,36,.12);color:#fbbf24;">&#127915;</div>
+    <div class="kpi-data">
+      <div class="kpi-value" id="kpiConversion">-</div>
+      <div class="kpi-label">Taxa de Conversão</div>
+    </div>
+    <div class="kpi-trend up" id="kpiConvTrend">+3.1%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:rgba(236,72,153,.12);color:#f472b6;">&#127873;</div>
+    <div class="kpi-data">
+      <div class="kpi-value" id="kpiCoupons">-</div>
+      <div class="kpi-label">Cupons Utilizados</div>
+    </div>
+    <div class="kpi-trend up" id="kpiCouponsTrend">+8.7%</div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="charts-row">
+  <div class="chart-card chart-wide">
+    <div class="chart-header">
+      <h3 class="chart-title">Inscritos por Dia</h3>
+      <div class="chart-legend">
+        <span class="legend-dot" style="background:#8b5cf6;"></span> Visitantes
+        <span class="legend-dot" style="background:#10b981;margin-left:12px;"></span> Inscritos
+      </div>
+    </div>
+    <div class="chart-body">
+      <canvas id="chartLeads" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3 class="chart-title">Conversão por Jogo</h3>
+    </div>
+    <div class="chart-body">
+      <div id="gameRanking"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Performance Table -->
+<div class="chart-card" style="margin-top:20px;">
+  <div class="chart-header">
+    <h3 class="chart-title">Performance por Tipo de Jogo</h3>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Jogo</th>
+          <th>Impressões</th>
+          <th>Jogaram</th>
+          <th>Inscritos</th>
+          <th>Conversão</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="gameTable"></tbody>
+    </table>
+  </div>
+</div>
