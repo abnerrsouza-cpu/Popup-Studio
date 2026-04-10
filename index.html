@@ -536,6 +536,21 @@
             margin-bottom: 12px;
         }
 
+        .popup-preview .popup-badge {
+            display: block;
+            text-align: center;
+            width: fit-content;
+            margin: 0 auto 12px auto;
+        }
+
+        .popup-preview .popup-logo {
+            display: block;
+            max-width: 120px;
+            max-height: 60px;
+            margin: 0 auto 12px auto;
+            object-fit: contain;
+        }
+
         .popup-title {
             font-size: 20px;
             font-weight: 700;
@@ -1966,6 +1981,8 @@
                 this.leads = [];
                 this.currentPage_leads = 1;
                 this.selectedGameIndex = 0;
+                this.logoDataURL = '';
+                this.savedConfigs = {};
                 this.games = [
                     { name: 'Slot Machine', icon: '🎰', category: 'sorte', conversion: 28.5, desc: 'O clássico de Las Vegas! 3 rolos, 3 tentativas, ganha na terceira.' },
                     { name: 'Roleta da Sorte', icon: '🎡', category: 'sorte', conversion: 32.1, desc: 'Roleta colorida com fatias de prêmios. Mais usado e maior conversão.' },
@@ -2090,24 +2107,26 @@
             }
 
             setupLivePreview() {
+                // Debounced re-render: re-generates the full game HTML on every input change
+                let debounceTimer = null;
                 const updatePreview = () => {
-                    document.getElementById('previewBadge').textContent = document.getElementById('editorBadgeText').value;
-                    document.getElementById('previewBadge').style.backgroundColor = document.getElementById('editorBg1').value;
-                    document.getElementById('previewTitle').textContent = document.getElementById('editorTitle').value;
-                    document.getElementById('previewTitle').style.color = document.getElementById('editorTitleColor').value;
-                    document.getElementById('previewSubtitle').textContent = document.getElementById('editorSubtitle').value;
-                    document.getElementById('previewEmailInput').placeholder = document.getElementById('editorEmailPlaceholder').value;
-                    document.getElementById('previewPhoneInput').placeholder = document.getElementById('editorPhonePlaceholder').value;
-                    document.getElementById('previewButton').textContent = document.getElementById('editorButtonText').value;
-                    document.getElementById('previewButton').style.backgroundColor = document.getElementById('editorBtnRegister').value;
-                    document.getElementById('previewConsent').textContent = document.getElementById('editorConsent').value;
-                    document.getElementById('previewReel1').textContent = document.getElementById('editorEmoji1').value;
-                    document.getElementById('previewReel2').textContent = document.getElementById('editorEmoji2').value;
-                    document.getElementById('previewReel3').textContent = document.getElementById('editorEmoji3').value;
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        this.renderGamePreview(this.selectedGameIndex);
+                    }, 80);
                 };
 
-                const editorInputs = ['editorBadgeText', 'editorBg1', 'editorTitle', 'editorSubtitle', 'editorEmailPlaceholder',
-                    'editorPhonePlaceholder', 'editorButtonText', 'editorBtnRegister', 'editorConsent', 'editorEmoji1', 'editorEmoji2', 'editorEmoji3', 'editorTitleColor'];
+                // All editor inputs that should trigger live preview
+                const editorInputs = [
+                    'editorBadgeText', 'editorBg1', 'editorBg2', 'editorTitle', 'editorSubtitle',
+                    'editorEmailPlaceholder', 'editorPhonePlaceholder', 'editorButtonText',
+                    'editorBtnRegister', 'editorBtnSpin', 'editorConsent', 'editorEmoji1',
+                    'editorEmoji2', 'editorEmoji3', 'editorTitleColor', 'editorBadgeColor',
+                    'editorLockMessage', 'editorCouponCode', 'editorDiscountType',
+                    'editorDiscountValue', 'editorWinTitle', 'editorWinMessage',
+                    'editorBg1Hex', 'editorBg2Hex', 'editorBtnRegisterHex',
+                    'editorBtnSpinHex', 'editorTitleColorHex', 'editorBadgeColorHex'
+                ];
 
                 editorInputs.forEach(id => {
                     const elem = document.getElementById(id);
@@ -2117,51 +2136,33 @@
                     }
                 });
 
-                updatePreview();
+                // Initial render
+                this.renderGamePreview(this.selectedGameIndex);
             }
 
             setupEditorListeners() {
-                document.getElementById('editorBg1').addEventListener('change', (e) => {
-                    document.getElementById('editorBg1Hex').value = e.target.value;
-                });
-                document.getElementById('editorBg1Hex').addEventListener('change', (e) => {
-                    document.getElementById('editorBg1').value = e.target.value;
-                });
+                // Helper: sync color picker ↔ hex input (both directions trigger preview update via setupLivePreview listeners)
+                const syncColorPair = (colorId, hexId) => {
+                    const colorEl = document.getElementById(colorId);
+                    const hexEl = document.getElementById(hexId);
+                    if (colorEl && hexEl) {
+                        colorEl.addEventListener('input', (e) => { hexEl.value = e.target.value; });
+                        colorEl.addEventListener('change', (e) => { hexEl.value = e.target.value; });
+                        hexEl.addEventListener('input', (e) => {
+                            if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) colorEl.value = e.target.value;
+                        });
+                        hexEl.addEventListener('change', (e) => {
+                            if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) colorEl.value = e.target.value;
+                        });
+                    }
+                };
 
-                document.getElementById('editorBg2').addEventListener('change', (e) => {
-                    document.getElementById('editorBg2Hex').value = e.target.value;
-                });
-                document.getElementById('editorBg2Hex').addEventListener('change', (e) => {
-                    document.getElementById('editorBg2').value = e.target.value;
-                });
-
-                document.getElementById('editorBtnRegister').addEventListener('change', (e) => {
-                    document.getElementById('editorBtnRegisterHex').value = e.target.value;
-                });
-                document.getElementById('editorBtnRegisterHex').addEventListener('change', (e) => {
-                    document.getElementById('editorBtnRegister').value = e.target.value;
-                });
-
-                document.getElementById('editorBtnSpin').addEventListener('change', (e) => {
-                    document.getElementById('editorBtnSpinHex').value = e.target.value;
-                });
-                document.getElementById('editorBtnSpinHex').addEventListener('change', (e) => {
-                    document.getElementById('editorBtnSpin').value = e.target.value;
-                });
-
-                document.getElementById('editorTitleColor').addEventListener('change', (e) => {
-                    document.getElementById('editorTitleColorHex').value = e.target.value;
-                });
-                document.getElementById('editorTitleColorHex').addEventListener('change', (e) => {
-                    document.getElementById('editorTitleColor').value = e.target.value;
-                });
-
-                document.getElementById('editorBadgeColor').addEventListener('change', (e) => {
-                    document.getElementById('editorBadgeColorHex').value = e.target.value;
-                });
-                document.getElementById('editorBadgeColorHex').addEventListener('change', (e) => {
-                    document.getElementById('editorBadgeColor').value = e.target.value;
-                });
+                syncColorPair('editorBg1', 'editorBg1Hex');
+                syncColorPair('editorBg2', 'editorBg2Hex');
+                syncColorPair('editorBtnRegister', 'editorBtnRegisterHex');
+                syncColorPair('editorBtnSpin', 'editorBtnSpinHex');
+                syncColorPair('editorTitleColor', 'editorTitleColorHex');
+                syncColorPair('editorBadgeColor', 'editorBadgeColorHex');
 
                 // Logo upload
                 const logoDropArea = document.getElementById('logoDropArea');
@@ -2224,9 +2225,10 @@
             handleLogoUpload(file, preview) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    preview.textContent = '✓ ' + file.name.substring(0, 20);
-                    preview.style.fontSize = '14px';
-                    preview.style.color = 'var(--green)';
+                    this.logoDataURL = e.target.result;
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100px; max-height: 50px; object-fit: contain; border-radius: 4px;"><br><span style="font-size: 12px; color: var(--green);">✓ ${file.name.substring(0, 20)}</span>`;
+                    // Re-render preview with logo
+                    this.renderGamePreview(this.selectedGameIndex);
                 };
                 reader.readAsDataURL(file);
             }
@@ -2604,7 +2606,8 @@
                     winMessage: document.getElementById('editorWinMessage').value || 'Você ganhou 15% de desconto!',
                     emoji1: document.getElementById('editorEmoji1').value || '🎉',
                     emoji2: document.getElementById('editorEmoji2').value || '🎁',
-                    emoji3: document.getElementById('editorEmoji3').value || '💎'
+                    emoji3: document.getElementById('editorEmoji3').value || '💎',
+                    logoURL: this.logoDataURL || ''
                 };
 
                 switch(gameIndex) {
@@ -2626,7 +2629,8 @@
 
             slotMachineHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2657,7 +2661,8 @@
                 `).join('');
 
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2690,7 +2695,8 @@
 
             raspadinhaHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2714,7 +2720,8 @@
 
             aviatorHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2749,7 +2756,8 @@
                 `).join('');
 
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2773,7 +2781,8 @@
                 const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
 
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2797,7 +2806,8 @@
 
             cacaTesouoHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2826,7 +2836,8 @@
                 `).join('');
 
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2847,7 +2858,8 @@
 
             countdownHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2871,7 +2883,8 @@
 
             indiqueGanheHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2901,7 +2914,8 @@
 
             pachinkoHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -2922,7 +2936,8 @@
 
             presenteHTML(c) {
                 return `
-                    <div class="popup-badge" style="background-color: ${c.bg1}; color: white;">${c.badgeText}</div>
+                    ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title}</div>
                     <div class="popup-subtitle">${c.subtitle}</div>
                     <div class="popup-form">
@@ -3299,7 +3314,8 @@
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         body { font-family: 'Poppins', sans-serif; background: #f0f0f0; padding: 10px; }
                         .popup-preview { background: white; border-radius: 16px; padding: 24px; max-width: 100%; }
-                        .popup-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+                        .popup-badge { display: block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin: 0 auto 12px auto; text-align: center; width: fit-content; }
+                        .popup-logo { display: block; max-width: 120px; max-height: 60px; margin: 0 auto 12px auto; object-fit: contain; }
                         .popup-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
                         .popup-subtitle { font-size: 14px; color: #666; margin-bottom: 16px; }
                         .popup-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
@@ -3321,6 +3337,41 @@
             }
 
             saveEditor() {
+                // Gather all editor values into a config object
+                const config = {
+                    bg1: document.getElementById('editorBg1').value,
+                    bg2: document.getElementById('editorBg2').value,
+                    btnRegister: document.getElementById('editorBtnRegister').value,
+                    btnSpin: document.getElementById('editorBtnSpin').value,
+                    titleColor: document.getElementById('editorTitleColor').value,
+                    badgeColor: document.getElementById('editorBadgeColor').value,
+                    badgeText: document.getElementById('editorBadgeText').value,
+                    title: document.getElementById('editorTitle').value,
+                    subtitle: document.getElementById('editorSubtitle').value,
+                    emailPlaceholder: document.getElementById('editorEmailPlaceholder').value,
+                    phonePlaceholder: document.getElementById('editorPhonePlaceholder').value,
+                    buttonText: document.getElementById('editorButtonText').value,
+                    lockMessage: document.getElementById('editorLockMessage').value,
+                    consent: document.getElementById('editorConsent').value,
+                    couponCode: document.getElementById('editorCouponCode').value,
+                    discountType: document.getElementById('editorDiscountType').value,
+                    discountValue: document.getElementById('editorDiscountValue').value,
+                    winTitle: document.getElementById('editorWinTitle').value,
+                    winMessage: document.getElementById('editorWinMessage').value,
+                    emoji1: document.getElementById('editorEmoji1').value,
+                    emoji2: document.getElementById('editorEmoji2').value,
+                    emoji3: document.getElementById('editorEmoji3').value,
+                    gameIndex: this.selectedGameIndex,
+                    logoURL: this.logoDataURL || ''
+                };
+
+                // Save to in-memory store and localStorage
+                this.savedConfigs = this.savedConfigs || {};
+                this.savedConfigs[this.selectedGameIndex] = config;
+                try { localStorage.setItem('popupStudioConfigs', JSON.stringify(this.savedConfigs)); } catch(e) {}
+
+                // Re-render preview with saved config
+                this.renderGamePreview(this.selectedGameIndex);
                 this.showToast('✓ Configurações salvas com sucesso!');
             }
 
