@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
-            margin: 0;
+            margin: 0;h
             padding: 0;
             box-sizing: border-box;
         }
@@ -2579,6 +2579,11 @@
                 const gameHTML = this.getGameHTML(gameIndex);
                 preview.innerHTML = gameHTML;
 
+                // Apply bg1/bg2 gradient to the preview container
+                const bg1 = document.getElementById('editorBg1').value || '#8b5cf6';
+                const bg2 = document.getElementById('editorBg2').value || '#a78bfa';
+                preview.style.background = `linear-gradient(135deg, ${bg1} 0%, ${bg2} 100%)`;
+
                 // Re-initialize any interactive elements
                 setTimeout(() => this.initializeGameInteractions(gameIndex), 100);
             }
@@ -3309,11 +3314,13 @@
 
                 // Get full game HTML
                 const gameHTML = this.getGameHTML(this.selectedGameIndex);
+                const bg1 = document.getElementById('editorBg1').value || '#8b5cf6';
+                const bg2 = document.getElementById('editorBg2').value || '#a78bfa';
                 const css = `
                     <style>
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         body { font-family: 'Poppins', sans-serif; background: #f0f0f0; padding: 10px; }
-                        .popup-preview { background: white; border-radius: 16px; padding: 24px; max-width: 100%; }
+                        .popup-preview { background: linear-gradient(135deg, ${bg1} 0%, ${bg2} 100%); border-radius: 16px; padding: 24px; max-width: 100%; }
                         .popup-badge { display: block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin: 0 auto 12px auto; text-align: center; width: fit-content; }
                         .popup-logo { display: block; max-width: 120px; max-height: 60px; margin: 0 auto 12px auto; object-fit: contain; }
                         .popup-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
