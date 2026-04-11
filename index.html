@@ -1029,6 +1029,18 @@
             100% { transform: translateY(-200px) rotate(360deg); opacity: 0; }
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         /* DRAG DROP */
         .drag-drop-area {
             border: 2px dashed var(--border);
@@ -1434,7 +1446,7 @@
                                 <div id="avancado-tab" class="editor-tab-content hidden">
                                     <div class="form-group">
                                         <label class="toggle">
-                                            <input type="checkbox" id="exitIntent" id="exitIntentCheckbox">
+                                            <input type="checkbox" id="exitIntent">
                                             <span>Exit Intent</span>
                                         </label>
                                         <div style="font-size: 12px; color: var(--text2); margin-top: 4px;">Ativa quando o mouse sai da tela</div>
@@ -2694,7 +2706,7 @@
                     case 3: return this.aviatorHTML(config);
                     case 4: return this.quizHTML(config);
                     case 5: return this.rodaPremiosHTML(config);
-                    case 6: return this.cacaTesouoHTML(config);
+                    case 6: return this.cacaTesouroHTML(config);
                     case 7: return this.memoriaHTML(config);
                     case 8: return this.countdownHTML(config);
                     case 9: return this.indiqueGanheHTML(config);
@@ -2923,7 +2935,7 @@
                 `;
             }
 
-            cacaTesouoHTML(c) {
+            cacaTesouroHTML(c) {
                 return `
                     ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
                     <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText}</div>
@@ -3081,6 +3093,10 @@
                 const playBtn = document.querySelector('.game-play-btn');
                 const lockOverlay = document.querySelector('.game-lock');
 
+                // === ATTEMPT SYSTEM: Lose 2x, Win on 3rd ===
+                this._gameAttempts = 0;
+                this._maxLosses = 2; // Player loses first 2 attempts, wins on 3rd
+
                 // Register form logic
                 if (playBtn) {
                     playBtn.addEventListener('click', () => {
@@ -3110,56 +3126,89 @@
             }
 
             initSlotMachine() {
-                const emojis = ['🎉', '🎁', '💎', '🎊', '🎈', '🍀', '⭐', '💰'];
+                const editorEmojis = [
+                    document.getElementById('editorEmoji1')?.value || '🍒',
+                    document.getElementById('editorEmoji2')?.value || '💰',
+                    document.getElementById('editorEmoji3')?.value || '7️⃣'
+                ];
+                const extraEmojis = ['🎉', '🎁', '💎', '🎊', '🍀', '⭐'];
+                const allEmojis = [...new Set([...editorEmojis, ...extraEmojis])];
                 const reels = document.querySelectorAll('.game-reel');
                 let spinning = false;
 
-                const playBtn = document.querySelector('.game-play-btn');
-                if (playBtn) {
-                    playBtn.addEventListener('click', () => {
-                        if (spinning || document.querySelector('.game-lock').style.display !== 'none') return;
-                        spinning = true;
+                const spinBtn = document.querySelector('.game-spin-btn') || document.querySelector('[style*="GIRAR"]') || document.querySelectorAll('button')[document.querySelectorAll('button').length - 1];
 
-                        reels.forEach((reel, idx) => {
-                            let rotations = 0;
-                            const interval = setInterval(() => {
-                                reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                                rotations++;
-                                if (rotations > 20 + idx * 5) {
-                                    clearInterval(interval);
-                                    if (idx === reels.length - 1) {
-                                        spinning = false;
-                                        const values = Array.from(reels).map(r => r.textContent);
-                                        if (values[0] === values[1] && values[1] === values[2]) {
-                                            this.showGameWin('Slot Machine');
-                                        } else {
-                                            this.showToast('Não dessa vez!');
-                                        }
+                // Also listen to any button with GIRAR text
+                const allButtons = document.querySelectorAll('button, div[onclick]');
+                const girarBtn = Array.from(allButtons).find(b => b.textContent.includes('GIRAR'));
+
+                const doSpin = () => {
+                    if (spinning || document.querySelector('.game-lock')?.style.display !== 'none') return;
+                    spinning = true;
+                    this._gameAttempts++;
+                    const shouldWin = this._gameAttempts > this._maxLosses;
+
+                    reels.forEach((reel, idx) => {
+                        let rotations = 0;
+                        const interval = setInterval(() => {
+                            reel.textContent = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+                            rotations++;
+                            if (rotations > 20 + idx * 5) {
+                                clearInterval(interval);
+                                // On the winning spin, force all reels to match
+                                if (shouldWin) {
+                                    reel.textContent = editorEmojis[0];
+                                }
+                                if (idx === reels.length - 1) {
+                                    spinning = false;
+                                    if (shouldWin) {
+                                        setTimeout(() => this.showGameWin('Slot Machine'), 300);
+                                    } else {
+                                        const loseMsg = this._gameAttempts === 1
+                                            ? (document.getElementById('editorLoseMessage1')?.value || '😢 Quase! Tente de novo...')
+                                            : (document.getElementById('editorLoseMessage2')?.value || '🔥 Tão perto! Mais uma tentativa!');
+                                        this.showToast(loseMsg);
                                     }
                                 }
-                            }, 50);
-                        });
+                            }
+                        }, 50);
                     });
-                }
+                };
+
+                const playBtn = document.querySelector('.game-play-btn');
+                if (playBtn) playBtn.addEventListener('click', doSpin);
+                if (girarBtn && girarBtn !== playBtn) girarBtn.addEventListener('click', doSpin);
             }
 
             initRoulette() {
                 const roulette = document.querySelector('.game-roulette');
                 if (!roulette) return;
                 let spinning = false;
+                let totalRotation = 0;
 
                 const playBtn = document.querySelector('.game-play-btn');
                 if (playBtn) {
                     playBtn.addEventListener('click', () => {
-                        if (spinning || document.querySelector('.game-lock').style.display !== 'none') return;
+                        if (spinning || document.querySelector('.game-lock')?.style.display !== 'none') return;
                         spinning = true;
+                        this._gameAttempts++;
+                        const shouldWin = this._gameAttempts > this._maxLosses;
+
                         const spins = Math.random() * 360 + 3600;
-                        roulette.style.transition = 'transform 3s ease-out';
-                        roulette.style.transform = `rotate(${spins}deg)`;
+                        totalRotation += spins;
+                        roulette.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+                        roulette.style.transform = `rotate(${totalRotation}deg)`;
                         setTimeout(() => {
                             spinning = false;
-                            this.showGameWin('Roleta');
-                        }, 3000);
+                            if (shouldWin) {
+                                this.showGameWin('Roleta da Sorte');
+                            } else {
+                                const loseMsg = this._gameAttempts === 1
+                                    ? (document.getElementById('editorLoseMessage1')?.value || '😢 Quase! Gire novamente...')
+                                    : (document.getElementById('editorLoseMessage2')?.value || '🔥 Tão perto! Última chance!');
+                                this.showToast(loseMsg);
+                            }
+                        }, 3200);
                     });
                 }
             }
@@ -3198,33 +3247,53 @@
             initAviator() {
                 let multiplier = 1.0;
                 let crashed = false;
+                let activeInterval = null;
                 const multiplierDisplay = document.querySelector('.game-multiplier');
                 const cashoutBtn = document.querySelector('.game-cashout-btn');
                 const playBtn = document.querySelector('.game-play-btn');
 
                 if (playBtn) {
                     playBtn.addEventListener('click', () => {
-                        if (document.querySelector('.game-lock').style.display !== 'none') return;
+                        if (document.querySelector('.game-lock')?.style.display !== 'none') return;
+                        this._gameAttempts++;
+                        const shouldWin = this._gameAttempts > this._maxLosses;
+
                         crashed = false;
                         multiplier = 1.0;
-                        const crashPoint = Math.random() * 2 + 1.5;
+                        if (multiplierDisplay) multiplierDisplay.textContent = '1.0x';
 
-                        const interval = setInterval(() => {
+                        // On losing attempts, crash early. On winning, let it fly high
+                        const crashPoint = shouldWin ? (Math.random() * 3 + 5) : (Math.random() * 0.8 + 1.2);
+
+                        activeInterval = setInterval(() => {
                             multiplier += 0.1;
-                            if (multiplierDisplay) multiplierDisplay.textContent = multiplier.toFixed(1) + 'x';
+                            if (multiplierDisplay) {
+                                multiplierDisplay.textContent = multiplier.toFixed(1) + 'x';
+                                multiplierDisplay.style.color = multiplier > 2 ? '#10b981' : '#ffd700';
+                            }
 
-                            if (multiplier >= crashPoint) {
+                            if (multiplier >= crashPoint && !shouldWin) {
                                 crashed = true;
-                                clearInterval(interval);
-                                this.showToast('💥 Crash! Você perdeu');
+                                clearInterval(activeInterval);
+                                if (multiplierDisplay) multiplierDisplay.style.color = '#ef4444';
+                                const loseMsg = this._gameAttempts === 1
+                                    ? (document.getElementById('editorLoseMessage1')?.value || '💥 Crash! Tente decolar de novo...')
+                                    : (document.getElementById('editorLoseMessage2')?.value || '💥 Quase conseguiu! Última chance!');
+                                this.showToast(loseMsg);
                             }
                         }, 300);
 
                         if (cashoutBtn) {
                             cashoutBtn.onclick = () => {
-                                if (!crashed) {
-                                    clearInterval(interval);
-                                    this.showGameWin('Aviator');
+                                if (!crashed && activeInterval) {
+                                    clearInterval(activeInterval);
+                                    if (shouldWin) {
+                                        this.showGameWin('Aviator');
+                                    } else {
+                                        crashed = true;
+                                        if (multiplierDisplay) multiplierDisplay.style.color = '#ef4444';
+                                        this.showToast('💥 Crash logo depois!');
+                                    }
                                     crashed = true;
                                 }
                             };
@@ -3266,16 +3335,29 @@
 
             initTreasure() {
                 const chests = document.querySelectorAll('.treasure-chest');
-                const winningChest = Math.floor(Math.random() * 3);
 
-                chests.forEach((chest, idx) => {
+                chests.forEach((chest) => {
                     chest.addEventListener('click', () => {
-                        if (document.querySelector('.game-lock').style.display !== 'none') return;
+                        if (document.querySelector('.game-lock')?.style.display !== 'none') return;
+                        this._gameAttempts++;
+                        const shouldWin = this._gameAttempts > this._maxLosses;
+
                         chest.style.transform = 'scale(1.2)';
-                        if (idx === winningChest) {
-                            setTimeout(() => this.showGameWin('Caça ao Tesouro'), 300);
+                        chest.style.transition = 'transform 0.3s';
+
+                        if (shouldWin) {
+                            chest.textContent = '🎉';
+                            setTimeout(() => this.showGameWin('Caça ao Tesouro'), 500);
                         } else {
-                            setTimeout(() => this.showToast('Tente novamente'), 300);
+                            chest.textContent = '💨';
+                            const loseMsg = this._gameAttempts === 1
+                                ? (document.getElementById('editorLoseMessage1')?.value || '😢 Vazio! Tente outro baú...')
+                                : (document.getElementById('editorLoseMessage2')?.value || '🔥 Quase! Último baú!');
+                            setTimeout(() => {
+                                this.showToast(loseMsg);
+                                chest.style.transform = 'scale(1)';
+                                chest.textContent = '📦';
+                            }, 800);
                         }
                     });
                 });
@@ -3402,20 +3484,85 @@
                 const giftBox = document.querySelector('.gift-box');
                 if (giftBox) {
                     giftBox.addEventListener('click', () => {
-                        if (document.querySelector('.game-lock').style.display !== 'none') return;
-                        giftBox.style.transform = 'scaleY(0)';
+                        if (document.querySelector('.game-lock')?.style.display !== 'none') return;
+                        this._gameAttempts++;
+                        const shouldWin = this._gameAttempts > this._maxLosses;
+
+                        giftBox.style.transition = 'transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+                        giftBox.style.transform = 'scale(1.3) rotate(10deg)';
+
                         setTimeout(() => {
-                            this.showGameWin('Presente Surpresa');
-                            giftBox.style.transform = 'scaleY(1)';
-                        }, 300);
+                            if (shouldWin) {
+                                giftBox.style.transform = 'scale(1.5)';
+                                giftBox.textContent = '🎉';
+                                setTimeout(() => this.showGameWin('Presente Surpresa'), 400);
+                            } else {
+                                giftBox.style.transform = 'scale(0.8)';
+                                const loseMsg = this._gameAttempts === 1
+                                    ? (document.getElementById('editorLoseMessage1')?.value || '😢 Presente vazio! Tente de novo...')
+                                    : (document.getElementById('editorLoseMessage2')?.value || '🔥 Quase lá! Mais uma vez!');
+                                this.showToast(loseMsg);
+                                setTimeout(() => {
+                                    giftBox.style.transform = 'scale(1)';
+                                    giftBox.textContent = '🎁';
+                                }, 600);
+                            }
+                        }, 400);
                     });
                 }
             }
 
             showGameWin(gameName) {
-                const coupon = document.getElementById('editorCouponCode').value || 'POPUP2024';
-                this.showToast(`🎉 Parabéns! Você ganhou: ${coupon}`);
-                // Could show full modal here with coupon details
+                const coupon = document.getElementById('editorCouponCode')?.value || 'POPUP2024';
+                const discount = document.getElementById('editorDiscountValue')?.value || '15';
+                const discountType = document.getElementById('editorDiscountType')?.value || '%';
+                const winMsg = document.getElementById('editorWinMessage')?.value || '🎉 Parabéns! Você GANHOU!';
+                const discountDisplay = discountType === '%' ? `${discount}% OFF` : `R$${discount} OFF`;
+
+                // Create victory overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'win-overlay';
+                overlay.style.cssText = `
+                    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+                    display: flex; align-items: center; justify-content: center;
+                    z-index: 99999; animation: fadeIn 0.3s ease;
+                `;
+                overlay.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 50%, #1a0a2e 100%);
+                        border-radius: 24px; padding: 40px; text-align: center; max-width: 420px; width: 90%;
+                        box-shadow: 0 0 60px rgba(255,215,0,0.3), 0 0 120px rgba(139,92,246,0.2);
+                        border: 2px solid rgba(255,215,0,0.3); position: relative; overflow: hidden;">
+                        <div style="position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(255,215,0,0.15) 0%, transparent 70%); pointer-events: none;"></div>
+                        <div style="font-size: 64px; margin-bottom: 16px; animation: bounceIn 0.5s ease;">🏆</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #ffd700; margin-bottom: 8px; text-shadow: 0 0 20px rgba(255,215,0,0.5);">
+                            ${winMsg}
+                        </div>
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 24px;">
+                            Seu cupom de desconto exclusivo:
+                        </div>
+                        <div style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: #1a0a2e;
+                            font-size: 32px; font-weight: 900; padding: 16px 32px; border-radius: 16px;
+                            letter-spacing: 3px; margin-bottom: 8px; display: inline-block;
+                            box-shadow: 0 4px 20px rgba(255,215,0,0.4); text-shadow: none;">
+                            ${coupon}
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #10b981; margin: 12px 0 24px 0;">
+                            ${discountDisplay}
+                        </div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 20px;">
+                            Use o cupom acima na finalização da compra
+                        </div>
+                        <button onclick="this.closest('.win-overlay').remove()" style="
+                            background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white;
+                            border: none; padding: 14px 40px; border-radius: 12px; font-size: 16px;
+                            font-weight: 700; cursor: pointer; transition: all 0.2s;
+                            box-shadow: 0 4px 15px rgba(139,92,246,0.4);">
+                            Usar Meu Cupom 🛒
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
             }
 
             previewPopup() {
