@@ -3604,19 +3604,19 @@
                 const railTopY = 20, rampLaunchY = 30;
 
                 const PHASES = [
-                    {type:'rail',name:'GRIND',icon:'\u{1f6f9}',msg:'+25 Grind! \u{1f525}'},
-                    {type:'ramp',name:'FLIP',icon:'\u{1f504}',msg:'+25 Kickflip! \u{1f31f}'},
-                    {type:'ramp_rail',name:'AIR GRIND',icon:'\u26a1',msg:'+25 Air Grind! \u{1f4a5}'},
-                    {type:'big_ramp',name:'BACKFLIP',icon:'\u{1f3c6}',msg:'+25 Backflip! MASTER!'}
+                    {type:'rail',name:'GRIND',icon:'\u{1f6f9}',msg:'+25 Grind! \u{1f525}',duration:22},
+                    {type:'ramp',name:'FLIP',icon:'\u{1f504}',msg:'+25 Kickflip! \u{1f31f}',duration:22},
+                    {type:'ramp_rail',name:'AIR GRIND',icon:'\u26a1',msg:'+25 Air Grind! \u{1f4a5}',duration:32},
+                    {type:'big_ramp',name:'BACKFLIP',icon:'\u{1f3c6}',msg:'+25 Backflip! MASTER!',duration:28}
                 ];
 
                 const railHTML = '<div style="width:110px;height:45px;position:relative;"><div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:12px;"></div><div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:12px;"></div><div style="width:100%;height:5px;background:linear-gradient(90deg,#c0c0c0,#f0f0f0,#c0c0c0);border-radius:3px;position:absolute;bottom:20px;box-shadow:0 0 6px rgba(255,255,255,0.4);"></div></div>';
 
-                const rampHTML = '<svg width="70" height="40" viewBox="0 0 70 40"><path d="M0,40 L0,40 Q35,0 70,40 Z" fill="#888" stroke="#aaa" stroke-width="1.5"/><path d="M5,40 Q35,5 65,40" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/></svg>';
+                const rampHTML = '<svg width="70" height="50" viewBox="0 0 70 50" style="display:block;"><defs><linearGradient id="rmpg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b4b4c0"/><stop offset="1" stop-color="#555565"/></linearGradient></defs><path d="M0,50 Q0,22 18,10 Q32,0 50,0 L70,0 L70,50 Z" fill="url(#rmpg1)" stroke="#25252f" stroke-width="1.5"/><path d="M5,46 Q9,28 22,16 Q35,7 50,5" fill="none" stroke="#e4e4ec" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.65"/><rect x="62" y="2" width="6" height="46" fill="#1a1a24" opacity="0.35" rx="1"/></svg>';
 
-                const rampRailHTML = '<div style="display:flex;align-items:flex-end;gap:8px;"><svg width="50" height="35" viewBox="0 0 50 35"><path d="M0,35 Q25,0 50,35 Z" fill="#888" stroke="#aaa" stroke-width="1.5"/></svg><div style="width:90px;height:45px;position:relative;"><div style="width:4px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:10px;"></div><div style="width:4px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:10px;"></div><div style="width:100%;height:5px;background:linear-gradient(90deg,#ffd700,#ff8c00,#ffd700);border-radius:3px;position:absolute;bottom:20px;box-shadow:0 0 8px rgba(255,215,0,0.6);"></div></div></div>';
+                const rampRailHTML = '<div style="display:flex;align-items:flex-end;gap:4px;"><svg width="50" height="42" viewBox="0 0 50 42" style="display:block;"><defs><linearGradient id="rmpg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a9cd4"/><stop offset="1" stop-color="#2f4f7f"/></linearGradient></defs><path d="M0,42 Q0,18 14,8 Q24,0 36,0 L50,0 L50,42 Z" fill="url(#rmpg2)" stroke="#1a2c48" stroke-width="1.5"/><path d="M4,38 Q8,22 20,12 Q30,5 40,4" fill="none" stroke="#d4e4f5" stroke-width="1" stroke-dasharray="3,2" opacity="0.75"/></svg><div style="width:90px;height:52px;position:relative;"><div style="width:4px;height:30px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:8px;"></div><div style="width:4px;height:30px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:8px;"></div><div style="width:100%;height:5px;background:linear-gradient(90deg,#ffd700,#ffb000,#ffd700);border-radius:3px;position:absolute;bottom:28px;box-shadow:0 0 10px rgba(255,200,0,0.75);"></div></div></div>';
 
-                const bigRampHTML = '<svg width="80" height="50" viewBox="0 0 80 50"><path d="M0,50 L0,50 Q40,-10 80,50 Z" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/><path d="M8,50 Q40,-2 72,50" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="4,3"/><text x="40" y="35" text-anchor="middle" font-size="12" fill="#ffd700" font-weight="bold">\u2605</text></svg>';
+                const bigRampHTML = '<svg width="85" height="62" viewBox="0 0 85 62" style="display:block;"><defs><linearGradient id="rmpg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6a6a"/><stop offset="1" stop-color="#8b1a1a"/></linearGradient></defs><path d="M0,62 Q0,28 22,14 Q40,2 60,2 L85,2 L85,62 Z" fill="url(#rmpg3)" stroke="#4a0000" stroke-width="2"/><path d="M5,58 Q10,34 26,18 Q42,6 60,5" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.9"/><text x="66" y="38" font-size="18" fill="#ffd700" font-weight="bold">\u2605</text></svg>';
 
                 const spawnObstacle = () => {
                     obsX = 110;
@@ -3625,8 +3625,8 @@
                     if (p.type === 'rail') { obstacle.innerHTML = railHTML; obstacle.style.width = '110px'; }
                     else if (p.type === 'ramp') { obstacle.innerHTML = rampHTML; obstacle.style.width = '70px'; }
                     else if (p.type === 'ramp_rail') { obstacle.innerHTML = rampRailHTML; obstacle.style.width = '150px'; }
-                    else { obstacle.innerHTML = bigRampHTML; obstacle.style.width = '80px'; }
-                    if (phaseEl) phaseEl.textContent = p.icon + ' ' + p.name;
+                    else { obstacle.innerHTML = bigRampHTML; obstacle.style.width = '85px'; }
+                    if (phaseEl) phaseEl.textContent = (phase+1) + '/4 ' + p.icon + ' ' + p.name;
                 };
 
                 const updateScore = () => { if (scoreEl) scoreEl.textContent = score + ' pts'; };
@@ -3694,19 +3694,9 @@
                     const obsPx = (obsX / 100) * areaW;
                     const obsW = parseInt(obstacle.style.width) || 110;
                     const pLeft = playerLeft();
-                    const ol = Math.max(pLeft, obsPx);
-                    const or2 = Math.min(pLeft + 32, obsPx + obsW);
-                    return or2 - ol > 10;
-                };
-
-                const doFlipSpin = () => {
-                    spinAngle += 24;
-                    svg.style.transform = 'rotate(' + spinAngle + 'deg)';
-                };
-
-                const doBackflipSpin = () => {
-                    spinAngle -= 18;
-                    svg.style.transform = 'rotate(' + spinAngle + 'deg)';
+                    const pRight = pLeft + 32;
+                    // Generous: any horizontal touch counts
+                    return pRight > obsPx - 6 && pLeft < obsPx + obsW + 2;
                 };
 
                 const triggerWin = () => {
@@ -3785,11 +3775,13 @@
                     if (!running || gameOver) return;
                     const p = PHASES[phase];
 
+                    // Move obstacle while not in a trick
                     if (!trickActive) {
                         obsX -= gameSpeed;
                         obstacle.style.left = obsX + '%';
                     }
 
+                    // Jump physics - generous collision triggers trick on any overlap in air
                     if (jumping && !trickActive) {
                         velY += gravity;
                         playerY -= velY;
@@ -3797,107 +3789,95 @@
                             playerY = groundY; velY = 0; jumping = false; poseIdle();
                             svg.style.transform = '';
                         }
-
-                        if (p.type === 'rail' && playerY >= railTopY && velY > 0 && checkOverlap()) {
-                            trickActive = true; trickTimer = 0;
-                            playerY = railTopY; velY = 0;
-                            poseGrind(); sparks.style.opacity = '1';
-                        }
-
-                        if ((p.type === 'ramp' || p.type === 'big_ramp') && playerY >= 5 && playerY <= 18 && velY < 0 && checkOverlap()) {
+                        // GENEROUS: any overlap while airborne triggers the trick
+                        if (playerY > 2 && checkOverlap()) {
                             trickActive = true; trickTimer = 0; spinAngle = 0;
-                            velY = p.type === 'big_ramp' ? -9.5 : -7.0;
-                            playerY += 5;
-                            poseJump();
+                            velY = 0;
+                            sparks.style.opacity = '1';
+                            if (p.type === 'rail') { playerY = railTopY; poseGrind(); }
+                            else { poseJump(); }
                         }
-
-                        if (p.type === 'ramp_rail' && playerY >= 5 && velY < 0 && checkOverlap()) {
-                            trickActive = true; trickTimer = 0; spinAngle = 0;
-                            velY = -8.0;
-                            playerY += 5;
-                            poseJump();
-                        }
-
                         setPlayerY(playerY, jumping && !trickActive ? -5 : 0);
                     }
 
+                    // Trick execution - fixed-timer parabola arcs, always completes cleanly
                     if (trickActive) {
                         trickTimer++;
+                        const dur = p.duration;
+                        const t = Math.min(trickTimer / dur, 1);
+                        const px = playerLeft();
 
                         if (p.type === 'rail') {
-                            obsX -= gameSpeed * 0.8;
+                            // Grind along rail - both move together
+                            obsX -= gameSpeed * 1.0;
                             obstacle.style.left = obsX + '%';
-                            const sparkText = trickTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
-                            sparks.textContent = sparkText;
-                            const px = playerLeft();
+                            sparks.textContent = trickTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
                             sparks.style.left = (px + 5) + 'px';
                             sparks.style.bottom = (35 + railTopY) + 'px';
                             setPlayerY(railTopY, -2);
-                            if (trickTimer > 14) completeTrick();
+                            if (trickTimer >= dur) completeTrick();
                         }
-
-                        if (p.type === 'ramp') {
-                            velY += gravity;
-                            playerY -= velY;
-                            doFlipSpin();
+                        else if (p.type === 'ramp') {
+                            // Parabolic arc (peak ~36px) + full 360 kickflip
+                            const arcY = 4 * 36 * t * (1 - t);
+                            playerY = arcY;
+                            spinAngle = 360 * t;
+                            svg.style.transform = 'rotate(' + spinAngle + 'deg)';
                             setPlayerY(playerY, 0);
-                            sparks.style.opacity = '1';
                             sparks.textContent = '\u{1f31f}\u{1f504}\u{1f31f}';
-                            const px = playerLeft();
                             sparks.style.left = (px + 5) + 'px';
                             sparks.style.bottom = (35 + playerY) + 'px';
-                            if (spinAngle >= 360 && velY > 0) {
-                                spinAngle = 360; svg.style.transform = 'rotate(360deg)';
-                                if (playerY <= groundY + 2) completeTrick();
-                            }
-                            if (playerY <= groundY && spinAngle < 360) {
-                                playerY = groundY; completeTrick();
+                            if (trickTimer >= dur) {
+                                playerY = 0; spinAngle = 0;
+                                svg.style.transform = '';
+                                setPlayerY(0, 0);
+                                completeTrick();
                             }
                         }
-
-                        if (p.type === 'ramp_rail') {
-                            if (trickTimer <= 12) {
-                                velY += gravity;
-                                playerY -= velY;
-                                doFlipSpin();
+                        else if (p.type === 'ramp_rail') {
+                            // First ~40%: arc up + flip into rail. Then grind.
+                            const flipPortion = 0.4;
+                            if (t <= flipPortion) {
+                                const tf = t / flipPortion;
+                                // Rise up to rail height with a peak above it
+                                const arcY = railTopY + 4 * 18 * tf * (1 - tf);
+                                playerY = Math.max(arcY, railTopY * tf);
+                                spinAngle = 360 * tf;
+                                svg.style.transform = 'rotate(' + spinAngle + 'deg)';
                                 setPlayerY(playerY, 0);
-                                sparks.style.opacity = '1';
                                 sparks.textContent = '\u26a1\u2728\u26a1';
-                                const px = playerLeft();
                                 sparks.style.left = (px + 5) + 'px';
                                 sparks.style.bottom = (35 + playerY) + 'px';
                             } else {
+                                // Grind phase
                                 svg.style.transform = '';
+                                spinAngle = 0;
                                 playerY = railTopY;
                                 poseGrind();
-                                obsX -= gameSpeed * 0.8;
+                                obsX -= gameSpeed * 0.9;
                                 obstacle.style.left = obsX + '%';
                                 sparks.textContent = trickTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
-                                const px = playerLeft();
                                 sparks.style.left = (px + 5) + 'px';
                                 sparks.style.bottom = (35 + railTopY) + 'px';
                                 setPlayerY(railTopY, -2);
-                                if (trickTimer > 26) completeTrick();
                             }
+                            if (trickTimer >= dur) completeTrick();
                         }
-
-                        if (p.type === 'big_ramp') {
-                            velY += gravity * 0.7;
-                            playerY -= velY;
-                            doBackflipSpin();
+                        else if (p.type === 'big_ramp') {
+                            // Big parabolic arc (peak ~54px) + full -360 backflip
+                            const arcY = 4 * 54 * t * (1 - t);
+                            playerY = arcY;
+                            spinAngle = -360 * t;
+                            svg.style.transform = 'rotate(' + spinAngle + 'deg)';
                             setPlayerY(playerY, 0);
-                            sparks.style.opacity = '1';
                             sparks.textContent = '\u{1f525}\u{1f3c6}\u{1f525}';
-                            const px = playerLeft();
                             sparks.style.left = (px + 5) + 'px';
                             sparks.style.bottom = (35 + playerY) + 'px';
-                            if (Math.abs(spinAngle) >= 360 && velY > 0 && playerY <= groundY + 2) {
-                                spinAngle = -360; svg.style.transform = 'rotate(-360deg)';
-                                playerY = groundY;
+                            if (trickTimer >= dur) {
+                                playerY = 0; spinAngle = 0;
+                                svg.style.transform = '';
+                                setPlayerY(0, 0);
                                 completeTrick();
-                            }
-                            if (playerY <= groundY && Math.abs(spinAngle) < 360) {
-                                playerY = groundY; completeTrick();
                             }
                         }
                     }
