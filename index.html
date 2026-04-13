@@ -2023,7 +2023,7 @@
                     { name: 'Indique & Ganhe', icon: '👥', category: 'social', conversion: 18.4, desc: 'Link exclusivo, desconto cresce com cada indicação.' },
                     { name: 'Pachinko Drop', icon: '🔵', category: 'sorte', conversion: 25.1, desc: 'Bolinha cai por pinos estilo Plinko. Visualmente satisfatório.' },
                     { name: 'Presente Surpresa', icon: '🎁', category: 'sorte', conversion: 27.9, desc: 'Caixa de presente animada, clique para abrir e revelar cupom.' },
-                    { name: 'Skate Grind', icon: '🛹', category: 'habilidade', conversion: 30.8, desc: 'Mande um ollie e encaixe o grind no corrimão! Perfeito pra skateshops e streetwear.' }
+                    { name: 'Skate Grind', icon: '🛹', category: 'habilidade', conversion: 30.8, desc: 'Mande um ollie e encaixe o grind no corrimão! Faça 100 pontos pra ganhar o cupom. Perfeito pra skateshops e streetwear.' }
                 ];
                 this.performanceGames = [
                     { name: 'Slot Machine', impressions: 1250, played: 890, leads: 254, conversion: 28.5 },
@@ -3099,31 +3099,57 @@
                 const inputText = isDark ? '#ffffff' : '#1a1a2e';
                 const inputPlaceholder = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
                 const consentOnBg = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+                const groundColor = isDark ? '#374151' : '#9ca3af';
+                const groundBorder = isDark ? '#6b7280' : '#6b7280';
+                const skyTop = isDark ? '#0f0a1e' : '#e0e7ff';
+                const skyMid = isDark ? '#1a1040' : '#c7d2fe';
+                const skyBot = isDark ? '#2d1b4e' : '#a5b4fc';
                 return `
                     ${c.logoURL ? `<img src="${c.logoURL}" class="popup-logo">` : ''}
-                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText || '🛹 SKATE & WIN'}</div>
+                    <div class="popup-badge" style="background-color: ${c.badgeColor}; color: white;">${c.badgeText || '\u{1f6f9} SKATE & WIN'}</div>
                     <div class="popup-title" style="color: ${c.titleColor};">${c.title || 'Mande o Grind!'}</div>
-                    <div class="popup-subtitle" style="color: ${subtitleOnBg};">${c.subtitle || 'Encaixe o grind no corrimão e ganhe seu cupom!'}</div>
+                    <div class="popup-subtitle" style="color: ${subtitleOnBg};">${c.subtitle || 'Fa\u00e7a 100 pontos e ganhe seu cupom!'}</div>
                     <div class="popup-form">
                         <input type="email" class="popup-input game-email" placeholder="${c.emailPlaceholder}" style="background:${inputBg};border:1px solid ${inputBorder};color:${inputText};">
                         <input type="tel" class="popup-input game-phone" placeholder="${c.phonePlaceholder}" style="background:${inputBg};border:1px solid ${inputBorder};color:${inputText};">
                     </div>
-                    <div class="skate-game-area" style="position:relative;width:100%;height:180px;border-radius:12px;overflow:hidden;margin-bottom:12px;background:linear-gradient(180deg,${isDark?'#1a1a2e':'#e0e7ff'} 0%,${isDark?'#2d1b4e':'#c7d2fe'} 60%,${isDark?'#4a3560':'#a5b4fc'} 100%);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">
-                        <div class="skate-ground" style="position:absolute;bottom:0;left:0;right:0;height:40px;background:${isDark?'#374151':'#9ca3af'};border-top:3px solid ${isDark?'#6b7280':'#6b7280'};"></div>
-                        <div class="skate-ground-line" style="position:absolute;bottom:40px;left:0;right:0;height:2px;background:${isDark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)'};"></div>
-                        <div class="skate-rail" style="position:absolute;bottom:40px;left:55%;width:120px;height:50px;display:flex;flex-direction:column;align-items:center;transition:left 0.05s linear;">
-                            <div style="width:4px;height:24px;background:linear-gradient(180deg,#9ca3af,#6b7280);border-radius:2px;position:absolute;bottom:0;left:15px;"></div>
-                            <div style="width:4px;height:24px;background:linear-gradient(180deg,#9ca3af,#6b7280);border-radius:2px;position:absolute;bottom:0;right:15px;"></div>
-                            <div style="width:100%;height:6px;background:linear-gradient(90deg,#d1d5db,#f3f4f6,#d1d5db);border-radius:3px;position:absolute;bottom:22px;box-shadow:0 0 8px rgba(255,255,255,0.3);"></div>
+                    <div class="skate-instruction" style="text-align:center;font-size:11px;color:${subtitleOnBg};font-weight:600;margin-bottom:6px;min-height:16px;">Aperte ESPA\u00c7O ou toque para pular!</div>
+                    <div class="skate-game-area" style="position:relative;width:100%;height:180px;border-radius:12px;overflow:hidden;margin-bottom:12px;background:linear-gradient(180deg,${skyTop} 0%,${skyMid} 50%,${skyBot} 100%);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">
+                        <div class="skate-score" style="position:absolute;top:8px;right:10px;font-size:13px;font-weight:800;color:#ffd700;z-index:15;text-shadow:0 1px 4px rgba(0,0,0,0.6);font-family:monospace;">0 pts</div>
+                        <div class="skate-clouds" style="position:absolute;top:12px;left:10%;font-size:16px;opacity:0.25;">\u2601\ufe0f</div>
+                        <div class="skate-clouds" style="position:absolute;top:6px;left:55%;font-size:12px;opacity:0.18;">\u2601\ufe0f</div>
+                        <div class="skate-clouds" style="position:absolute;top:18px;left:80%;font-size:14px;opacity:0.2;">\u2601\ufe0f</div>
+                        <div class="skate-ground" style="position:absolute;bottom:0;left:0;right:0;height:32px;background:${groundColor};border-top:3px solid ${groundBorder};"></div>
+                        <div class="skate-rail" style="position:absolute;bottom:32px;left:110%;width:110px;height:45px;z-index:5;">
+                            <div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:12px;"></div>
+                            <div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:12px;"></div>
+                            <div class="skate-rail-bar" style="width:100%;height:5px;background:linear-gradient(90deg,#c0c0c0,#f0f0f0,#c0c0c0);border-radius:3px;position:absolute;bottom:20px;box-shadow:0 0 6px rgba(255,255,255,0.4);"></div>
                         </div>
-                        <div class="skate-board" style="position:absolute;bottom:42px;left:15%;font-size:36px;transition:transform 0.15s ease-out;z-index:10;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🛹</div>
-                        <div class="skate-sparks" style="position:absolute;bottom:62px;left:calc(15% + 20px);font-size:14px;opacity:0;z-index:11;pointer-events:none;">✨🔥✨</div>
-                        <div class="skate-clouds" style="position:absolute;top:15px;left:20%;font-size:18px;opacity:0.3;">☁️</div>
-                        <div class="skate-clouds" style="position:absolute;top:8px;left:65%;font-size:14px;opacity:0.2;">☁️</div>
-                        <div class="skate-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:700;color:${c.titleColor};opacity:0;z-index:20;text-shadow:0 2px 8px rgba(0,0,0,0.5);pointer-events:none;white-space:nowrap;"></div>
-                        <div class="skate-instruction" style="position:absolute;bottom:48px;left:50%;transform:translateX(-50%);font-size:11px;color:${subtitleOnBg};font-weight:600;white-space:nowrap;">Aperte ESPA\u00c7O ou toque para mandar o ollie!</div>
+                        <div class="skate-player" style="position:absolute;bottom:35px;left:15%;z-index:10;display:flex;flex-direction:column;align-items:center;transition:none;">
+                            <svg class="skate-skater-svg" width="32" height="52" viewBox="0 0 32 52" style="overflow:visible;">
+                                <circle cx="16" cy="6" r="5" fill="#ffcc88" stroke="#333" stroke-width="1"/>
+                                <rect x="12" y="5" width="8" height="3" rx="1" fill="#333"/>
+                                <rect x="10" y="3" width="12" height="4" rx="2" fill="#e74c3c"/>
+                                <line x1="16" y1="11" x2="16" y2="28" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+                                <rect x="9" y="13" width="14" height="14" rx="3" fill="#e74c3c"/>
+                                <text x="16" y="23" text-anchor="middle" font-size="7" fill="white" font-weight="bold">\u2605</text>
+                                <line class="skater-arm-back" x1="10" y1="16" x2="4" y2="22" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+                                <line class="skater-arm-front" x1="22" y1="16" x2="28" y2="22" stroke="#333" stroke-width="2.5" stroke-linecap="round"/>
+                                <line class="skater-leg-back" x1="13" y1="27" x2="10" y2="38" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+                                <line class="skater-leg-front" x1="19" y1="27" x2="22" y2="38" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+                                <rect class="skater-foot-back" x="6" y="37" width="8" height="4" rx="2" fill="#333"/>
+                                <rect class="skater-foot-front" x="18" y="37" width="8" height="4" rx="2" fill="#333"/>
+                                <rect class="skater-deck" x="2" y="40" width="28" height="4" rx="2" fill="#e67e22" stroke="#c0392b" stroke-width="0.5"/>
+                                <circle class="skater-wheel-bl" cx="7" cy="46" r="3" fill="#555" stroke="#333" stroke-width="0.5"/>
+                                <circle class="skater-wheel-br" cx="25" cy="46" r="3" fill="#555" stroke="#333" stroke-width="0.5"/>
+                                <ellipse class="skater-wheel-bl-inner" cx="7" cy="46" rx="1.2" ry="1.2" fill="#888"/>
+                                <ellipse class="skater-wheel-br-inner" cx="25" cy="46" rx="1.2" ry="1.2" fill="#888"/>
+                            </svg>
+                        </div>
+                        <div class="skate-sparks" style="position:absolute;bottom:52px;left:calc(15% + 10px);font-size:12px;opacity:0;z-index:11;pointer-events:none;">\u2728\u{1f525}\u2728</div>
+                        <div class="skate-msg" style="position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-size:15px;font-weight:800;color:#ffd700;opacity:0;z-index:20;text-shadow:0 2px 8px rgba(0,0,0,0.7);pointer-events:none;white-space:nowrap;"></div>
                         <div class="popup-lock-overlay game-lock" style="border-radius:12px;">
-                            <div class="popup-lock-icon">🔒</div>
+                            <div class="popup-lock-icon">\u{1f512}</div>
                             <div class="popup-lock-text">${c.lockMessage}</div>
                         </div>
                     </div>
@@ -3560,151 +3586,259 @@
 
             initSkateGrind() {
                 const gameArea = document.querySelector('.skate-game-area');
-                const board = document.querySelector('.skate-board');
+                const player = document.querySelector('.skate-player');
                 const rail = document.querySelector('.skate-rail');
                 const sparks = document.querySelector('.skate-sparks');
                 const msgEl = document.querySelector('.skate-msg');
                 const instrEl = document.querySelector('.skate-instruction');
-                if (!gameArea || !board) return;
+                const scoreEl = document.querySelector('.skate-score');
+                const svg = document.querySelector('.skate-skater-svg');
+                if (!gameArea || !player) return;
 
-                let playing = false;
+                let running = false;
+                let gameOver = false;
                 let animFrame = null;
-                let railX = 110; // percent position start
-                let boardY = 0; // 0 = ground
+                let score = 0;
+                let railX = 110;
+                let playerY = 0;
                 let jumping = false;
                 let grinding = false;
-                let gameSpeed = 1.2;
+                let grindTimer = 0;
+                let velY = 0;
+                let gameSpeed = 1.0;
+                let nextRailDelay = 0;
+                let railGap = 0;
+                const gravity = 0.45;
+                const jumpForce = -7.5;
+                const groundY = 0;
+                const railTopY = 20;
+                const winScore = 100;
+                const grindPoints = 25;
+                const areaW = gameArea.offsetWidth || 300;
 
-                const resetGame = () => {
-                    playing = false;
+                const updateScore = () => {
+                    if (scoreEl) scoreEl.textContent = score + ' pts';
+                };
+
+                const setPlayerY = (y, rot) => {
+                    player.style.transform = 'translateY(' + (-y) + 'px)' + (rot ? ' rotate(' + rot + 'deg)' : '');
+                };
+
+                const showMsg = (text, color, persist) => {
+                    if (msgEl) {
+                        msgEl.textContent = text;
+                        msgEl.style.color = color || '#ffd700';
+                        msgEl.style.opacity = '1';
+                        msgEl.style.fontSize = '15px';
+                        if (!persist) setTimeout(() => { msgEl.style.opacity = '0'; }, 1200);
+                    }
+                };
+
+                const poseIdle = () => {
+                    if (!svg) return;
+                    svg.querySelector('.skater-arm-back')?.setAttribute('x2', '4');
+                    svg.querySelector('.skater-arm-back')?.setAttribute('y2', '22');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('x2', '28');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('y2', '22');
+                    svg.querySelector('.skater-leg-back')?.setAttribute('x2', '10');
+                    svg.querySelector('.skater-leg-back')?.setAttribute('y2', '38');
+                    svg.querySelector('.skater-leg-front')?.setAttribute('x2', '22');
+                    svg.querySelector('.skater-leg-front')?.setAttribute('y2', '38');
+                    svg.querySelector('.skater-foot-back')?.setAttribute('x', '6');
+                    svg.querySelector('.skater-foot-front')?.setAttribute('x', '18');
+                };
+
+                const poseJump = () => {
+                    if (!svg) return;
+                    svg.querySelector('.skater-arm-back')?.setAttribute('x2', '2');
+                    svg.querySelector('.skater-arm-back')?.setAttribute('y2', '12');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('x2', '30');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('y2', '12');
+                    svg.querySelector('.skater-leg-back')?.setAttribute('x2', '12');
+                    svg.querySelector('.skater-leg-back')?.setAttribute('y2', '35');
+                    svg.querySelector('.skater-leg-front')?.setAttribute('x2', '20');
+                    svg.querySelector('.skater-leg-front')?.setAttribute('y2', '35');
+                    svg.querySelector('.skater-foot-back')?.setAttribute('x', '8');
+                    svg.querySelector('.skater-foot-front')?.setAttribute('x', '16');
+                };
+
+                const poseGrind = () => {
+                    if (!svg) return;
+                    svg.querySelector('.skater-arm-back')?.setAttribute('x2', '0');
+                    svg.querySelector('.skater-arm-back')?.setAttribute('y2', '18');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('x2', '32');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('y2', '14');
+                    svg.querySelector('.skater-leg-back')?.setAttribute('x2', '11');
+                    svg.querySelector('.skater-leg-back')?.setAttribute('y2', '37');
+                    svg.querySelector('.skater-leg-front')?.setAttribute('x2', '21');
+                    svg.querySelector('.skater-leg-front')?.setAttribute('y2', '37');
+                };
+
+                const poseWipeout = () => {
+                    if (!svg) return;
+                    svg.querySelector('.skater-arm-back')?.setAttribute('x2', '2');
+                    svg.querySelector('.skater-arm-back')?.setAttribute('y2', '10');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('x2', '30');
+                    svg.querySelector('.skater-arm-front')?.setAttribute('y2', '10');
+                };
+
+                const spawnRail = () => {
+                    railX = 110;
+                    rail.style.left = '110%';
+                    railGap = 60 + Math.random() * 40;
+                    nextRailDelay = 0;
+                };
+
+                const resetFull = () => {
+                    running = false;
+                    gameOver = false;
                     jumping = false;
                     grinding = false;
-                    boardY = 0;
+                    grindTimer = 0;
+                    playerY = 0;
+                    velY = 0;
+                    score = 0;
+                    gameSpeed = 1.0;
                     railX = 110;
-                    board.style.transform = 'translateY(0px) rotate(0deg)';
+                    nextRailDelay = 0;
+                    setPlayerY(0);
+                    poseIdle();
                     rail.style.left = '110%';
                     sparks.style.opacity = '0';
                     if (msgEl) msgEl.style.opacity = '0';
                     if (instrEl) instrEl.style.opacity = '1';
+                    updateScore();
                     if (animFrame) cancelAnimationFrame(animFrame);
                 };
 
-                const showMsg = (text, color) => {
-                    if (msgEl) {
-                        msgEl.textContent = text;
-                        msgEl.style.color = color || '#fff';
-                        msgEl.style.opacity = '1';
-                        msgEl.style.fontSize = '16px';
-                        setTimeout(() => { msgEl.style.opacity = '0'; }, 1500);
-                    }
+                const playerLeft = () => {
+                    const pctLeft = parseFloat(player.style.left || '15%');
+                    return (pctLeft / 100) * areaW;
                 };
 
-                const doOllie = () => {
-                    if (document.querySelector('.game-lock')?.style.display !== 'none') return;
-                    if (jumping || grinding) return;
+                const checkOnRail = () => {
+                    const railPx = (railX / 100) * areaW;
+                    const railW = 110;
+                    const pLeft = playerLeft();
+                    const pW = 32;
+                    const overlapLeft = Math.max(pLeft, railPx);
+                    const overlapRight = Math.min(pLeft + pW, railPx + railW);
+                    return overlapRight - overlapLeft > 10;
+                };
 
-                    if (!playing) {
-                        playing = true;
-                        if (instrEl) instrEl.style.opacity = '0';
-                        railX = 110;
-                        rail.style.left = '110%';
-                        // Start rail moving
-                        const moveRail = () => {
-                            if (!playing) return;
-                            railX -= gameSpeed;
-                            rail.style.left = railX + '%';
-                            if (railX < -30) {
-                                // Rail passed — missed
-                                this._gameAttempts++;
-                                const loseMsg = this._gameAttempts === 1
-                                    ? (document.getElementById('editorLoseMessage1')?.value || '💨 O corrimão passou! Tente de novo!')
-                                    : (document.getElementById('editorLoseMessage2')?.value || '🔥 Quase! Mais uma tentativa!');
-                                showMsg(loseMsg, '#ff6b6b');
-                                this.showToast(loseMsg);
-                                setTimeout(resetGame, 1200);
+                const gameLoop = () => {
+                    if (!running || gameOver) return;
+
+                    if (!grinding) {
+                        railX -= gameSpeed;
+                        rail.style.left = railX + '%';
+                    }
+
+                    if (jumping && !grinding) {
+                        velY += gravity;
+                        playerY -= velY;
+                        if (playerY <= groundY) {
+                            playerY = groundY;
+                            velY = 0;
+                            jumping = false;
+                            poseIdle();
+                        }
+                        if (playerY >= railTopY && velY > 0 && checkOnRail()) {
+                            grinding = true;
+                            grindTimer = 0;
+                            playerY = railTopY;
+                            velY = 0;
+                            poseGrind();
+                            sparks.style.opacity = '1';
+                        }
+                        setPlayerY(playerY, jumping && !grinding ? -5 : 0);
+                    }
+
+                    if (grinding) {
+                        grindTimer++;
+                        railX -= gameSpeed * 0.4;
+                        rail.style.left = railX + '%';
+                        const sparkText = grindTimer % 4 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
+                        sparks.textContent = sparkText;
+                        const px = playerLeft();
+                        sparks.style.left = (px + 5) + 'px';
+                        sparks.style.bottom = (35 + railTopY) + 'px';
+                        setPlayerY(railTopY, -2);
+
+                        if (grindTimer > 30) {
+                            grinding = false;
+                            grindTimer = 0;
+                            sparks.style.opacity = '0';
+                            score += grindPoints;
+                            updateScore();
+                            showMsg('+' + grindPoints + ' pts! \u{1f525}', '#ffd700');
+                            poseIdle();
+                            playerY = railTopY;
+                            jumping = true;
+                            velY = 1;
+
+                            if (score >= winScore) {
+                                gameOver = true;
+                                running = false;
+                                setPlayerY(0);
+                                poseIdle();
+                                setTimeout(() => {
+                                    showMsg('\u{1f6f9} 100 PONTOS! GRIND MASTER! \u{1f3c6}', '#ffd700', true);
+                                    if (msgEl) msgEl.style.fontSize = '14px';
+                                    let flashCount = 0;
+                                    const flashWin = () => {
+                                        flashCount++;
+                                        gameArea.style.boxShadow = flashCount % 2 === 0 ? '0 0 20px rgba(255,215,0,0.6)' : 'none';
+                                        if (flashCount < 8) setTimeout(flashWin, 200);
+                                        else {
+                                            gameArea.style.boxShadow = 'none';
+                                            setTimeout(() => this.showGameWin('Skate Grind'), 600);
+                                        }
+                                    };
+                                    flashWin();
+                                }, 300);
                                 return;
                             }
-                            animFrame = requestAnimationFrame(moveRail);
-                        };
-                        animFrame = requestAnimationFrame(moveRail);
-                        return;
+                            spawnRail();
+                        }
                     }
 
-                    // Player is pressing ollie while game is running
-                    this._gameAttempts++;
-                    const shouldWin = this._gameAttempts > this._maxLosses;
-                    jumping = true;
+                    if (!grinding && railX < -35) {
+                        showMsg('\u{1f4a8} Passou! Pule no pr\u00f3ximo!', '#ff6b6b');
+                        spawnRail();
+                    }
 
-                    // Ollie animation - board goes up
-                    let jumpProgress = 0;
-                    const jumpHeight = 55;
-                    const jumpUp = () => {
-                        jumpProgress += 0.08;
-                        if (jumpProgress >= 1) jumpProgress = 1;
-                        const ease = Math.sin(jumpProgress * Math.PI);
-                        boardY = ease * jumpHeight;
-                        const rotation = shouldWin ? (ease * 5) : (ease * 15);
-                        board.style.transform = 'translateY(' + (-boardY) + 'px) rotate(' + (-rotation) + 'deg)';
-
-                        if (jumpProgress < 1) {
-                            requestAnimationFrame(jumpUp);
-                        } else {
-                            if (shouldWin) {
-                                // SUCCESS — Grind!
-                                grinding = true;
-                                if (animFrame) cancelAnimationFrame(animFrame);
-                                // Snap board to rail position
-                                board.style.transform = 'translateY(-22px) rotate(-2deg)';
-                                sparks.style.opacity = '1';
-                                sparks.style.transition = 'none';
-                                // Grind animation — sparks and slide
-                                let grindTime = 0;
-                                const grindAnim = () => {
-                                    grindTime++;
-                                    const sparkText = grindTime % 6 < 3 ? '✨🔥✨' : '🔥✨🔥';
-                                    sparks.textContent = sparkText;
-                                    sparks.style.left = 'calc(15% + ' + (10 + Math.sin(grindTime*0.3)*5) + 'px)';
-                                    if (grindTime < 40) {
-                                        requestAnimationFrame(grindAnim);
-                                    } else {
-                                        // Land it!
-                                        sparks.style.opacity = '0';
-                                        board.style.transform = 'translateY(0px) rotate(0deg)';
-                                        showMsg('🛹 GRIND PERFEITO!', '#ffd700');
-                                        setTimeout(() => this.showGameWin('Skate Grind'), 800);
-                                    }
-                                };
-                                requestAnimationFrame(grindAnim);
-                            } else {
-                                // FAIL — Wipeout
-                                board.style.transform = 'translateY(0px) rotate(45deg)';
-                                const loseMsg = this._gameAttempts === 1
-                                    ? (document.getElementById('editorLoseMessage1')?.value || '💨 Wipeout! O timing falhou...')
-                                    : (document.getElementById('editorLoseMessage2')?.value || '🔥 Quase encaixou! Mais uma!');
-                                showMsg(loseMsg, '#ff6b6b');
-                                this.showToast(loseMsg);
-                                setTimeout(resetGame, 1200);
-                            }
-                        }
-                    };
-                    requestAnimationFrame(jumpUp);
+                    animFrame = requestAnimationFrame(gameLoop);
                 };
 
-                // Keyboard (space) and touch/click
-                gameArea.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    doOllie();
-                });
-                gameArea.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    doOllie();
-                }, { passive: false });
+                const doJump = () => {
+                    if (document.querySelector('.game-lock')?.style.display !== 'none') return;
+                    if (gameOver) { resetFull(); return; }
+
+                    if (!running) {
+                        running = true;
+                        if (instrEl) instrEl.style.opacity = '0';
+                        spawnRail();
+                        animFrame = requestAnimationFrame(gameLoop);
+                    }
+
+                    if (!jumping && !grinding) {
+                        jumping = true;
+                        velY = jumpForce;
+                        poseJump();
+                    }
+                };
+
+                gameArea.addEventListener('click', (e) => { e.preventDefault(); doJump(); });
+                gameArea.addEventListener('touchstart', (e) => { e.preventDefault(); doJump(); }, { passive: false });
                 document.addEventListener('keydown', (e) => {
                     if (e.code === 'Space' && document.querySelector('.skate-game-area')) {
                         e.preventDefault();
-                        doOllie();
+                        doJump();
                     }
                 });
+
+                resetFull();
             }
 
             showGameWin(gameName) {
