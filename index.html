@@ -3116,15 +3116,12 @@
                     <div class="skate-instruction" style="text-align:center;font-size:11px;color:${subtitleOnBg};font-weight:600;margin-bottom:6px;min-height:16px;">Aperte ESPA\u00c7O ou toque para pular!</div>
                     <div class="skate-game-area" style="position:relative;width:100%;height:180px;border-radius:12px;overflow:hidden;margin-bottom:12px;background:linear-gradient(180deg,${skyTop} 0%,${skyMid} 50%,${skyBot} 100%);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">
                         <div class="skate-score" style="position:absolute;top:8px;right:10px;font-size:13px;font-weight:800;color:#ffd700;z-index:15;text-shadow:0 1px 4px rgba(0,0,0,0.6);font-family:monospace;">0 pts</div>
+                        <div class="skate-phase" style="position:absolute;top:8px;left:10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);z-index:15;font-family:monospace;"></div>
                         <div class="skate-clouds" style="position:absolute;top:12px;left:10%;font-size:16px;opacity:0.25;">\u2601\ufe0f</div>
                         <div class="skate-clouds" style="position:absolute;top:6px;left:55%;font-size:12px;opacity:0.18;">\u2601\ufe0f</div>
                         <div class="skate-clouds" style="position:absolute;top:18px;left:80%;font-size:14px;opacity:0.2;">\u2601\ufe0f</div>
                         <div class="skate-ground" style="position:absolute;bottom:0;left:0;right:0;height:32px;background:${groundColor};border-top:3px solid ${groundBorder};"></div>
-                        <div class="skate-rail" style="position:absolute;bottom:32px;left:110%;width:110px;height:45px;z-index:5;">
-                            <div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:12px;"></div>
-                            <div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:12px;"></div>
-                            <div class="skate-rail-bar" style="width:100%;height:5px;background:linear-gradient(90deg,#c0c0c0,#f0f0f0,#c0c0c0);border-radius:3px;position:absolute;bottom:20px;box-shadow:0 0 6px rgba(255,255,255,0.4);"></div>
-                        </div>
+                        <div class="skate-obstacle" style="position:absolute;bottom:32px;left:110%;z-index:5;"></div>
                         <div class="skate-player" style="position:absolute;bottom:35px;left:15%;z-index:10;display:flex;flex-direction:column;align-items:center;transition:none;">
                             <svg class="skate-skater-svg" width="32" height="52" viewBox="0 0 32 52" style="overflow:visible;">
                                 <circle cx="16" cy="6" r="5" fill="#ffcc88" stroke="#333" stroke-width="1"/>
@@ -3587,38 +3584,52 @@
             initSkateGrind() {
                 const gameArea = document.querySelector('.skate-game-area');
                 const player = document.querySelector('.skate-player');
-                const rail = document.querySelector('.skate-rail');
+                const obstacle = document.querySelector('.skate-obstacle');
                 const sparks = document.querySelector('.skate-sparks');
                 const msgEl = document.querySelector('.skate-msg');
                 const instrEl = document.querySelector('.skate-instruction');
                 const scoreEl = document.querySelector('.skate-score');
+                const phaseEl = document.querySelector('.skate-phase');
                 const svg = document.querySelector('.skate-skater-svg');
-                if (!gameArea || !player) return;
+                if (!gameArea || !player || !obstacle) return;
 
-                let running = false;
-                let gameOver = false;
-                let animFrame = null;
-                let score = 0;
-                let railX = 110;
-                let playerY = 0;
-                let jumping = false;
-                let grinding = false;
-                let grindTimer = 0;
-                let velY = 0;
-                let gameSpeed = 1.0;
-                let nextRailDelay = 0;
-                let railGap = 0;
-                const gravity = 0.45;
-                const jumpForce = -7.5;
-                const groundY = 0;
-                const railTopY = 20;
-                const winScore = 100;
-                const grindPoints = 25;
+                let running = false, gameOver = false, animFrame = null;
+                let score = 0, obsX = 110, playerY = 0, velY = 0;
+                let jumping = false, trickActive = false, trickTimer = 0;
+                let phase = 0, spinAngle = 0;
+                let gameSpeed = 1.2;
+                const gravity = 0.5, jumpForce = -8.0, groundY = 0;
+                const winScore = 100, phasePoints = 25;
                 const areaW = gameArea.offsetWidth || 300;
+                const railTopY = 20, rampLaunchY = 30;
 
-                const updateScore = () => {
-                    if (scoreEl) scoreEl.textContent = score + ' pts';
+                const PHASES = [
+                    {type:'rail',name:'GRIND',icon:'\u{1f6f9}',msg:'+25 Grind! \u{1f525}'},
+                    {type:'ramp',name:'FLIP',icon:'\u{1f504}',msg:'+25 Kickflip! \u{1f31f}'},
+                    {type:'ramp_rail',name:'AIR GRIND',icon:'\u26a1',msg:'+25 Air Grind! \u{1f4a5}'},
+                    {type:'big_ramp',name:'BACKFLIP',icon:'\u{1f3c6}',msg:'+25 Backflip! MASTER!'}
+                ];
+
+                const railHTML = '<div style="width:110px;height:45px;position:relative;"><div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:12px;"></div><div style="width:5px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:12px;"></div><div style="width:100%;height:5px;background:linear-gradient(90deg,#c0c0c0,#f0f0f0,#c0c0c0);border-radius:3px;position:absolute;bottom:20px;box-shadow:0 0 6px rgba(255,255,255,0.4);"></div></div>';
+
+                const rampHTML = '<svg width="70" height="40" viewBox="0 0 70 40"><path d="M0,40 L0,40 Q35,0 70,40 Z" fill="#888" stroke="#aaa" stroke-width="1.5"/><path d="M5,40 Q35,5 65,40" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/></svg>';
+
+                const rampRailHTML = '<div style="display:flex;align-items:flex-end;gap:8px;"><svg width="50" height="35" viewBox="0 0 50 35"><path d="M0,35 Q25,0 50,35 Z" fill="#888" stroke="#aaa" stroke-width="1.5"/></svg><div style="width:90px;height:45px;position:relative;"><div style="width:4px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;left:10px;"></div><div style="width:4px;height:22px;background:linear-gradient(180deg,#b0b0b0,#808080);border-radius:2px;position:absolute;bottom:0;right:10px;"></div><div style="width:100%;height:5px;background:linear-gradient(90deg,#ffd700,#ff8c00,#ffd700);border-radius:3px;position:absolute;bottom:20px;box-shadow:0 0 8px rgba(255,215,0,0.6);"></div></div></div>';
+
+                const bigRampHTML = '<svg width="80" height="50" viewBox="0 0 80 50"><path d="M0,50 L0,50 Q40,-10 80,50 Z" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/><path d="M8,50 Q40,-2 72,50" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="4,3"/><text x="40" y="35" text-anchor="middle" font-size="12" fill="#ffd700" font-weight="bold">\u2605</text></svg>';
+
+                const spawnObstacle = () => {
+                    obsX = 110;
+                    obstacle.style.left = '110%';
+                    const p = PHASES[phase];
+                    if (p.type === 'rail') { obstacle.innerHTML = railHTML; obstacle.style.width = '110px'; }
+                    else if (p.type === 'ramp') { obstacle.innerHTML = rampHTML; obstacle.style.width = '70px'; }
+                    else if (p.type === 'ramp_rail') { obstacle.innerHTML = rampRailHTML; obstacle.style.width = '150px'; }
+                    else { obstacle.innerHTML = bigRampHTML; obstacle.style.width = '80px'; }
+                    if (phaseEl) phaseEl.textContent = p.icon + ' ' + p.name;
                 };
+
+                const updateScore = () => { if (scoreEl) scoreEl.textContent = score + ' pts'; };
 
                 const setPlayerY = (y, rot) => {
                     player.style.transform = 'translateY(' + (-y) + 'px)' + (rot ? ' rotate(' + rot + 'deg)' : '');
@@ -3646,6 +3657,7 @@
                     svg.querySelector('.skater-leg-front')?.setAttribute('y2', '38');
                     svg.querySelector('.skater-foot-back')?.setAttribute('x', '6');
                     svg.querySelector('.skater-foot-front')?.setAttribute('x', '18');
+                    svg.style.transform = '';
                 };
 
                 const poseJump = () => {
@@ -3674,149 +3686,225 @@
                     svg.querySelector('.skater-leg-front')?.setAttribute('y2', '37');
                 };
 
-                const poseWipeout = () => {
-                    if (!svg) return;
-                    svg.querySelector('.skater-arm-back')?.setAttribute('x2', '2');
-                    svg.querySelector('.skater-arm-back')?.setAttribute('y2', '10');
-                    svg.querySelector('.skater-arm-front')?.setAttribute('x2', '30');
-                    svg.querySelector('.skater-arm-front')?.setAttribute('y2', '10');
-                };
-
-                const spawnRail = () => {
-                    railX = 110;
-                    rail.style.left = '110%';
-                    railGap = 60 + Math.random() * 40;
-                    nextRailDelay = 0;
-                };
-
-                const resetFull = () => {
-                    running = false;
-                    gameOver = false;
-                    jumping = false;
-                    grinding = false;
-                    grindTimer = 0;
-                    playerY = 0;
-                    velY = 0;
-                    score = 0;
-                    gameSpeed = 1.0;
-                    railX = 110;
-                    nextRailDelay = 0;
-                    setPlayerY(0);
-                    poseIdle();
-                    rail.style.left = '110%';
-                    sparks.style.opacity = '0';
-                    if (msgEl) msgEl.style.opacity = '0';
-                    if (instrEl) instrEl.style.opacity = '1';
-                    updateScore();
-                    if (animFrame) cancelAnimationFrame(animFrame);
-                };
-
                 const playerLeft = () => {
-                    const pctLeft = parseFloat(player.style.left || '15%');
-                    return (pctLeft / 100) * areaW;
+                    return (parseFloat(player.style.left || '15%') / 100) * areaW;
                 };
 
-                const checkOnRail = () => {
-                    const railPx = (railX / 100) * areaW;
-                    const railW = 110;
+                const checkOverlap = () => {
+                    const obsPx = (obsX / 100) * areaW;
+                    const obsW = parseInt(obstacle.style.width) || 110;
                     const pLeft = playerLeft();
-                    const pW = 32;
-                    const overlapLeft = Math.max(pLeft, railPx);
-                    const overlapRight = Math.min(pLeft + pW, railPx + railW);
-                    return overlapRight - overlapLeft > 10;
+                    const ol = Math.max(pLeft, obsPx);
+                    const or2 = Math.min(pLeft + 32, obsPx + obsW);
+                    return or2 - ol > 10;
                 };
 
-                const gameLoop = () => {
-                    if (!running || gameOver) return;
+                const doFlipSpin = () => {
+                    spinAngle += 24;
+                    svg.style.transform = 'rotate(' + spinAngle + 'deg)';
+                };
 
-                    if (!grinding) {
-                        railX -= gameSpeed;
-                        rail.style.left = railX + '%';
-                    }
+                const doBackflipSpin = () => {
+                    spinAngle -= 18;
+                    svg.style.transform = 'rotate(' + spinAngle + 'deg)';
+                };
 
-                    if (jumping && !grinding) {
+                const triggerWin = () => {
+                    gameOver = true;
+                    running = false;
+                    const landWin = () => {
                         velY += gravity;
                         playerY -= velY;
                         if (playerY <= groundY) {
                             playerY = groundY;
-                            velY = 0;
-                            jumping = false;
+                            setPlayerY(0);
+                            svg.style.transform = '';
                             poseIdle();
-                        }
-                        if (playerY >= railTopY && velY > 0 && checkOnRail()) {
-                            grinding = true;
-                            grindTimer = 0;
-                            playerY = railTopY;
-                            velY = 0;
-                            poseGrind();
-                            sparks.style.opacity = '1';
-                        }
-                        setPlayerY(playerY, jumping && !grinding ? -5 : 0);
-                    }
-
-                    if (grinding) {
-                        grindTimer++;
-                        railX -= gameSpeed * 0.8;
-                        rail.style.left = railX + '%';
-                        const sparkText = grindTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
-                        sparks.textContent = sparkText;
-                        const px = playerLeft();
-                        sparks.style.left = (px + 5) + 'px';
-                        sparks.style.bottom = (35 + railTopY) + 'px';
-                        setPlayerY(railTopY, -2);
-
-                        if (grindTimer > 14) {
-                            grinding = false;
-                            grindTimer = 0;
-                            sparks.style.opacity = '0';
-                            score += grindPoints;
-                            updateScore();
-                            showMsg('+' + grindPoints + ' pts! \u{1f525}', '#ffd700');
-                            poseIdle();
-                            playerY = railTopY;
-                            jumping = true;
-                            velY = 1;
-
-                            if (score >= winScore) {
-                                const landAndWin = () => {
-                                    velY += gravity;
-                                    playerY -= velY;
-                                    if (playerY <= groundY) {
-                                        playerY = groundY;
-                                        setPlayerY(0);
-                                        poseIdle();
-                                        gameOver = true;
-                                        running = false;
-                                        setTimeout(() => {
-                                            showMsg('\u{1f6f9} 100 PONTOS! GRIND MASTER! \u{1f3c6}', '#ffd700', true);
-                                            if (msgEl) msgEl.style.fontSize = '14px';
-                                            let flashCount = 0;
-                                            const flashWin = () => {
-                                                flashCount++;
-                                                gameArea.style.boxShadow = flashCount % 2 === 0 ? '0 0 20px rgba(255,215,0,0.6)' : 'none';
-                                                if (flashCount < 8) setTimeout(flashWin, 200);
-                                                else {
-                                                    gameArea.style.boxShadow = 'none';
-                                                    setTimeout(() => this.showGameWin('Skate Grind'), 600);
-                                                }
-                                            };
-                                            flashWin();
-                                        }, 400);
-                                        return;
-                                    }
-                                    setPlayerY(playerY, -3);
-                                    requestAnimationFrame(landAndWin);
+                            setTimeout(() => {
+                                showMsg('\u{1f6f9} 100 PTS! SKATE MASTER! \u{1f3c6}', '#ffd700', true);
+                                if (msgEl) msgEl.style.fontSize = '14px';
+                                let fc = 0;
+                                const flash = () => {
+                                    fc++;
+                                    gameArea.style.boxShadow = fc % 2 === 0 ? '0 0 20px rgba(255,215,0,0.6)' : 'none';
+                                    if (fc < 8) setTimeout(flash, 200);
+                                    else { gameArea.style.boxShadow = 'none'; setTimeout(() => this.showGameWin('Skate Grind'), 600); }
                                 };
-                                requestAnimationFrame(landAndWin);
-                                return;
+                                flash();
+                            }, 400);
+                            return;
+                        }
+                        setPlayerY(playerY, 0);
+                        requestAnimationFrame(landWin);
+                    };
+                    requestAnimationFrame(landWin);
+                };
+
+                const completeTrick = () => {
+                    trickActive = false;
+                    trickTimer = 0;
+                    sparks.style.opacity = '0';
+                    score += phasePoints;
+                    updateScore();
+                    const p = PHASES[phase];
+                    showMsg(p.msg, '#ffd700');
+                    svg.style.transform = '';
+                    poseIdle();
+
+                    if (score >= winScore) {
+                        playerY = playerY > 0 ? playerY : rampLaunchY;
+                        jumping = true;
+                        velY = 1;
+                        triggerWin();
+                        return;
+                    }
+                    phase++;
+                    playerY = playerY > 0 ? playerY : 5;
+                    jumping = true;
+                    velY = 1;
+                    setTimeout(() => spawnObstacle(), 600);
+                };
+
+                const resetFull = () => {
+                    running = false; gameOver = false; jumping = false;
+                    trickActive = false; trickTimer = 0; spinAngle = 0;
+                    playerY = 0; velY = 0; score = 0; phase = 0;
+                    gameSpeed = 1.2; obsX = 110;
+                    setPlayerY(0); poseIdle();
+                    svg.style.transform = '';
+                    obstacle.style.left = '110%';
+                    sparks.style.opacity = '0';
+                    if (msgEl) msgEl.style.opacity = '0';
+                    if (instrEl) instrEl.style.opacity = '1';
+                    if (phaseEl) phaseEl.textContent = '';
+                    updateScore();
+                    if (animFrame) cancelAnimationFrame(animFrame);
+                };
+
+                const gameLoop = () => {
+                    if (!running || gameOver) return;
+                    const p = PHASES[phase];
+
+                    if (!trickActive) {
+                        obsX -= gameSpeed;
+                        obstacle.style.left = obsX + '%';
+                    }
+
+                    if (jumping && !trickActive) {
+                        velY += gravity;
+                        playerY -= velY;
+                        if (playerY <= groundY) {
+                            playerY = groundY; velY = 0; jumping = false; poseIdle();
+                            svg.style.transform = '';
+                        }
+
+                        if (p.type === 'rail' && playerY >= railTopY && velY > 0 && checkOverlap()) {
+                            trickActive = true; trickTimer = 0;
+                            playerY = railTopY; velY = 0;
+                            poseGrind(); sparks.style.opacity = '1';
+                        }
+
+                        if ((p.type === 'ramp' || p.type === 'big_ramp') && playerY >= 5 && playerY <= 18 && velY < 0 && checkOverlap()) {
+                            trickActive = true; trickTimer = 0; spinAngle = 0;
+                            velY = p.type === 'big_ramp' ? -9.5 : -7.0;
+                            playerY += 5;
+                            poseJump();
+                        }
+
+                        if (p.type === 'ramp_rail' && playerY >= 5 && velY < 0 && checkOverlap()) {
+                            trickActive = true; trickTimer = 0; spinAngle = 0;
+                            velY = -8.0;
+                            playerY += 5;
+                            poseJump();
+                        }
+
+                        setPlayerY(playerY, jumping && !trickActive ? -5 : 0);
+                    }
+
+                    if (trickActive) {
+                        trickTimer++;
+
+                        if (p.type === 'rail') {
+                            obsX -= gameSpeed * 0.8;
+                            obstacle.style.left = obsX + '%';
+                            const sparkText = trickTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
+                            sparks.textContent = sparkText;
+                            const px = playerLeft();
+                            sparks.style.left = (px + 5) + 'px';
+                            sparks.style.bottom = (35 + railTopY) + 'px';
+                            setPlayerY(railTopY, -2);
+                            if (trickTimer > 14) completeTrick();
+                        }
+
+                        if (p.type === 'ramp') {
+                            velY += gravity;
+                            playerY -= velY;
+                            doFlipSpin();
+                            setPlayerY(playerY, 0);
+                            sparks.style.opacity = '1';
+                            sparks.textContent = '\u{1f31f}\u{1f504}\u{1f31f}';
+                            const px = playerLeft();
+                            sparks.style.left = (px + 5) + 'px';
+                            sparks.style.bottom = (35 + playerY) + 'px';
+                            if (spinAngle >= 360 && velY > 0) {
+                                spinAngle = 360; svg.style.transform = 'rotate(360deg)';
+                                if (playerY <= groundY + 2) completeTrick();
                             }
-                            spawnRail();
+                            if (playerY <= groundY && spinAngle < 360) {
+                                playerY = groundY; completeTrick();
+                            }
+                        }
+
+                        if (p.type === 'ramp_rail') {
+                            if (trickTimer <= 12) {
+                                velY += gravity;
+                                playerY -= velY;
+                                doFlipSpin();
+                                setPlayerY(playerY, 0);
+                                sparks.style.opacity = '1';
+                                sparks.textContent = '\u26a1\u2728\u26a1';
+                                const px = playerLeft();
+                                sparks.style.left = (px + 5) + 'px';
+                                sparks.style.bottom = (35 + playerY) + 'px';
+                            } else {
+                                svg.style.transform = '';
+                                playerY = railTopY;
+                                poseGrind();
+                                obsX -= gameSpeed * 0.8;
+                                obstacle.style.left = obsX + '%';
+                                sparks.textContent = trickTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
+                                const px = playerLeft();
+                                sparks.style.left = (px + 5) + 'px';
+                                sparks.style.bottom = (35 + railTopY) + 'px';
+                                setPlayerY(railTopY, -2);
+                                if (trickTimer > 26) completeTrick();
+                            }
+                        }
+
+                        if (p.type === 'big_ramp') {
+                            velY += gravity * 0.7;
+                            playerY -= velY;
+                            doBackflipSpin();
+                            setPlayerY(playerY, 0);
+                            sparks.style.opacity = '1';
+                            sparks.textContent = '\u{1f525}\u{1f3c6}\u{1f525}';
+                            const px = playerLeft();
+                            sparks.style.left = (px + 5) + 'px';
+                            sparks.style.bottom = (35 + playerY) + 'px';
+                            if (Math.abs(spinAngle) >= 360 && velY > 0 && playerY <= groundY + 2) {
+                                spinAngle = -360; svg.style.transform = 'rotate(-360deg)';
+                                playerY = groundY;
+                                completeTrick();
+                            }
+                            if (playerY <= groundY && Math.abs(spinAngle) < 360) {
+                                playerY = groundY; completeTrick();
+                            }
                         }
                     }
 
-                    if (!grinding && railX < -35) {
-                        showMsg('\u{1f4a8} Passou! Pule no pr\u00f3ximo!', '#ff6b6b');
-                        spawnRail();
+                    if (!trickActive && obsX < -50) {
+                        showMsg('\u{1f4a8} Errou! Tente de novo!', '#ff6b6b');
+                        spawnObstacle();
                     }
 
                     animFrame = requestAnimationFrame(gameLoop);
@@ -3825,18 +3913,14 @@
                 const doJump = () => {
                     if (document.querySelector('.game-lock')?.style.display !== 'none') return;
                     if (gameOver) { resetFull(); return; }
-
                     if (!running) {
                         running = true;
                         if (instrEl) instrEl.style.opacity = '0';
-                        spawnRail();
+                        spawnObstacle();
                         animFrame = requestAnimationFrame(gameLoop);
                     }
-
-                    if (!jumping && !grinding) {
-                        jumping = true;
-                        velY = jumpForce;
-                        poseJump();
+                    if (!jumping && !trickActive) {
+                        jumping = true; velY = jumpForce; poseJump();
                     }
                 };
 
@@ -3844,8 +3928,7 @@
                 gameArea.addEventListener('touchstart', (e) => { e.preventDefault(); doJump(); }, { passive: false });
                 document.addEventListener('keydown', (e) => {
                     if (e.code === 'Space' && document.querySelector('.skate-game-area')) {
-                        e.preventDefault();
-                        doJump();
+                        e.preventDefault(); doJump();
                     }
                 });
 
