@@ -3756,16 +3756,16 @@
 
                     if (grinding) {
                         grindTimer++;
-                        railX -= gameSpeed * 0.4;
+                        railX -= gameSpeed * 0.8;
                         rail.style.left = railX + '%';
-                        const sparkText = grindTimer % 4 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
+                        const sparkText = grindTimer % 3 < 2 ? '\u2728\u{1f525}\u2728' : '\u{1f525}\u2728\u{1f525}';
                         sparks.textContent = sparkText;
                         const px = playerLeft();
                         sparks.style.left = (px + 5) + 'px';
                         sparks.style.bottom = (35 + railTopY) + 'px';
                         setPlayerY(railTopY, -2);
 
-                        if (grindTimer > 30) {
+                        if (grindTimer > 14) {
                             grinding = false;
                             grindTimer = 0;
                             sparks.style.opacity = '0';
@@ -3778,25 +3778,36 @@
                             velY = 1;
 
                             if (score >= winScore) {
-                                gameOver = true;
-                                running = false;
-                                setPlayerY(0);
-                                poseIdle();
-                                setTimeout(() => {
-                                    showMsg('\u{1f6f9} 100 PONTOS! GRIND MASTER! \u{1f3c6}', '#ffd700', true);
-                                    if (msgEl) msgEl.style.fontSize = '14px';
-                                    let flashCount = 0;
-                                    const flashWin = () => {
-                                        flashCount++;
-                                        gameArea.style.boxShadow = flashCount % 2 === 0 ? '0 0 20px rgba(255,215,0,0.6)' : 'none';
-                                        if (flashCount < 8) setTimeout(flashWin, 200);
-                                        else {
-                                            gameArea.style.boxShadow = 'none';
-                                            setTimeout(() => this.showGameWin('Skate Grind'), 600);
-                                        }
-                                    };
-                                    flashWin();
-                                }, 300);
+                                const landAndWin = () => {
+                                    velY += gravity;
+                                    playerY -= velY;
+                                    if (playerY <= groundY) {
+                                        playerY = groundY;
+                                        setPlayerY(0);
+                                        poseIdle();
+                                        gameOver = true;
+                                        running = false;
+                                        setTimeout(() => {
+                                            showMsg('\u{1f6f9} 100 PONTOS! GRIND MASTER! \u{1f3c6}', '#ffd700', true);
+                                            if (msgEl) msgEl.style.fontSize = '14px';
+                                            let flashCount = 0;
+                                            const flashWin = () => {
+                                                flashCount++;
+                                                gameArea.style.boxShadow = flashCount % 2 === 0 ? '0 0 20px rgba(255,215,0,0.6)' : 'none';
+                                                if (flashCount < 8) setTimeout(flashWin, 200);
+                                                else {
+                                                    gameArea.style.boxShadow = 'none';
+                                                    setTimeout(() => this.showGameWin('Skate Grind'), 600);
+                                                }
+                                            };
+                                            flashWin();
+                                        }, 400);
+                                        return;
+                                    }
+                                    setPlayerY(playerY, -3);
+                                    requestAnimationFrame(landAndWin);
+                                };
+                                requestAnimationFrame(landAndWin);
                                 return;
                             }
                             spawnRail();
