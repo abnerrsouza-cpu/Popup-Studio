@@ -558,7 +558,7 @@ async function togglePublish(id, publish) {
   try {
     toast('Processando...', 'info');
     const endpoint = publish ? '/api/popups/publish' : '/api/popups/unpublish';
-    await api('POST', endpoint, { popupId: id });
+    await api('POST', endpoint, { id });
     toast(publish ? 'Popup publicado! O script foi injetado na loja.' : 'Popup despublicado.', 'success');
     await loadPopups();
   } catch(e) {
