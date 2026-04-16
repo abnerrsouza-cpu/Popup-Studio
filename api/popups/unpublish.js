@@ -1,10 +1,10 @@
 // /api/popups/unpublish
-// POST { id } -> marca pop-up como draft. Se nenhum outro pop-up publicado da loja
-// usa o script, remove o script da loja via API de Scripts.
+// POST { id } -> marca o popup como draft no Supabase.
+// O loader.js é auto-instalado via Roteiros do portal de parceiros (script_id 6043),
+// então não precisamos deletar scripts da API de Scripts da Nuvemshop.
 
 import { supabase } from '../../lib/supabase.js';
 import { requireStore, readJson, handleOptions, setCors } from '../../lib/auth.js';
-import { deleteScript } from '../../lib/nuvemshop.js';
 
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return;
@@ -26,34 +26,15 @@ export default async function handler(req, res) {
       .single();
     if (fetchErr || !popup) return res.status(404).json({ error: 'popup_not_found' });
 
-    const scriptId = popup.script_id;
-
     // Marca como draft
     const { data: updated, error: updErr } = await supabase
       .from('popups')
-      .update({ status: 'draft', published_at: null, script_id: null })
+      .update({ status: 'draft' })
       .eq('id', id)
       .eq('store_id', store.store_id)
       .select()
       .single();
     if (updErr) return res.status(500).json({ error: updErr.message });
-
-    // Verifica se ainda existem outros publicados com esse script_id
-    if (scriptId) {
-      const { count } = await supabase
-        .from('popups')
-        .select('id', { count: 'exact', head: true })
-        .eq('store_id', store.store_id)
-        .eq('status', 'published');
-
-      if ((count || 0) === 0) {
-        try {
-          await deleteScript(store.store_id, store.access_token, scriptId);
-        } catch (e) {
-          console.warn('[unpublish] falha ao deletar script:', e.message);
-        }
-      }
-    }
 
     return res.status(200).json({ popup: updated });
   } catch (err) {
