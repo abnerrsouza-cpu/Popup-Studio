@@ -1,8 +1,8 @@
 {
   "framework": null,
   "rewrites": [
-    { "source": "/app", "destination": "/public/app.html" },
-    { "source": "/app/(.*)", "destination": "/public/app.html" }
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/app/(.*)", "destination": "/app.html" }
   ],
   "headers": [
     {
@@ -14,7 +14,7 @@
       ]
     },
     {
-      "source": "/public/loader.js",
+      "source": "/loader.js",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Cache-Control", "value": "public, max-age=60" }
