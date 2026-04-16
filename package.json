@@ -1,0 +1,17 @@
+{
+  "name": "popup-studio",
+  "version": "1.0.0",
+  "description": "PopUp Studio - App externo Nuvemshop para pop-ups gamificados",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.x"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  }
+}
