@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pop Up Studio</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #22222d;
+    --border: #2e2e3d;
+    --accent: #7c5cfc;
+    --accent-light: #9b7fff;
+    --accent-dim: rgba(124,92,252,.15);
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e8e8f0;
+    --muted: #7878a0;
+    --radius: 10px;
+  }
+  body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LAYOUT */
+  #app { display: flex; min-height: 100vh; }
+  #sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
+  #main { flex: 1; overflow-y: auto; }
+
+  /* SIDEBAR */
+  .logo { display: flex; align-items: center; gap: 10px; padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-weight: 700; font-size: 15px; }
+  .logo-sub { font-size: 11px; color: var(--muted); }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; border-radius: 0; font-size: 14px; color: var(--muted); transition: all .15s; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim); color: var(--accent-light); border-right: 2px solid var(--accent); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .sidebar-bottom { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
+  .store-badge { font-size: 12px; color: var(--muted); word-break: break-all; }
+  .store-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+
+  /* HEADER */
+  .page-header { display: flex; align-items: center; justify-content: space-between; padding: 24px 32px 0; }
+  .page-title { font-size: 22px; font-weight: 700; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* VIEWS */
+  .view { padding: 24px 32px; display: none; }
+  .view.active { display: block; }
+
+  /* STAT CARDS */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value { font-size: 28px; font-weight: 700; margin: 6px 0 0; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.purple { color: var(--accent-light); }
+
+  /* POPUP LIST */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title { font-size: 15px; font-weight: 600; }
+  .popup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .popup-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: border-color .15s; position: relative; }
+  .popup-card:hover { border-color: var(--accent); }
+  .popup-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .popup-card-name { font-size: 15px; font-weight: 600; }
+  .popup-card-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; }
+  .badge-green { background: rgba(34,197,94,.15); color: var(--green); }
+  .badge-gray { background: rgba(120,120,160,.12); color: var(--muted); }
+  .badge-yellow { background: rgba(245,158,11,.12); color: var(--yellow); }
+  .popup-card-config { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+  .popup-card-actions { display: flex; gap: 8px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-light); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: var(--surface2); border-color: var(--muted); }
+  .btn-green { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+  .btn-green:hover { background: rgba(34,197,94,.25); }
+  .btn-red { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.25); }
+  .btn-red:hover { background: rgba(239,68,68,.2); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 20px; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .empty-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-overlay.hidden { display: none; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .modal-title { font-size: 17px; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 24px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--border); }
+
+  /* FORM */
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .form-input, .form-select, .form-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--text); outline: none; transition: border-color .15s; font-family: inherit; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .form-select option { background: var(--surface2); }
+  .color-row { display: flex; gap: 10px; align-items: center; }
+  .color-input { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 2px; cursor: pointer; background: transparent; }
+
+  /* LEADS / EVENTS TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface2); }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  /* LOADER */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-center { display: flex; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: var(--muted); }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+  .toast-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideIn .2s ease; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+  .toast-item.success { border-color: rgba(34,197,94,.4); }
+  .toast-item.error { border-color: rgba(239,68,68,.4); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* PREVIEW POPUP */
+  .preview-popup { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 16px; }
+  .preview-header { background: var(--surface2); padding: 8px 12px; font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .preview-frame { padding: 20px; display: flex; justify-content: center; }
+  .popup-preview-box { border-radius: 12px; padding: 28px 24px; max-width: 320px; width: 100%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+  .popup-preview-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .popup-preview-desc { font-size: 13px; opacity: .8; margin-bottom: 16px; }
+  .popup-preview-input { width: 100%; padding: 10px 12px; border-radius: 8px; border: none; font-size: 13px; margin-bottom: 10px; }
+  .popup-preview-btn { width: 100%; padding: 11px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    #sidebar { display: none; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+  .tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; transition: all .15s; }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+
+  /* LOGIN */
+  #login-view { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .login-box { text-align: center; padding: 40px; }
+  .login-icon { font-size: 56px; margin-bottom: 16px; }
+  .login-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .login-sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN STATE -->
+<div id="login-view" style="display:none">
+  <div class="login-box">
+    <div class="login-icon">ð¯</div>
+    <h1 class="login-title">Pop Up Studio</h1>
+    <p class="login-sub">SessÃ£o expirada. Por favor, reinstale o aplicativo.</p>
+    <a href="/api/auth/install" class="btn btn-primary" style="display:inline-flex">Entrar novamente</a>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="logo">
+      <div class="logo-icon">ð¯</div>
+      <div>
+        <div class="logo-text">Pop Up Studio</div>
+        <div class="logo-sub">v1.0</div>
+      </div>
+    </div>
+
+    <div class="nav-item active" onclick="showView('popups')">
+      <span class="nav-icon">ðª</span> Popups
+    </div>
+    <div class="nav-item" onclick="showView('leads')">
+      <span class="nav-icon">ð§</span> Leads
+    </div>
+    <div class="nav-item" onclick="showView('analytics')">
+      <span class="nav-icon">ð</span> Analytics
+    </div>
+    <div class="nav-item" onclick="showView('settings')">
+      <span class="nav-icon">âï¸</span> ConfiguraÃ§Ãµes
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="store-name" id="store-name">Carregando...</div>
+      <div class="store-badge" id="store-url"></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- POPUPS VIEW -->
+    <div id="view-popups" class="view active">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Meus Popups</h1>
+          <p class="page-sub">Crie e gerencie popups gamificados para sua loja</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          ï¼ Novo Popup
+        </button>
+      </div>
+
+      <div class="view" style="display:block; padding-top: 20px;">
+        <!-- Stats -->
+        <div class="stats-row" id="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Total de Popups</div>
+            <div class="stat-value purple" id="stat-total">â</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Publicados</div>
+            <div class="stat-value green" id="stat-published">â</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Leads Capturados</div>
+            <div class="stat-value" id="stat-leads">â</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">ImpressÃµes</div>
+            <div class="stat-value" id="stat-views">â</div>
+          </div>
+        </div>
+
+        <!-- Popup list -->
+        <div class="section-header">
+          <span class="section-title">Todos os Popups</span>
+        </div>
+        <div id="popup-list">
+          <div class="loading-center"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS VIEW -->
+    <div id="view-leads" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Leads Capturados</h1>
+          <p class="page-sub">E-mails coletados pelos seus popups</p>
+        </div>
+      </div>
+      <div style="padding: 20px 0;">
+        <div id="leads-list">
+          <div class="loading-center"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS VIEW -->
+    <div id="view-analytics" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Analytics</h1>
+          <p class="page-sub">Desempenho dos seus popups</p>
+        </div>
+      </div>
+      <div style="padding: 20px 0;">
+        <div id="analytics-list">
+          <div class="loading-center"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div id="view-settings" class="view">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">ConfiguraÃ§Ãµes</h1>
+          <p class="page-sub">Dados da sua loja conectada</p>
+        </div>
+      </div>
+      <div style="padding: 20px 0;">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; max-width: 500px;">
+          <div class="form-group">
+            <label class="form-label">Nome da Loja</label>
+            <input class="form-input" id="settings-name" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL da Loja</label>
+            <input class="form-input" id="settings-url" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plano</label>
+            <input class="form-input" id="settings-plan" readonly>
+          </div>
+          <div style="margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <a href="/api/auth/logout" class="btn btn-red btn-sm">Desconectar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- CREATE / EDIT MODAL -->
+<div class="modal-overlay hidden" id="popup-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Novo Popup</h2>
+      <button class="modal-close" onclick="closeModal()">â</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('config')">ConfiguraÃ§Ã£o</button>
+        <button class="tab" onclick="switchTab('design')">Design</button>
+        <button class="tab" onclick="switchTab('preview')">Preview</button>
+      </div>
+
+      <!-- CONFIG TAB -->
+      <div id="tab-config">
+        <div class="form-group">
+          <label class="form-label">Nome do Popup (interno)</label>
+          <input class="form-input" id="f-name" placeholder="Ex: Popup Black Friday">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" id="f-type">
+              <option value="email_capture">ð§ Captura de E-mail</option>
+              <option value="coupon">ðï¸ Cupom de Desconto</option>
+              <option value="announcement">ð¢ AnÃºncio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Atraso (segundos)</label>
+            <input class="form-input" id="f-delay" type="number" min="0" max="60" value="3">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TÃ­tulo do Popup</label>
+          <input class="form-input" id="f-title" placeholder="Ex: ð Ganhe 15% de desconto!">
+        </div>
+        <div class="form-group">
+          <label class="form-label">DescriÃ§Ã£o</label>
+          <textarea class="form-textarea" id="f-desc" placeholder="Ex: Cadastre seu e-mail e receba um cupom exclusivo agora mesmo."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Texto do BotÃ£o</label>
+            <input class="form-input" id="f-btn" placeholder="Quero meu desconto!">
+          </div>
+          <div class="form-group">
+            <label class="form-label">PrÃªmio / Cupom</label>
+            <input class="form-input" id="f-prize" placeholder="Ex: BEMVINDO15">
+          </div>
+        </div>
+      </div>
+
+      <!-- DESIGN TAB -->
+      <div id="tab-design" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Cor de Fundo</label>
+          <div class="color-row">
+            <input type="color" class="color-input" id="f-bg" value="#1a1a2e" oninput="updatePreview()">
+            <input class="form-input" id="f-bg-text" value="#1a1a2e" oninput="syncColor('bg')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor do Texto</label>
+          <div class="color-row">
+            <input type="color" class="color-input" id="f-text-color" value="#ffffff" oninput="updatePreview()">
+            <input class="form-input" id="f-text-text" value="#ffffff" oninput="syncColor('text')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor do BotÃ£o</label>
+          <div class="color-row">
+            <input type="color" class="color-input" id="f-btn-color" value="#7c5cfc" oninput="updatePreview()">
+            <input class="form-input" id="f-btn-text" value="#7c5cfc" oninput="syncColor('btn')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PosiÃ§Ã£o</label>
+          <select class="form-select" id="f-position">
+            <option value="center">Centro</option>
+            <option value="bottom-left">Canto inferior esquerdo</option>
+            <option value="bottom-right">Canto inferior direito</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emoji / Ãcone decorativo</label>
+          <input class="form-input" id="f-emoji" placeholder="ð" maxlength="4" oninput="updatePreview()">
+        </div>
+      </div>
+
+      <!-- PREVIEW TAB -->
+      <div id="tab-preview" style="display:none">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">PrÃ©via de como o popup aparecerÃ¡ na loja:</p>
+        <div class="preview-popup">
+          <div class="preview-header">ð¥ï¸ Preview</div>
+          <div class="preview-frame">
+            <div class="popup-preview-box" id="preview-box">
+              <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
+              <div class="popup-preview-title" id="preview-title">TÃ­tulo do Popup</div>
+              <div class="popup-preview-desc" id="preview-desc">DescriÃ§Ã£o aqui</div>
+              <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
+              <button class="popup-preview-btn" id="preview-btn">Quero meu desconto!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePopup()" id="save-btn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// âââ STATE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let store = null;
+let popups = [];
+let leads = [];
+let events = [];
+let editingId = null;
+let currentTab = 'config';
+
+// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function init() {
+  try {
+    const res = await api('GET', '/api/me');
+    store = res;
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('store-name').textContent = store.name || store.original_name || 'Minha Loja';
+    document.getElementById('store-url').textContent = store.url || '';
+    document.getElementById('settings-name').value = store.name || store.original_name || '';
+    document.getElementById('settings-url').value = store.url || '';
+    document.getElementById('settings-plan').value = store.plan_name || 'BÃ¡sico';
+    loadPopups();
+  } catch (e) {
+    document.getElementById('login-view').style.display = 'flex';
+  }
+}
+
+// âââ API HELPER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function api(method, url, body) {
+  const opts = { method, credentials: 'include', headers: {} };
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const res = await fetch(url, opts);
+  if (res.status === 401) throw new Error('unauthorized');
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Erro ' + res.status);
+  }
+  return res.json().catch(() => ({}));
+}
+
+// âââ NAVIGATION ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'leads') loadLeads();
+  if (name === 'analytics') loadAnalytics();
+}
+
+// âââ POPUPS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function loadPopups() {
+  try {
+    popups = await api('GET', '/api/popups');
+    renderPopups();
+    updateStats();
+  } catch(e) {
+    document.getElementById('popup-list').innerHTML = `<div class="empty"><div class="empty-icon">â ï¸</div><p>${e.message}</p></div>`;
+  }
+}
+
+function renderPopups() {
+  const el = document.getElementById('popup-list');
+  if (!popups.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">ðª</div>
+        <h3 class="empty-title">Nenhum popup criado ainda</h3>
+        <p class="empty-sub">Crie seu primeiro popup para comeÃ§ar a capturar leads e enganar clientes.</p>
+        <button class="btn btn-primary" onclick="openCreateModal()">ï¼ Criar meu primeiro popup</button>
+      </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="popup-grid">${popups.map(p => popupCard(p)).join('')}</div>`;
+}
+
+function popupCard(p) {
+  const cfg = p.config || {};
+  const published = p.is_published;
+  return `
+    <div class="popup-card" onclick="openEditModal('${p.id}')">
+      <div class="popup-card-header">
+        <div>
+          <div class="popup-card-name">${esc(p.name)}</div>
+          <div class="popup-card-type">${typeLabel(p.type)}</div>
+        </div>
+        <span class="badge ${published ? 'badge-green' : 'badge-gray'}">
+          ${published ? 'â Publicado' : 'â Rascunho'}
+        </span>
+      </div>
+      <div class="popup-card-config">
+        ${cfg.title ? `<strong>${esc(cfg.title)}</strong><br>` : ''}
+        ${cfg.description ? esc(cfg.description).substring(0,80) + (cfg.description.length > 80 ? 'â¦' : '') : 'Sem descriÃ§Ã£o'}
+      </div>
+      <div class="popup-card-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')">âï¸ Editar</button>
+        ${published
+          ? `<button class="btn btn-red btn-sm" onclick="togglePublish('${p.id}',false)">â¬ Despublicar</button>`
+          : `<button class="btn btn-green btn-sm" onclick="togglePublish('${p.id}',true)">â¬ Publicar</button>`}
+        <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup('${p.id}')">ð</button>
+      </div>
+    </div>`;
+}
+
+async function updateStats() {
+  document.getElementById('stat-total').textContent = popups.length;
+  document.getElementById('stat-published').textContent = popups.filter(p => p.is_published).length;
+  // try to load counts
+  try {
+    const [l, e] = await Promise.all([
+      api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
+      api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
+    ]);
+    document.getElementById('stat-leads').textContent = l.count ?? 'â';
+    document.getElementById('stat-views').textContent = e.count ?? 'â';
+  } catch { }
+}
+
+async function togglePublish(id, publish) {
+  try {
+    toast('Processando...', 'info');
+    const endpoint = publish ? '/api/popups/publish' : '/api/popups/unpublish';
+    await api('POST', endpoint, { popupId: id });
+    toast(publish ? 'Popup publicado! O script foi injetado na loja.' : 'Popup despublicado.', 'success');
+    await loadPopups();
+  } catch(e) {
+    toast('Erro: ' + e.message, 'error');
+  }
+}
+
+async function deletePopup(id) {
+  if (!confirm('Tem certeza que deseja excluir este popup?')) return;
+  try {
+    await api('DELETE', '/api/popups/' + id);
+    toast('Popup excluÃ­do.', 'success');
+    await loadPopups();
+  } catch(e) {
+    toast('Erro: ' + e.message, 'error');
+  }
+}
+
+// âââ MODAL ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function openCreateModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Novo Popup';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-type').value = 'email_capture';
+  document.getElementById('f-delay').value = '3';
+  document.getElementById('f-title').value = 'ð Ganhe um desconto exclusivo!';
+  document.getElementById('f-desc').value = 'Cadastre seu e-mail e receba um cupom especial agora mesmo.';
+  document.getElementById('f-btn').value = 'Quero meu desconto!';
+  document.getElementById('f-prize').value = '';
+  document.getElementById('f-bg').value = '#1a1a2e';
+  document.getElementById('f-bg-text').value = '#1a1a2e';
+  document.getElementById('f-text-color').value = '#ffffff';
+  document.getElementById('f-text-text').value = '#ffffff';
+  document.getElementById('f-btn-color').value = '#7c5cfc';
+  document.getElementById('f-btn-text').value = '#7c5cfc';
+  document.getElementById('f-emoji').value = 'ð';
+  document.getElementById('f-position').value = 'center';
+  switchTab('config');
+  document.getElementById('popup-modal').classList.remove('hidden');
+  updatePreview();
+}
+
+function openEditModal(id) {
+  const p = popups.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  const cfg = p.config || {};
+  document.getElementById('modal-title').textContent = 'Editar Popup';
+  document.getElementById('f-name').value = p.name || '';
+  document.getElementById('f-type').value = p.type || 'email_capture';
+  document.getElementById('f-delay').value = cfg.trigger_delay ?? 3;
+  document.getElementById('f-title').value = cfg.title || '';
+  document.getElementById('f-desc').value = cfg.description || '';
+  document.getElementById('f-btn').value = cfg.button_text || '';
+  document.getElementById('f-prize').value = cfg.prize || '';
+  const bg = cfg.background_color || '#1a1a2e';
+  const tc = cfg.text_color || '#ffffff';
+  const bc = cfg.button_color || '#7c5cfc';
+  document.getElementById('f-bg').value = bg; document.getElementById('f-bg-text').value = bg;
+  document.getElementById('f-text-color').value = tc; document.getElementById('f-text-text').value = tc;
+  document.getElementById('f-btn-color').value = bc; document.getElementById('f-btn-text').value = bc;
+  document.getElementById('f-emoji').value = cfg.emoji || 'ð';
+  document.getElementById('f-position').value = cfg.position || 'center';
+  switchTab('config');
+  document.getElementById('popup-modal').classList.remove('hidden');
+  updatePreview();
+}
+
+function closeModal() {
+  document.getElementById('popup-modal').classList.add('hidden');
+  editingId = null;
+}
+
+async function savePopup() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('Digite um nome para o popup.', 'error'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+
+  const payload = {
+    name,
+    type: document.getElementById('f-type').value,
+    config: {
+      title: document.getElementById('f-title').value,
+      description: document.getElementById('f-desc').value,
+      button_text: document.getElementById('f-btn').value,
+      prize: document.getElementById('f-prize').value,
+      trigger_delay: parseInt(document.getElementById('f-delay').value) || 3,
+      background_color: document.getElementById('f-bg').value,
+      text_color: document.getElementById('f-text-color').value,
+      button_color: document.getElementById('f-btn-color').value,
+      emoji: document.getElementById('f-emoji').value,
+      position: document.getElementById('f-position').value,
+    }
+  };
+
+  try {
+    if (editingId) {
+      await api('PUT', '/api/popups/' + editingId, payload);
+      toast('Popup atualizado!', 'success');
+    } else {
+      await api('POST', '/api/popups', payload);
+      toast('Popup criado com sucesso!', 'success');
+    }
+    closeModal();
+    await loadPopups();
+  } catch(e) {
+    toast('Erro: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salvar';
+  }
+}
+
+// âââ TABS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function switchTab(name) {
+  currentTab = name;
+  ['config','design','preview'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+    document.querySelectorAll('.tab').forEach((el, i) => {
+      el.classList.toggle('active', ['config','design','preview'][i] === name);
+    });
+  });
+  if (name === 'preview') updatePreview();
+}
+
+function updatePreview() {
+  const bg = document.getElementById('f-bg').value;
+  const tc = document.getElementById('f-text-color').value;
+  const bc = document.getElementById('f-btn-color').value;
+  const emoji = document.getElementById('f-emoji').value;
+  const box = document.getElementById('preview-box');
+  if (!box) return;
+  box.style.background = bg;
+  box.style.color = tc;
+  document.getElementById('preview-emoji').textContent = emoji;
+  document.getElementById('preview-title').textContent = document.getElementById('f-title').value || 'TÃ­tulo do Popup';
+  document.getElementById('preview-desc').textContent = document.getElementById('f-desc').value || 'DescriÃ§Ã£o';
+  const pbtn = document.getElementById('preview-btn');
+  pbtn.textContent = document.getElementById('f-btn').value || 'Clique aqui';
+  pbtn.style.background = bc;
+  pbtn.style.color = '#fff';
+  const inp = document.getElementById('preview-input');
+  const ftype = document.getElementById('f-type').value;
+  inp.style.display = ftype === 'email_capture' ? 'block' : 'none';
+}
+
+function syncColor(field) {
+  const map = { bg: ['f-bg', 'f-bg-text'], text: ['f-text-color', 'f-text-text'], btn: ['f-btn-color', 'f-btn-text'] };
+  const [picker, input] = map[field];
+  document.getElementById(picker).value = document.getElementById(input).value;
+  updatePreview();
+}
+
+// âââ LEADS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function loadLeads() {
+  const el = document.getElementById('leads-list');
+  el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
+  try {
+    // leads endpoint doesn't exist for GET (it's only POST from public)
+    // We'd need a private leads endpoint â for now show helpful message
+    el.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">ð§</div>
+        <h3 class="empty-title">Leads</h3>
+        <p class="empty-sub">Os leads capturados ficam armazenados no Supabase.<br>
+        Acesse o painel do Supabase para ver os dados da tabela <strong>leads</strong>.</p>
+        <a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase â</a>
+      </div>`;
+  } catch(e) { el.innerHTML = `<p>${e.message}</p>`; }
+}
+
+// âââ ANALYTICS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+async function loadAnalytics() {
+  const el = document.getElementById('analytics-list');
+  el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
+  el.innerHTML = `
+    <div class="empty">
+      <div class="empty-icon">ð</div>
+      <h3 class="empty-title">Analytics</h3>
+      <p class="empty-sub">Os eventos ficam na tabela <strong>events</strong> no Supabase.<br>
+      Consulte impressÃµes, cliques e conversÃµes diretamente no banco.</p>
+      <a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase â</a>
+    </div>`;
+}
+
+// âââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function typeLabel(t) {
+  return { email_capture: 'ð§ Captura de E-mail', coupon: 'ðï¸ Cupom', announcement: 'ð¢ AnÃºncio' }[t] || t;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const el = document.createElement('div');
+  el.className = `toast-item ${type}`;
+  el.textContent = type === 'success' ? 'â ' + msg : type === 'error' ? 'â ' + msg : 'â³ ' + msg;
+  t.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// Close modal on backdrop click
+document.getElementById('popup-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Start
+init();
+</script>
+</body>
+</html>
