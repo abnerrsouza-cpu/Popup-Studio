@@ -171,9 +171,9 @@
 <!-- LOGIN STATE -->
 <div id="login-view" style="display:none">
   <div class="login-box">
-    <div class="login-icon">ð¯</div>
+    <div class="login-icon">🎯</div>
     <h1 class="login-title">Pop Up Studio</h1>
-    <p class="login-sub">SessÃ£o expirada. Por favor, reinstale o aplicativo.</p>
+    <p class="login-sub">Sessão expirada. Por favor, reinstale o aplicativo.</p>
     <a href="/api/auth/install" class="btn btn-primary" style="display:inline-flex">Entrar novamente</a>
   </div>
 </div>
@@ -183,7 +183,7 @@
   <!-- SIDEBAR -->
   <nav id="sidebar">
     <div class="logo">
-      <div class="logo-icon">ð¯</div>
+      <div class="logo-icon">🎯</div>
       <div>
         <div class="logo-text">Pop Up Studio</div>
         <div class="logo-sub">v1.0</div>
@@ -191,16 +191,16 @@
     </div>
 
     <div class="nav-item active" onclick="showView('popups')">
-      <span class="nav-icon">ðª</span> Popups
+      <span class="nav-icon">🪟</span> Popups
     </div>
     <div class="nav-item" onclick="showView('leads')">
-      <span class="nav-icon">ð§</span> Leads
+      <span class="nav-icon">📧</span> Leads
     </div>
     <div class="nav-item" onclick="showView('analytics')">
-      <span class="nav-icon">ð</span> Analytics
+      <span class="nav-icon">📊</span> Analytics
     </div>
     <div class="nav-item" onclick="showView('settings')">
-      <span class="nav-icon">âï¸</span> ConfiguraÃ§Ãµes
+      <span class="nav-icon">⚙️</span> Configurações
     </div>
 
     <div class="sidebar-bottom">
@@ -220,7 +220,7 @@
           <p class="page-sub">Crie e gerencie popups gamificados para sua loja</p>
         </div>
         <button class="btn btn-primary" onclick="openCreateModal()">
-          ï¼ Novo Popup
+          ＋ Novo Popup
         </button>
       </div>
 
@@ -229,19 +229,19 @@
         <div class="stats-row" id="stats-row">
           <div class="stat-card">
             <div class="stat-label">Total de Popups</div>
-            <div class="stat-value purple" id="stat-total">â</div>
+            <div class="stat-value purple" id="stat-total">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Publicados</div>
-            <div class="stat-value green" id="stat-published">â</div>
+            <div class="stat-value green" id="stat-published">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Leads Capturados</div>
-            <div class="stat-value" id="stat-leads">â</div>
+            <div class="stat-value" id="stat-leads">—</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">ImpressÃµes</div>
-            <div class="stat-value" id="stat-views">â</div>
+            <div class="stat-label">Impressões</div>
+            <div class="stat-value" id="stat-views">—</div>
           </div>
         </div>
 
@@ -289,7 +289,7 @@
     <div id="view-settings" class="view">
       <div class="page-header">
         <div>
-          <h1 class="page-title">ConfiguraÃ§Ãµes</h1>
+          <h1 class="page-title">Configurações</h1>
           <p class="page-sub">Dados da sua loja conectada</p>
         </div>
       </div>
@@ -322,11 +322,11 @@
   <div class="modal">
     <div class="modal-header">
       <h2 class="modal-title" id="modal-title">Novo Popup</h2>
-      <button class="modal-close" onclick="closeModal()">â</button>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('config')">ConfiguraÃ§Ã£o</button>
+        <button class="tab active" onclick="switchTab('config')">Configuração</button>
         <button class="tab" onclick="switchTab('design')">Design</button>
         <button class="tab" onclick="switchTab('preview')">Preview</button>
       </div>
@@ -341,9 +341,9 @@
           <div class="form-group">
             <label class="form-label">Tipo</label>
             <select class="form-select" id="f-type">
-              <option value="email_capture">ð§ Captura de E-mail</option>
-              <option value="coupon">ðï¸ Cupom de Desconto</option>
-              <option value="announcement">ð¢ AnÃºncio</option>
+              <option value="email_capture">📧 Captura de E-mail</option>
+              <option value="coupon">🎟️ Cupom de Desconto</option>
+              <option value="announcement">📢 Anúncio</option>
             </select>
           </div>
           <div class="form-group">
@@ -352,20 +352,20 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">TÃ­tulo do Popup</label>
-          <input class="form-input" id="f-title" placeholder="Ex: ð Ganhe 15% de desconto!">
+          <label class="form-label">Título do Popup</label>
+          <input class="form-input" id="f-title" placeholder="Ex: 🎁 Ganhe 15% de desconto!">
         </div>
         <div class="form-group">
-          <label class="form-label">DescriÃ§Ã£o</label>
+          <label class="form-label">Descrição</label>
           <textarea class="form-textarea" id="f-desc" placeholder="Ex: Cadastre seu e-mail e receba um cupom exclusivo agora mesmo."></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Texto do BotÃ£o</label>
+            <label class="form-label">Texto do Botão</label>
             <input class="form-input" id="f-btn" placeholder="Quero meu desconto!">
           </div>
           <div class="form-group">
-            <label class="form-label">PrÃªmio / Cupom</label>
+            <label class="form-label">Prêmio / Cupom</label>
             <input class="form-input" id="f-prize" placeholder="Ex: BEMVINDO15">
           </div>
         </div>
@@ -388,14 +388,14 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Cor do BotÃ£o</label>
+          <label class="form-label">Cor do Botão</label>
           <div class="color-row">
             <input type="color" class="color-input" id="f-btn-color" value="#7c5cfc" oninput="updatePreview()">
             <input class="form-input" id="f-btn-text" value="#7c5cfc" oninput="syncColor('btn')">
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">PosiÃ§Ã£o</label>
+          <label class="form-label">Posição</label>
           <select class="form-select" id="f-position">
             <option value="center">Centro</option>
             <option value="bottom-left">Canto inferior esquerdo</option>
@@ -403,21 +403,21 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Emoji / Ãcone decorativo</label>
-          <input class="form-input" id="f-emoji" placeholder="ð" maxlength="4" oninput="updatePreview()">
+          <label class="form-label">Emoji / Ícone decorativo</label>
+          <input class="form-input" id="f-emoji" placeholder="🎁" maxlength="4" oninput="updatePreview()">
         </div>
       </div>
 
       <!-- PREVIEW TAB -->
       <div id="tab-preview" style="display:none">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">PrÃ©via de como o popup aparecerÃ¡ na loja:</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Prévia de como o popup aparecerá na loja:</p>
         <div class="preview-popup">
-          <div class="preview-header">ð¥ï¸ Preview</div>
+          <div class="preview-header">🖥️ Preview</div>
           <div class="preview-frame">
             <div class="popup-preview-box" id="preview-box">
               <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
-              <div class="popup-preview-title" id="preview-title">TÃ­tulo do Popup</div>
-              <div class="popup-preview-desc" id="preview-desc">DescriÃ§Ã£o aqui</div>
+              <div class="popup-preview-title" id="preview-title">Título do Popup</div>
+              <div class="popup-preview-desc" id="preview-desc">Descrição aqui</div>
               <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
               <button class="popup-preview-btn" id="preview-btn">Quero meu desconto!</button>
             </div>
@@ -436,7 +436,7 @@
 <div id="toast"></div>
 
 <script>
-// âââ STATE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── STATE ───────────────────────────────────────────────────────────────────
 let store = null;
 let popups = [];
 let leads = [];
@@ -444,7 +444,7 @@ let events = [];
 let editingId = null;
 let currentTab = 'config';
 
-// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 async function init() {
   try {
     const res = await api('GET', '/api/me');
@@ -454,14 +454,14 @@ async function init() {
     document.getElementById('store-url').textContent = store.url || '';
     document.getElementById('settings-name').value = store.name || store.original_name || '';
     document.getElementById('settings-url').value = store.url || '';
-    document.getElementById('settings-plan').value = store.plan_name || 'BÃ¡sico';
+    document.getElementById('settings-plan').value = store.plan_name || 'Básico';
     loadPopups();
   } catch (e) {
     document.getElementById('login-view').style.display = 'flex';
   }
 }
 
-// âââ API HELPER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── API HELPER ───────────────────────────────────────────────────────────────
 async function api(method, url, body) {
   const opts = { method, credentials: 'include', headers: {} };
   if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
@@ -474,7 +474,7 @@ async function api(method, url, body) {
   return res.json().catch(() => ({}));
 }
 
-// âââ NAVIGATION ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -485,14 +485,15 @@ function showView(name) {
   if (name === 'analytics') loadAnalytics();
 }
 
-// âââ POPUPS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── POPUPS ───────────────────────────────────────────────────────────────────
 async function loadPopups() {
   try {
-    popups = await api('GET', '/api/popups');
+    const result = await api('GET', '/api/popups');
+    popups = Array.isArray(result) ? result : (result.popups || []);
     renderPopups();
     updateStats();
   } catch(e) {
-    document.getElementById('popup-list').innerHTML = `<div class="empty"><div class="empty-icon">â ï¸</div><p>${e.message}</p></div>`;
+    document.getElementById('popup-list').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p>${e.message}</p></div>`;
   }
 }
 
@@ -501,10 +502,10 @@ function renderPopups() {
   if (!popups.length) {
     el.innerHTML = `
       <div class="empty">
-        <div class="empty-icon">ðª</div>
+        <div class="empty-icon">🪟</div>
         <h3 class="empty-title">Nenhum popup criado ainda</h3>
-        <p class="empty-sub">Crie seu primeiro popup para comeÃ§ar a capturar leads e enganar clientes.</p>
-        <button class="btn btn-primary" onclick="openCreateModal()">ï¼ Criar meu primeiro popup</button>
+        <p class="empty-sub">Crie seu primeiro popup para começar a capturar leads e engajar clientes.</p>
+        <button class="btn btn-primary" onclick="openCreateModal()">＋ Criar meu primeiro popup</button>
       </div>`;
     return;
   }
@@ -522,19 +523,19 @@ function popupCard(p) {
           <div class="popup-card-type">${typeLabel(p.type)}</div>
         </div>
         <span class="badge ${published ? 'badge-green' : 'badge-gray'}">
-          ${published ? 'â Publicado' : 'â Rascunho'}
+          ${published ? '● Publicado' : '○ Rascunho'}
         </span>
       </div>
       <div class="popup-card-config">
         ${cfg.title ? `<strong>${esc(cfg.title)}</strong><br>` : ''}
-        ${cfg.description ? esc(cfg.description).substring(0,80) + (cfg.description.length > 80 ? 'â¦' : '') : 'Sem descriÃ§Ã£o'}
+        ${cfg.description ? esc(cfg.description).substring(0,80) + (cfg.description.length > 80 ? '…' : '') : 'Sem descrição'}
       </div>
       <div class="popup-card-actions" onclick="event.stopPropagation()">
-        <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')">âï¸ Editar</button>
+        <button class="btn btn-outline btn-sm" onclick="openEditModal('${p.id}')">✏️ Editar</button>
         ${published
-          ? `<button class="btn btn-red btn-sm" onclick="togglePublish('${p.id}',false)">â¬ Despublicar</button>`
-          : `<button class="btn btn-green btn-sm" onclick="togglePublish('${p.id}',true)">â¬ Publicar</button>`}
-        <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup('${p.id}')">ð</button>
+          ? `<button class="btn btn-red btn-sm" onclick="togglePublish('${p.id}',false)">⬇ Despublicar</button>`
+          : `<button class="btn btn-green btn-sm" onclick="togglePublish('${p.id}',true)">⬆ Publicar</button>`}
+        <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup('${p.id}')">🗑</button>
       </div>
     </div>`;
 }
@@ -548,8 +549,8 @@ async function updateStats() {
       api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
       api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
     ]);
-    document.getElementById('stat-leads').textContent = l.count ?? 'â';
-    document.getElementById('stat-views').textContent = e.count ?? 'â';
+    document.getElementById('stat-leads').textContent = l.count ?? '—';
+    document.getElementById('stat-views').textContent = e.count ?? '—';
   } catch { }
 }
 
@@ -569,21 +570,21 @@ async function deletePopup(id) {
   if (!confirm('Tem certeza que deseja excluir este popup?')) return;
   try {
     await api('DELETE', '/api/popups/' + id);
-    toast('Popup excluÃ­do.', 'success');
+    toast('Popup excluído.', 'success');
     await loadPopups();
   } catch(e) {
     toast('Erro: ' + e.message, 'error');
   }
 }
 
-// âââ MODAL ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── MODAL ────────────────────────────────────────────────────────────────────
 function openCreateModal() {
   editingId = null;
   document.getElementById('modal-title').textContent = 'Novo Popup';
   document.getElementById('f-name').value = '';
   document.getElementById('f-type').value = 'email_capture';
   document.getElementById('f-delay').value = '3';
-  document.getElementById('f-title').value = 'ð Ganhe um desconto exclusivo!';
+  document.getElementById('f-title').value = '🎁 Ganhe um desconto exclusivo!';
   document.getElementById('f-desc').value = 'Cadastre seu e-mail e receba um cupom especial agora mesmo.';
   document.getElementById('f-btn').value = 'Quero meu desconto!';
   document.getElementById('f-prize').value = '';
@@ -593,7 +594,7 @@ function openCreateModal() {
   document.getElementById('f-text-text').value = '#ffffff';
   document.getElementById('f-btn-color').value = '#7c5cfc';
   document.getElementById('f-btn-text').value = '#7c5cfc';
-  document.getElementById('f-emoji').value = 'ð';
+  document.getElementById('f-emoji').value = '🎁';
   document.getElementById('f-position').value = 'center';
   switchTab('config');
   document.getElementById('popup-modal').classList.remove('hidden');
@@ -619,7 +620,7 @@ function openEditModal(id) {
   document.getElementById('f-bg').value = bg; document.getElementById('f-bg-text').value = bg;
   document.getElementById('f-text-color').value = tc; document.getElementById('f-text-text').value = tc;
   document.getElementById('f-btn-color').value = bc; document.getElementById('f-btn-text').value = bc;
-  document.getElementById('f-emoji').value = cfg.emoji || 'ð';
+  document.getElementById('f-emoji').value = cfg.emoji || '🎁';
   document.getElementById('f-position').value = cfg.position || 'center';
   switchTab('config');
   document.getElementById('popup-modal').classList.remove('hidden');
@@ -672,7 +673,7 @@ async function savePopup() {
   }
 }
 
-// âââ TABS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── TABS ─────────────────────────────────────────────────────────────────────
 function switchTab(name) {
   currentTab = name;
   ['config','design','preview'].forEach(t => {
@@ -694,8 +695,8 @@ function updatePreview() {
   box.style.background = bg;
   box.style.color = tc;
   document.getElementById('preview-emoji').textContent = emoji;
-  document.getElementById('preview-title').textContent = document.getElementById('f-title').value || 'TÃ­tulo do Popup';
-  document.getElementById('preview-desc').textContent = document.getElementById('f-desc').value || 'DescriÃ§Ã£o';
+  document.getElementById('preview-title').textContent = document.getElementById('f-title').value || 'Título do Popup';
+  document.getElementById('preview-desc').textContent = document.getElementById('f-desc').value || 'Descrição';
   const pbtn = document.getElementById('preview-btn');
   pbtn.textContent = document.getElementById('f-btn').value || 'Clique aqui';
   pbtn.style.background = bc;
@@ -712,41 +713,41 @@ function syncColor(field) {
   updatePreview();
 }
 
-// âââ LEADS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── LEADS ────────────────────────────────────────────────────────────────────
 async function loadLeads() {
   const el = document.getElementById('leads-list');
   el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
   try {
     // leads endpoint doesn't exist for GET (it's only POST from public)
-    // We'd need a private leads endpoint â for now show helpful message
+    // We'd need a private leads endpoint — for now show helpful message
     el.innerHTML = `
       <div class="empty">
-        <div class="empty-icon">ð§</div>
+        <div class="empty-icon">📧</div>
         <h3 class="empty-title">Leads</h3>
         <p class="empty-sub">Os leads capturados ficam armazenados no Supabase.<br>
         Acesse o painel do Supabase para ver os dados da tabela <strong>leads</strong>.</p>
-        <a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase â</a>
+        <a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase ↗</a>
       </div>`;
   } catch(e) { el.innerHTML = `<p>${e.message}</p>`; }
 }
 
-// âââ ANALYTICS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── ANALYTICS ───────────────────────────────────────────────────────────────
 async function loadAnalytics() {
   const el = document.getElementById('analytics-list');
   el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
   el.innerHTML = `
     <div class="empty">
-      <div class="empty-icon">ð</div>
+      <div class="empty-icon">📊</div>
       <h3 class="empty-title">Analytics</h3>
       <p class="empty-sub">Os eventos ficam na tabela <strong>events</strong> no Supabase.<br>
-      Consulte impressÃµes, cliques e conversÃµes diretamente no banco.</p>
-      <a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase â</a>
+      Consulte impressões, cliques e conversões diretamente no banco.</p>
+      <a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase ↗</a>
     </div>`;
 }
 
-// âââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 function typeLabel(t) {
-  return { email_capture: 'ð§ Captura de E-mail', coupon: 'ðï¸ Cupom', announcement: 'ð¢ AnÃºncio' }[t] || t;
+  return { email_capture: '📧 Captura de E-mail', coupon: '🎟️ Cupom', announcement: '📢 Anúncio' }[t] || t;
 }
 
 function esc(s) {
@@ -757,7 +758,7 @@ function toast(msg, type='info') {
   const t = document.getElementById('toast');
   const el = document.createElement('div');
   el.className = `toast-item ${type}`;
-  el.textContent = type === 'success' ? 'â ' + msg : type === 'error' ? 'â ' + msg : 'â³ ' + msg;
+  el.textContent = type === 'success' ? '✅ ' + msg : type === 'error' ? '❌ ' + msg : '⏳ ' + msg;
   t.appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
