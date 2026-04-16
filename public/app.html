@@ -504,7 +504,7 @@ function renderPopups() {
       <div class="empty">
         <div class="empty-icon">🪟</div>
         <h3 class="empty-title">Nenhum popup criado ainda</h3>
-        <p class="empty-sub">Crie seu primeiro popup para começar a capturar leads e engajar clientes.</p>
+        <p class="empty-sub">Crie seu primeiro popup para começar a capturar leads e engarar clientes.</p>
         <button class="btn btn-primary" onclick="openCreateModal()">＋ Criar meu primeiro popup</button>
       </div>`;
     return;
@@ -520,7 +520,7 @@ function popupCard(p) {
       <div class="popup-card-header">
         <div>
           <div class="popup-card-name">${esc(p.name)}</div>
-          <div class="popup-card-type">${typeLabel(p.type)}</div>
+          <div class="popup-card-type">${typeLabel(p.game_type)}</div>
         </div>
         <span class="badge ${published ? 'badge-green' : 'badge-gray'}">
           ${published ? '● Publicado' : '○ Rascunho'}
@@ -608,7 +608,7 @@ function openEditModal(id) {
   const cfg = p.config || {};
   document.getElementById('modal-title').textContent = 'Editar Popup';
   document.getElementById('f-name').value = p.name || '';
-  document.getElementById('f-type').value = p.type || 'email_capture';
+  document.getElementById('f-type').value = p.game_type || 'email_capture';
   document.getElementById('f-delay').value = cfg.trigger_delay ?? 3;
   document.getElementById('f-title').value = cfg.title || '';
   document.getElementById('f-desc').value = cfg.description || '';
@@ -641,7 +641,7 @@ async function savePopup() {
 
   const payload = {
     name,
-    type: document.getElementById('f-type').value,
+    game_type: document.getElementById('f-type').value,
     config: {
       title: document.getElementById('f-title').value,
       description: document.getElementById('f-desc').value,
