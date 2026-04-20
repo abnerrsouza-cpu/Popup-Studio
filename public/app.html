@@ -467,7 +467,7 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
-      width: 100%; max-width: 580px;
+      width: 100%; max-width: 960px;
       max-height: 90vh; overflow-y: auto;
     }
     .modal-header {
@@ -479,6 +479,19 @@
     .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; padding: 4px; }
     .modal-close:hover { color: var(--text); }
     .modal-body { padding: 24px; }
+    .modal-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .modal-form-side { min-width: 0; }
+    .modal-preview-side {
+      position: sticky;
+      top: 0;
+      padding-top: 4px;
+    }
+    .modal-preview-side .preview-popup { margin-top: 0; }
     .modal-footer {
       display: flex; gap: 10px; justify-content: flex-end;
       padding: 16px 24px;
@@ -995,98 +1008,102 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="tabs">
-          <button class="tab active" onclick="switchTab('config')">Configuração</button>
-          <button class="tab" onclick="switchTab('design')">Design</button>
-          <button class="tab" onclick="switchTab('preview')">Preview</button>
-        </div>
-        <!-- CONFIG TAB -->
-        <div id="tab-config">
-          <div class="form-group">
-            <label class="form-label">Nome do Popup (interno)</label>
-            <input class="form-input" id="f-name" placeholder="Ex: Popup Black Friday">
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Jogo</label>
-              <select class="form-select" id="f-type">
-                <option value="spin_wheel">🎡 Roleta da Sorte</option>
-                <option value="slot_machine">🎰 Slot Machine</option>
-                <option value="scratch_card">🃏 Raspadinha</option>
-              </select>
+        <div class="modal-split">
+          <!-- LEFT: Form -->
+          <div class="modal-form-side">
+            <div class="tabs">
+              <button class="tab active" onclick="switchTab('config')">Configuração</button>
+              <button class="tab" onclick="switchTab('design')">Design</button>
             </div>
-            <div class="form-group">
-              <label class="form-label">Atraso (segundos)</label>
-              <input class="form-input" id="f-delay" type="number" min="0" max="60" value="3">
+            <!-- CONFIG TAB -->
+            <div id="tab-config">
+              <div class="form-group">
+                <label class="form-label">Nome do Popup (interno)</label>
+                <input class="form-input" id="f-name" placeholder="Ex: Popup Black Friday">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Jogo</label>
+                  <select class="form-select" id="f-type">
+                    <option value="spin_wheel">🎡 Roleta da Sorte</option>
+                    <option value="slot_machine">🎰 Slot Machine</option>
+                    <option value="scratch_card">🃏 Raspadinha</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Atraso (segundos)</label>
+                  <input class="form-input" id="f-delay" type="number" min="0" max="60" value="3">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Título do Popup</label>
+                <input class="form-input" id="f-title" placeholder="Ex: 🎁 Ganhe 15% de desconto!" oninput="updatePreview()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-textarea" id="f-desc" placeholder="Ex: Cadastre seu e-mail e jogue para ganhar um cupom exclusivo!" oninput="updatePreview()"></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Texto do Botão</label>
+                  <input class="form-input" id="f-btn" placeholder="Quero jogar!" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cupom de Desconto</label>
+                  <input class="form-input" id="f-prize" placeholder="Ex: BEMVINDO15">
+                </div>
+              </div>
+            </div>
+            <!-- DESIGN TAB -->
+            <div id="tab-design" style="display:none">
+              <div class="form-group">
+                <label class="form-label">Cor de Fundo</label>
+                <div class="color-row">
+                  <input type="color" class="color-input" id="f-bg" value="#1a1a2e" oninput="updatePreview()">
+                  <input class="form-input" id="f-bg-text" value="#1a1a2e" oninput="syncColor('bg')">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cor do Texto</label>
+                <div class="color-row">
+                  <input type="color" class="color-input" id="f-text-color" value="#ffffff" oninput="updatePreview()">
+                  <input class="form-input" id="f-text-text" value="#ffffff" oninput="syncColor('text')">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cor do Botão</label>
+                <div class="color-row">
+                  <input type="color" class="color-input" id="f-btn-color" value="#7c5cfc" oninput="updatePreview()">
+                  <input class="form-input" id="f-btn-text" value="#7c5cfc" oninput="syncColor('btn')">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Posição</label>
+                <select class="form-select" id="f-position">
+                  <option value="center">Centro</option>
+                  <option value="bottom-left">Canto inferior esquerdo</option>
+                  <option value="bottom-right">Canto inferior direito</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Emoji / Ícone decorativo</label>
+                <input class="form-input" id="f-emoji" placeholder="🎁" maxlength="4" oninput="updatePreview()">
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Título do Popup</label>
-            <input class="form-input" id="f-title" placeholder="Ex: 🎁 Ganhe 15% de desconto!">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Descrição</label>
-            <textarea class="form-textarea" id="f-desc" placeholder="Ex: Cadastre seu e-mail e jogue para ganhar um cupom exclusivo!"></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Texto do Botão</label>
-              <input class="form-input" id="f-btn" placeholder="Quero jogar!">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Cupom de Desconto</label>
-              <input class="form-input" id="f-prize" placeholder="Ex: BEMVINDO15">
-            </div>
-          </div>
-        </div>
-        <!-- DESIGN TAB -->
-        <div id="tab-design" style="display:none">
-          <div class="form-group">
-            <label class="form-label">Cor de Fundo</label>
-            <div class="color-row">
-              <input type="color" class="color-input" id="f-bg" value="#1a1a2e" oninput="updatePreview()">
-              <input class="form-input" id="f-bg-text" value="#1a1a2e" oninput="syncColor('bg')">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Cor do Texto</label>
-            <div class="color-row">
-              <input type="color" class="color-input" id="f-text-color" value="#ffffff" oninput="updatePreview()">
-              <input class="form-input" id="f-text-text" value="#ffffff" oninput="syncColor('text')">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Cor do Botão</label>
-            <div class="color-row">
-              <input type="color" class="color-input" id="f-btn-color" value="#7c5cfc" oninput="updatePreview()">
-              <input class="form-input" id="f-btn-text" value="#7c5cfc" oninput="syncColor('btn')">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Posição</label>
-            <select class="form-select" id="f-position">
-              <option value="center">Centro</option>
-              <option value="bottom-left">Canto inferior esquerdo</option>
-              <option value="bottom-right">Canto inferior direito</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Emoji / Ícone decorativo</label>
-            <input class="form-input" id="f-emoji" placeholder="🎡" maxlength="4" oninput="updatePreview()">
-          </div>
-        </div>
-        <!-- PREVIEW TAB -->
-        <div id="tab-preview" style="display:none">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Prévia de como o popup aparecerá na loja:</p>
-          <div class="preview-popup">
-            <div class="preview-header">🖥️ Preview</div>
-            <div class="preview-frame">
-              <div class="popup-preview-box" id="preview-box">
-                <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
-                <div class="popup-preview-title" id="preview-title">Título do Popup</div>
-                <div class="popup-preview-desc" id="preview-desc">Descrição aqui</div>
-                <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
-                <button class="popup-preview-btn" id="preview-btn">Quero jogar!</button>
+          <!-- RIGHT: Live Preview (always visible) -->
+          <div class="modal-preview-side">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Preview ao vivo</p>
+            <div class="preview-popup">
+              <div class="preview-header">🖥️ Prévia da loja</div>
+              <div class="preview-frame" style="background:#0d0d14;min-height:320px;align-items:center;">
+                <div class="popup-preview-box" id="preview-box">
+                  <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
+                  <div class="popup-preview-title" id="preview-title">Título do Popup</div>
+                  <div class="popup-preview-desc" id="preview-desc">Descrição aqui</div>
+                  <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
+                  <button class="popup-preview-btn" id="preview-btn">Quero jogar!</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1117,12 +1134,7 @@ const GAMES = [
   { id: 'scratch_card', icon: '🃏', name: 'Raspadinha', desc: 'Raspe e descubra seu prêmio', available: true },
   { id: 'quiz', icon: '🧠', name: 'Quiz Interativo', desc: 'Perguntas com recompensa', available: false },
   { id: 'memory_game', icon: '🧩', name: 'Jogo da Memória', desc: 'Encontre os pares e ganhe', available: false },
-  { id: 'fortune_cookie', icon: '🥠', name: 'Biscoito da Sorte', desc: 'Abra e descubra a mensagem', available: false },
-  { id: 'dice_roll', icon: '🎲', name: 'Dados da Sorte', desc: 'Role os dados e ganhe', available: false },
-  { id: 'treasure_chest', icon: '🗝️', name: 'Baú do Tesouro', desc: 'Abra o baú misterioso', available: false },
   { id: 'gift_box', icon: '🎁', name: 'Caixa Surpresa', desc: 'Escolha uma caixa e ganhe', available: false },
-  { id: 'wheel_fortune', icon: '💫', name: 'Roda Premiada', desc: 'Gire e descubra o prêmio', available: false },
-  { id: 'candy_crush', icon: '🍬', name: 'Candy Match', desc: 'Combine doces e ganhe', available: false },
   { id: 'balloon_pop', icon: '🎈', name: 'Estoura Balão', desc: 'Estoure o balão premiado', available: false },
   { id: 'skate_grind', icon: '🛹', name: 'Skate Grind', desc: 'Faça manobras e ganhe pontos', available: false }
 ];
@@ -1451,13 +1463,13 @@ async function savePopup() {
 // ─── TABS ───────────────────────────────────────────────────────────────────
 function switchTab(name) {
   currentTab = name;
-  ['config','design','preview'].forEach(t => {
+  ['config','design'].forEach(t => {
     document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
-    document.querySelectorAll('.tab').forEach((el, i) => {
-      el.classList.toggle('active', ['config','design','preview'][i] === name);
-    });
   });
-  if (name === 'preview') updatePreview();
+  document.querySelectorAll('.modal-form-side .tab').forEach((el, i) => {
+    el.classList.toggle('active', ['config','design'][i] === name);
+  });
+  updatePreview();
 }
 
 function updatePreview() {
