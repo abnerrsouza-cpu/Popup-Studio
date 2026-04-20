@@ -549,6 +549,77 @@
     .popup-preview-desc { font-size: 13px; opacity: .8; margin-bottom: 16px; }
     .popup-preview-input { width: 100%; padding: 10px 12px; border-radius: 8px; border: none; font-size: 13px; margin-bottom: 10px; }
     .popup-preview-btn { width: 100%; padding: 11px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+    /* ─── SLOT MACHINE ────────────────────────────────── */
+    .slot-machine-wrap { perspective: 800px; }
+    .slot-machine {
+      background: linear-gradient(180deg, #c0392b 0%, #e74c3c 8%, #c0392b 15%, #a93226 100%);
+      border-radius: 18px; padding: 0; max-width: 300px; width: 100%;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,255,255,.15);
+      position: relative; overflow: visible; border: 3px solid #8B0000;
+    }
+    .slot-top-bar {
+      background: linear-gradient(180deg, #f1c40f 0%, #f39c12 50%, #e67e22 100%);
+      padding: 10px 16px; text-align: center; border-radius: 14px 14px 0 0;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.3);
+    }
+    .slot-top-title { font-size: 16px; font-weight: 900; color: #8B0000; text-shadow: 0 1px 0 rgba(255,255,255,.4); letter-spacing: 1px; text-transform: uppercase; }
+    .slot-top-stars { font-size: 10px; color: #8B0000; letter-spacing: 4px; }
+    .slot-body { padding: 16px 16px 12px; position: relative; }
+    .slot-display {
+      background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
+      border-radius: 12px; padding: 16px 10px; display: flex; gap: 8px;
+      justify-content: center; align-items: center;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.1);
+      border: 2px solid #333; position: relative; overflow: hidden;
+    }
+    .slot-display::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(255,215,0,.3); transform: translateY(-50%); z-index: 2; pointer-events: none; }
+    .slot-reel {
+      width: 64px; height: 72px; background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 50%, rgba(255,255,255,.08) 100%);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 36px;
+      border: 1px solid rgba(255,255,255,.1); position: relative; overflow: hidden; transition: transform .1s;
+    }
+    .slot-reel.spinning { animation: reelSpin .15s linear infinite; }
+    @keyframes reelSpin { 0%{transform:translateY(-5px)} 50%{transform:translateY(5px)} 100%{transform:translateY(-5px)} }
+    .slot-reel.winner { animation: reelWin .5s ease infinite; border-color: #f1c40f; box-shadow: 0 0 16px rgba(241,196,15,.5); }
+    @keyframes reelWin { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+    .slot-divider { width: 2px; height: 50px; background: rgba(255,255,255,.08); border-radius: 1px; }
+    .slot-attempts { text-align: center; margin-top: 10px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.7); letter-spacing: .5px; }
+    .slot-lever-area { position: absolute; right: -32px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 5; }
+    .slot-lever-track { width: 8px; height: 60px; background: linear-gradient(180deg, #bbb, #888); border-radius: 4px; position: relative; box-shadow: inset 0 1px 2px rgba(0,0,0,.3); }
+    .slot-lever-ball { width: 22px; height: 22px; background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b, #8B0000); border-radius: 50%; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); box-shadow: 0 2px 8px rgba(0,0,0,.4), inset 0 -2px 4px rgba(0,0,0,.3); transition: top .3s cubic-bezier(.68,-.55,.27,1.55); }
+    .slot-lever-area.pulled .slot-lever-ball { top: 42px; }
+    .slot-lever-base { width: 14px; height: 6px; background: linear-gradient(180deg, #999, #666); border-radius: 0 0 4px 4px; margin-top: -1px; }
+    .slot-bottom-bar { background: linear-gradient(180deg, #333 0%, #222 100%); padding: 10px 16px; border-radius: 0 0 14px 14px; text-align: center; }
+    .slot-pull-btn { background: linear-gradient(180deg, #f1c40f 0%, #e67e22 100%); color: #8B0000; border: 2px solid #d4a017; border-radius: 10px; padding: 10px 28px; font-size: 14px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; transition: all .15s; box-shadow: 0 3px 10px rgba(0,0,0,.3); width: 100%; }
+    .slot-pull-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(0,0,0,.4); }
+    .slot-pull-btn:active { transform: translateY(1px); }
+    .slot-pull-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .slot-message { text-align: center; padding: 8px; font-size: 13px; font-weight: 700; min-height: 28px; color: rgba(255,255,255,.9); }
+    .slot-message.win { color: #f1c40f; animation: pulseText .6s ease infinite; }
+    .slot-message.lose { color: rgba(255,255,255,.6); }
+    @keyframes pulseText { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    .slot-victory { position: absolute; inset: 0; background: rgba(0,0,0,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 14px; z-index: 10; animation: victoryFadeIn .4s ease; }
+    @keyframes victoryFadeIn { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+    .slot-victory-emoji { font-size: 48px; animation: victoryBounce .6s ease infinite; }
+    @keyframes victoryBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .slot-victory-text { font-size: 20px; font-weight: 900; color: #f1c40f; margin: 10px 0 4px; text-transform: uppercase; }
+    .slot-victory-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 10px; }
+    .slot-coupon-box { background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: #8B0000; padding: 10px 24px; border-radius: 10px; font-size: 20px; font-weight: 900; letter-spacing: 3px; border: 2px dashed #8B0000; margin-top: 4px; }
+    .slot-confetti { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall 1.5s ease-out forwards; z-index: 11; pointer-events: none; }
+    @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(200px) rotate(720deg);opacity:0} }
+    .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
+    .preset-card { border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
+    .preset-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .preset-card.active { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,.2); }
+    .preset-card-name { font-size: 9px; font-weight: 700; margin-top: 6px; color: rgba(255,255,255,.9); text-transform: uppercase; letter-spacing: .3px; }
+    .preset-mini-slot { width: 32px; height: 24px; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .format-card { border: 2px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface2); }
+    .format-card:hover { border-color: var(--accent); }
+    .format-card.active { border-color: var(--accent); background: var(--accent-dim); }
+    .format-card-icon { font-size: 28px; margin-bottom: 6px; }
+    .format-card-name { font-size: 12px; font-weight: 600; }
+    .format-card-desc { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
     /* ─── TABS ─────────────────────────────────────────── */
     .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px; margin-bottom: 20px; }
@@ -1024,7 +1095,7 @@
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label">Jogo</label>
-                  <select class="form-select" id="f-type">
+                  <select class="form-select" id="f-type" onchange="onGameTypeChange()">
                     <option value="spin_wheel">🎡 Roleta da Sorte</option>
                     <option value="slot_machine">🎰 Slot Machine</option>
                     <option value="scratch_card">🃏 Raspadinha</option>
@@ -1053,9 +1124,70 @@
                   <input class="form-input" id="f-prize" placeholder="Ex: BEMVINDO15">
                 </div>
               </div>
+              <!-- SLOT MACHINE SPECIFIC CONFIG -->
+              <div id="slot-config" style="display:none;">
+                <div style="height:1px;background:var(--border);margin:18px 0;"></div>
+                <div style="font-size:13px;font-weight:700;color:var(--accent-light);margin-bottom:14px;">🎰 Configuração do Caça-Níquel</div>
+                <div class="form-group">
+                  <label class="form-label">Emoji 1 (símbolo da máquina)</label>
+                  <input class="form-input" id="f-slot-emoji1" placeholder="👕" maxlength="4" value="👕" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Emoji 2 (símbolo da máquina)</label>
+                  <input class="form-input" id="f-slot-emoji2" placeholder="🧢" maxlength="4" value="🧢" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Emoji 3 — Vencedor (3 iguais = prêmio)</label>
+                  <input class="form-input" id="f-slot-emoji3" placeholder="👟" maxlength="4" value="👟" oninput="updatePreview()">
+                </div>
+                <div style="height:1px;background:var(--border);margin:14px 0;"></div>
+                <div class="form-group">
+                  <label class="form-label">Texto ao Perder</label>
+                  <input class="form-input" id="f-slot-lose-text" placeholder="Que pena! Tente novamente..." value="Que pena! Tente novamente..." oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Texto ao Ganhar</label>
+                  <input class="form-input" id="f-slot-win-text" placeholder="🎉 PARABÉNS! Você ganhou!" value="🎉 PARABÉNS! Você ganhou!" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Título da Máquina</label>
+                  <input class="form-input" id="f-slot-machine-title" placeholder="SLOT MACHINE" value="SLOT MACHINE" oninput="updatePreview()">
+                </div>
+              </div>
             </div>
             <!-- DESIGN TAB -->
             <div id="tab-design" style="display:none">
+              <!-- SLOT FORMAT SELECTOR -->
+              <div id="slot-format-section" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">Formato do Template</label>
+                  <div class="format-grid">
+                    <div class="format-card active" id="fmt-normal" onclick="selectFormat('normal')">
+                      <div class="format-card-icon">🪟</div>
+                      <div class="format-card-name">Popup Normal</div>
+                      <div class="format-card-desc">Popup padrão com jogo</div>
+                    </div>
+                    <div class="format-card" id="fmt-slot" onclick="selectFormat('slot_machine')">
+                      <div class="format-card-icon">🎰</div>
+                      <div class="format-card-name">Caça-Níquel</div>
+                      <div class="format-card-desc">Formato de máquina</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- COLOR PRESETS -->
+              <div id="slot-presets-section" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">Temas Prontos</label>
+                  <div class="preset-grid">
+                    <div class="preset-card active" style="background:linear-gradient(135deg,#c0392b,#8B0000);" onclick="applySlotPreset(0)" data-preset="0"><div class="preset-mini-slot" style="background:#1a1a2e;">🎰</div><div class="preset-card-name">Clássico</div></div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#7c5cfc,#4a2fb3);" onclick="applySlotPreset(1)" data-preset="1"><div class="preset-mini-slot" style="background:#0d0d2b;">🎰</div><div class="preset-card-name">Neon</div></div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#0077b6,#023e8a);" onclick="applySlotPreset(2)" data-preset="2"><div class="preset-mini-slot" style="background:#001d3d;">🎰</div><div class="preset-card-name">Oceano</div></div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#2d6a4f,#1b4332);" onclick="applySlotPreset(3)" data-preset="3"><div class="preset-mini-slot" style="background:#0a1f14;">🎰</div><div class="preset-card-name">Esmeralda</div></div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#c2185b,#880e4f);" onclick="applySlotPreset(4)" data-preset="4"><div class="preset-mini-slot" style="background:#1a0a12;">🎰</div><div class="preset-card-name">Midnight</div></div>
+                  </div>
+                </div>
+              </div>
               <div class="form-group">
                 <label class="form-label">Cor de Fundo</label>
                 <div class="color-row">
@@ -1085,7 +1217,7 @@
                   <option value="bottom-right">Canto inferior direito</option>
                 </select>
               </div>
-              <div class="form-group">
+              <div class="form-group" id="emoji-deco-group">
                 <label class="form-label">Emoji / Ícone decorativo</label>
                 <input class="form-input" id="f-emoji" placeholder="🎁" maxlength="4" oninput="updatePreview()">
               </div>
@@ -1103,6 +1235,34 @@
                   <div class="popup-preview-desc" id="preview-desc">Descrição aqui</div>
                   <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
                   <button class="popup-preview-btn" id="preview-btn">Quero jogar!</button>
+                </div>
+                <!-- Slot Machine preview -->
+                <div id="preview-slot" style="display:none;width:100%;max-width:320px;position:relative;">
+                  <div class="slot-machine" id="slot-machine-preview">
+                    <div class="slot-top-bar" id="slot-top-bar">
+                      <div class="slot-top-stars">★ ★ ★ ★ ★</div>
+                      <div class="slot-top-title" id="slot-preview-title">SLOT MACHINE</div>
+                      <div class="slot-top-stars">★ ★ ★ ★ ★</div>
+                    </div>
+                    <div class="slot-body">
+                      <div class="slot-display" id="slot-display">
+                        <div class="slot-reel" id="slot-reel-1">👕</div>
+                        <div class="slot-divider"></div>
+                        <div class="slot-reel" id="slot-reel-2">🧢</div>
+                        <div class="slot-divider"></div>
+                        <div class="slot-reel" id="slot-reel-3">👟</div>
+                      </div>
+                      <div class="slot-attempts" id="slot-attempts">Tentativa 1 de 3</div>
+                      <div class="slot-message" id="slot-message">Puxe a alavanca para jogar!</div>
+                    </div>
+                    <div class="slot-bottom-bar">
+                      <button class="slot-pull-btn" id="slot-pull-btn" onclick="pullSlotLever()">🎰 PUXAR ALAVANCA</button>
+                    </div>
+                    <div class="slot-lever-area" id="slot-lever" onclick="pullSlotLever()">
+                      <div class="slot-lever-track"><div class="slot-lever-ball"></div></div>
+                      <div class="slot-lever-base"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1126,6 +1286,10 @@ let popups = [];
 let leadsData = [];
 let editingId = null;
 let currentTab = 'config';
+let slotAttempt = 0;
+let slotSpinning = false;
+let slotFormat = 'slot_machine';
+let slotPresetIdx = 0;
 
 // ─── GAMES CATALOG ──────────────────────────────────────────────────────────
 const GAMES = [
@@ -1386,8 +1550,18 @@ function openCreateModal() {
   document.getElementById('f-btn-text').value = '#7c5cfc';
   document.getElementById('f-emoji').value = '🎁';
   document.getElementById('f-position').value = 'center';
+  document.getElementById('f-slot-emoji1').value = '👕';
+  document.getElementById('f-slot-emoji2').value = '🧢';
+  document.getElementById('f-slot-emoji3').value = '👟';
+  document.getElementById('f-slot-lose-text').value = 'Que pena! Tente novamente...';
+  document.getElementById('f-slot-win-text').value = '🎉 PARABÉNS! Você ganhou!';
+  document.getElementById('f-slot-machine-title').value = 'SLOT MACHINE';
+  slotFormat = 'slot_machine';
+  slotPresetIdx = 0;
+  onGameTypeChange();
   switchTab('config');
   document.getElementById('popup-modal').classList.remove('hidden');
+  resetSlotGame();
   updatePreview();
 }
 
@@ -1415,8 +1589,20 @@ function openEditModal(id) {
   document.getElementById('f-btn-text').value = bc;
   document.getElementById('f-emoji').value = cfg.emoji || '🎁';
   document.getElementById('f-position').value = cfg.position || 'center';
+  document.getElementById('f-slot-emoji1').value = cfg.slot_emoji1 || '👕';
+  document.getElementById('f-slot-emoji2').value = cfg.slot_emoji2 || '🧢';
+  document.getElementById('f-slot-emoji3').value = cfg.slot_emoji3 || '👟';
+  document.getElementById('f-slot-lose-text').value = cfg.slot_lose_text || 'Que pena! Tente novamente...';
+  document.getElementById('f-slot-win-text').value = cfg.slot_win_text || '🎉 PARABÉNS! Você ganhou!';
+  document.getElementById('f-slot-machine-title').value = cfg.slot_machine_title || 'SLOT MACHINE';
+  slotFormat = cfg.slot_format || 'slot_machine';
+  slotPresetIdx = cfg.slot_preset ?? 0;
+  selectFormat(slotFormat);
+  applySlotPreset(slotPresetIdx);
+  onGameTypeChange();
   switchTab('config');
   document.getElementById('popup-modal').classList.remove('hidden');
+  resetSlotGame();
   updatePreview();
 }
 
@@ -1430,22 +1616,30 @@ async function savePopup() {
   if (!name) { toast('Digite um nome para o popup.', 'error'); return; }
   const btn = document.getElementById('save-btn');
   btn.disabled = true; btn.textContent = 'Salvando...';
-  const payload = {
-    name,
-    game_type: document.getElementById('f-type').value,
-    config: {
-      title: document.getElementById('f-title').value,
-      description: document.getElementById('f-desc').value,
-      button_text: document.getElementById('f-btn').value,
-      prize: document.getElementById('f-prize').value,
-      trigger_delay: parseInt(document.getElementById('f-delay').value) || 3,
-      background_color: document.getElementById('f-bg').value,
-      text_color: document.getElementById('f-text-color').value,
-      button_color: document.getElementById('f-btn-color').value,
-      emoji: document.getElementById('f-emoji').value,
-      position: document.getElementById('f-position').value,
-    }
+  const gameType = document.getElementById('f-type').value;
+  const configObj = {
+    title: document.getElementById('f-title').value,
+    description: document.getElementById('f-desc').value,
+    button_text: document.getElementById('f-btn').value,
+    prize: document.getElementById('f-prize').value,
+    trigger_delay: parseInt(document.getElementById('f-delay').value) || 3,
+    background_color: document.getElementById('f-bg').value,
+    text_color: document.getElementById('f-text-color').value,
+    button_color: document.getElementById('f-btn-color').value,
+    emoji: document.getElementById('f-emoji').value,
+    position: document.getElementById('f-position').value,
   };
+  if (gameType === 'slot_machine') {
+    configObj.slot_emoji1 = document.getElementById('f-slot-emoji1').value;
+    configObj.slot_emoji2 = document.getElementById('f-slot-emoji2').value;
+    configObj.slot_emoji3 = document.getElementById('f-slot-emoji3').value;
+    configObj.slot_lose_text = document.getElementById('f-slot-lose-text').value;
+    configObj.slot_win_text = document.getElementById('f-slot-win-text').value;
+    configObj.slot_machine_title = document.getElementById('f-slot-machine-title').value;
+    configObj.slot_format = slotFormat;
+    configObj.slot_preset = slotPresetIdx;
+  }
+  const payload = { name, game_type: gameType, config: configObj };
   try {
     if (editingId) {
       await api('PUT', '/api/popups/' + editingId, payload);
@@ -1477,17 +1671,28 @@ function updatePreview() {
   const tc = document.getElementById('f-text-color').value;
   const bc = document.getElementById('f-btn-color').value;
   const emoji = document.getElementById('f-emoji').value;
-  const box = document.getElementById('preview-box');
-  if (!box) return;
-  box.style.background = bg;
-  box.style.color = tc;
-  document.getElementById('preview-emoji').textContent = emoji;
-  document.getElementById('preview-title').textContent = document.getElementById('f-title').value || 'Título do Popup';
-  document.getElementById('preview-desc').textContent = document.getElementById('f-desc').value || 'Descrição';
-  var pbtn = document.getElementById('preview-btn');
-  pbtn.textContent = document.getElementById('f-btn').value || 'Quero jogar!';
-  pbtn.style.background = bc;
-  pbtn.style.color = '#fff';
+  const gameType = document.getElementById('f-type').value;
+  const isSlot = gameType === 'slot_machine' && slotFormat === 'slot_machine';
+  document.getElementById('preview-box').style.display = isSlot ? 'none' : 'block';
+  document.getElementById('preview-slot').style.display = isSlot ? 'block' : 'none';
+  if (isSlot) {
+    updateSlotPreviewTheme();
+    updateSlotReelEmojis();
+    var slotTitle = document.getElementById('f-slot-machine-title');
+    if (slotTitle) document.getElementById('slot-preview-title').textContent = slotTitle.value || 'SLOT MACHINE';
+  } else {
+    const box = document.getElementById('preview-box');
+    if (!box) return;
+    box.style.background = bg;
+    box.style.color = tc;
+    document.getElementById('preview-emoji').textContent = emoji;
+    document.getElementById('preview-title').textContent = document.getElementById('f-title').value || 'Título do Popup';
+    document.getElementById('preview-desc').textContent = document.getElementById('f-desc').value || 'Descrição';
+    var pbtn = document.getElementById('preview-btn');
+    pbtn.textContent = document.getElementById('f-btn').value || 'Quero jogar!';
+    pbtn.style.background = bc;
+    pbtn.style.color = '#fff';
+  }
 }
 
 function syncColor(field) {
@@ -1578,6 +1783,191 @@ function toast(msg, type) {
   el.textContent = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : '⏳ ') + msg;
   t.appendChild(el);
   setTimeout(function(){ el.remove(); }, 3500);
+}
+
+// ─── SLOT MACHINE PRESETS ───────────────────────────────────────────────────
+function showSlotVictory() {
+  var machine = document.getElementById('slot-machine-preview');
+  if (!machine) return;
+  var colors = ['#f1c40f','#e74c3c','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c','#ec4899'];
+  for (var i = 0; i < 40; i++) {
+    var conf = document.createElement('div');
+    conf.className = 'slot-confetti';
+    conf.style.left = Math.random()*100 + '%';
+    conf.style.top = '-10px';
+    conf.style.background = colors[Math.floor(Math.random()*colors.length)];
+    conf.style.animationDelay = (Math.random()*0.8)+'s';
+    conf.style.animationDuration = (1+Math.random()*1)+'s';
+    conf.style.width = (4+Math.random()*6)+'px';
+    conf.style.height = (4+Math.random()*6)+'px';
+    machine.appendChild(conf);
+  }
+  var coupon = document.getElementById('f-prize').value || 'DESCONTO10';
+  var winEmoji = document.getElementById('f-slot-emoji3').value || '👟';
+  var victory = document.createElement('div');
+  victory.className = 'slot-victory';
+  victory.innerHTML = '<div class="slot-victory-emoji">'+winEmoji+'</div>'
+    +'<div class="slot-victory-text">JACKPOT!</div>'
+    +'<div class="slot-victory-sub">Seu cupom de desconto:</div>'
+    +'<div class="slot-coupon-box">'+esc(coupon)+'</div>'
+    +'<button class="slot-pull-btn" style="margin-top:14px;width:auto;padding:8px 20px;font-size:12px;" onclick="resetSlotGame()">🔄 JOGAR NOVAMENTE</button>';
+  machine.appendChild(victory);
+}
+
+function pullSlotLever() {
+  if (slotSpinning || slotAttempt >= 3) return;
+  slotSpinning = true; slotAttempt++;
+  var lever = document.getElementById('slot-lever');
+  var btn = document.getElementById('slot-pull-btn');
+  var msg = document.getElementById('slot-message');
+  var att = document.getElementById('slot-attempts');
+  btn.disabled = true; btn.textContent = '⏳ GIRANDO...';
+  msg.textContent = ''; msg.className = 'slot-message';
+  att.textContent = 'Tentativa ' + slotAttempt + ' de 3';
+  if (lever) lever.classList.add('pulled');
+  setTimeout(function(){ if (lever) lever.classList.remove('pulled'); }, 600);
+  var emojis = [
+    document.getElementById('f-slot-emoji1').value || '👕',
+    document.getElementById('f-slot-emoji2').value || '🧢',
+    document.getElementById('f-slot-emoji3').value || '👟'
+  ];
+  var winEmoji = emojis[2];
+  ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id) {
+    var r = document.getElementById(id); if (r) r.className = 'slot-reel spinning';
+  });
+  var spinInterval = setInterval(function() {
+    ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id) {
+      var r = document.getElementById(id);
+      if (r && r.classList.contains('spinning')) r.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    });
+  }, 80);
+  var isWin = slotAttempt === 3;
+  setTimeout(function() {
+    var r1 = document.getElementById('slot-reel-1');
+    if (r1) { r1.classList.remove('spinning'); r1.textContent = isWin ? winEmoji : emojis[Math.floor(Math.random()*2)]; }
+  }, 800);
+  setTimeout(function() {
+    var r2 = document.getElementById('slot-reel-2');
+    if (r2) { r2.classList.remove('spinning'); r2.textContent = isWin ? winEmoji : emojis[Math.floor(Math.random()*emojis.length)]; }
+  }, 1400);
+  setTimeout(function() {
+    clearInterval(spinInterval);
+    var r3 = document.getElementById('slot-reel-3');
+    if (r3) {
+      r3.classList.remove('spinning');
+      if (isWin) { r3.textContent = winEmoji; }
+      else {
+        var r1t = document.getElementById('slot-reel-1').textContent;
+        var r2t = document.getElementById('slot-reel-2').textContent;
+        if (r1t === r2t) { r3.textContent = emojis.find(function(e){return e!==r1t;}) || emojis[0]; }
+        else { r3.textContent = emojis[Math.floor(Math.random()*emojis.length)]; }
+      }
+    }
+    slotSpinning = false;
+    var loseText = document.getElementById('f-slot-lose-text').value || 'Que pena! Tente novamente...';
+    var winText = document.getElementById('f-slot-win-text').value || '🎉 PARABÉNS! Você ganhou!';
+    if (isWin) {
+      ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id){ document.getElementById(id).classList.add('winner'); });
+      msg.textContent = winText; msg.className = 'slot-message win';
+      btn.textContent = '🎉 VOCÊ GANHOU!'; btn.disabled = true;
+      setTimeout(function(){ showSlotVictory(); }, 800);
+    } else {
+      msg.textContent = loseText; msg.className = 'slot-message lose';
+      btn.disabled = false;
+      btn.textContent = '🎰 TENTAR NOVAMENTE (' + (3-slotAttempt) + ' restante' + ((3-slotAttempt)>1?'s':'') + ')';
+    }
+  }, 2000);
+}
+
+function darkenColor(hex, amount) {
+  hex = hex.replace('#','');
+  let r = Math.max(0, parseInt(hex.substring(0,2),16) - amount);
+  let g = Math.max(0, parseInt(hex.substring(2,4),16) - amount);
+  let b = Math.max(0, parseInt(hex.substring(4,6),16) - amount);
+  return '#' + r.toString(16).padStart(2,'0') + g.toString(16).padStart(2,'0') + b.toString(16).padStart(2,'0');
+}
+
+function updateSlotPreviewTheme() {
+  const p = SLOT_PRESETS[slotPresetIdx];
+  const machine = document.getElementById('slot-machine-preview');
+  if (!machine) return;
+  machine.style.background = 'linear-gradient(180deg, '+p.machine+' 0%, '+p.machineDark+' 100%)';
+  machine.style.borderColor = p.machineDark;
+  const topBar = document.getElementById('slot-top-bar');
+  topBar.style.background = 'linear-gradient(180deg, '+p.topBar+' 0%, '+p.topBarEnd+' 100%)';
+  topBar.querySelector('.slot-top-title').style.color = p.machineDark;
+  topBar.querySelectorAll('.slot-top-stars').forEach(s => s.style.color = p.machineDark);
+  const display = document.getElementById('slot-display');
+  display.style.background = 'linear-gradient(180deg, '+p.display+' 0%, '+darkenColor(p.display,20)+' 100%)';
+  const pullBtn = document.getElementById('slot-pull-btn');
+  pullBtn.style.background = 'linear-gradient(180deg, '+p.btnBg+' 0%, '+p.topBarEnd+' 100%)';
+  pullBtn.style.color = p.btnColor;
+  pullBtn.style.borderColor = p.topBarEnd;
+}
+
+function resetSlotGame() {
+  slotAttempt = 0; slotSpinning = false;
+  var msg = document.getElementById('slot-message');
+  var att = document.getElementById('slot-attempts');
+  var btn = document.getElementById('slot-pull-btn');
+  if (msg) { msg.textContent = 'Puxe a alavanca para jogar!'; msg.className = 'slot-message'; }
+  if (att) att.textContent = 'Tentativa 1 de 3';
+  if (btn) { btn.disabled = false; btn.textContent = '🎰 PUXAR ALAVANCA'; }
+  ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id) { var r = document.getElementById(id); if (r) r.className = 'slot-reel'; });
+  var victory = document.querySelector('.slot-victory');
+  if (victory) victory.remove();
+  document.querySelectorAll('.slot-confetti').forEach(function(c) { c.remove(); });
+  var lever = document.getElementById('slot-lever');
+  if (lever) lever.classList.remove('pulled');
+  updateSlotReelEmojis();
+}
+
+function updateSlotReelEmojis() {
+  var e1 = document.getElementById('f-slot-emoji1');
+  if (!e1) return;
+  var r1 = document.getElementById('slot-reel-1');
+  var r2 = document.getElementById('slot-reel-2');
+  var r3 = document.getElementById('slot-reel-3');
+  if (r1) r1.textContent = e1.value || '👕';
+  if (r2) r2.textContent = (document.getElementById('f-slot-emoji2').value) || '🧢';
+  if (r3) r3.textContent = (document.getElementById('f-slot-emoji3').value) || '👟';
+}
+
+const SLOT_PRESETS = [
+  { name:'Clássico', machine:'#c0392b', machineDark:'#8B0000', topBar:'#f1c40f', topBarEnd:'#e67e22', display:'#1a1a2e', accent:'#f1c40f', btnBg:'#f1c40f', btnColor:'#8B0000' },
+  { name:'Neon', machine:'#7c5cfc', machineDark:'#4a2fb3', topBar:'#a855f7', topBarEnd:'#ec4899', display:'#0d0d2b', accent:'#a855f7', btnBg:'#a855f7', btnColor:'#fff' },
+  { name:'Oceano', machine:'#0077b6', machineDark:'#023e8a', topBar:'#00b4d8', topBarEnd:'#0096c7', display:'#001d3d', accent:'#48cae4', btnBg:'#00b4d8', btnColor:'#001d3d' },
+  { name:'Esmeralda', machine:'#2d6a4f', machineDark:'#1b4332', topBar:'#52b788', topBarEnd:'#40916c', display:'#0a1f14', accent:'#95d5b2', btnBg:'#52b788', btnColor:'#1b4332' },
+  { name:'Midnight', machine:'#c2185b', machineDark:'#880e4f', topBar:'#f06292', topBarEnd:'#ec407a', display:'#1a0a12', accent:'#f48fb1', btnBg:'#f06292', btnColor:'#880e4f' }
+];
+
+function onGameTypeChange() {
+  const type = document.getElementById('f-type').value;
+  const isSlot = type === 'slot_machine';
+  document.getElementById('slot-config').style.display = isSlot ? 'block' : 'none';
+  document.getElementById('slot-format-section').style.display = isSlot ? 'block' : 'none';
+  document.getElementById('slot-presets-section').style.display = isSlot ? 'block' : 'none';
+  document.getElementById('emoji-deco-group').style.display = isSlot ? 'none' : 'block';
+  resetSlotGame();
+  updatePreview();
+}
+
+function selectFormat(fmt) {
+  slotFormat = fmt;
+  document.getElementById('fmt-normal').classList.toggle('active', fmt === 'normal');
+  document.getElementById('fmt-slot').classList.toggle('active', fmt === 'slot_machine');
+  updatePreview();
+}
+
+function applySlotPreset(idx) {
+  slotPresetIdx = idx;
+  document.querySelectorAll('.preset-card').forEach((el, i) => el.classList.toggle('active', i === idx));
+  const p = SLOT_PRESETS[idx];
+  document.getElementById('f-bg').value = p.display;
+  document.getElementById('f-bg-text').value = p.display;
+  document.getElementById('f-btn-color').value = p.btnBg;
+  document.getElementById('f-btn-text').value = p.btnBg;
+  updatePreview();
 }
 
 // Close modal on backdrop click
