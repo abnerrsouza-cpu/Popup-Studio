@@ -17,8 +17,12 @@
       --accent-glow: rgba(124,92,252,.25);
       --accent-dim: rgba(124,92,252,.10);
       --green: #22c55e;
+      --green-dim: rgba(34,197,94,.12);
       --red: #ef4444;
       --yellow: #f59e0b;
+      --blue: #3b82f6;
+      --pink: #ec4899;
+      --cyan: #06b6d4;
       --text: #e8e8f0;
       --muted: #6e6e90;
       --radius: 10px;
@@ -228,8 +232,6 @@
       border-radius: 4px;
       margin-top: 4px;
     }
-
-    /* Sidebar powered by */
     .sidebar-powered {
       text-align: center;
       padding: 8px 0 0;
@@ -249,8 +251,100 @@
     .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
 
     /* ─── VIEWS ───────────────────────────────────────── */
-    .view { padding: 24px 32px; display: none; }
+    .view { display: none; }
     .view.active { display: block; }
+
+    /* ─── DASHBOARD ───────────────────────────────────── */
+    .dash-content { padding: 24px 32px; }
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .dash-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .dash-card:hover { border-color: rgba(124,92,252,.25); }
+    .dash-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+    .dash-card-icon.purple { background: var(--accent-dim); color: var(--accent-light); }
+    .dash-card-icon.green { background: var(--green-dim); color: var(--green); }
+    .dash-card-icon.blue { background: rgba(59,130,246,.12); color: var(--blue); }
+    .dash-card-icon.pink { background: rgba(236,72,153,.12); color: var(--pink); }
+    .dash-card-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .dash-card-value { font-size: 30px; font-weight: 800; line-height: 1.1; }
+    .dash-card-value.purple { color: var(--accent-light); }
+    .dash-card-value.green { color: var(--green); }
+    .dash-card-value.blue { color: var(--blue); }
+    .dash-card-value.pink { color: var(--pink); }
+    .dash-card-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .dash-card-glow {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      top: -30px;
+      right: -30px;
+      filter: blur(40px);
+      opacity: .12;
+      pointer-events: none;
+    }
+
+    .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .dash-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .dash-panel-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .dash-panel-title svg { color: var(--muted); }
+
+    /* Mini bar chart */
+    .mini-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+    .mini-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--accent-dim); transition: height .4s ease; position: relative; min-width: 0; }
+    .mini-bar:hover { background: var(--accent); }
+    .mini-bar-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+    /* Recent list */
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .recent-info { flex: 1; min-width: 0; }
+    .recent-name { font-size: 13px; font-weight: 500; }
+    .recent-meta { font-size: 11px; color: var(--muted); }
+    .recent-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
 
     /* ─── STAT CARDS ──────────────────────────────────── */
     .stats-row {
@@ -321,6 +415,7 @@
     .badge-green { background: rgba(34,197,94,.15); color: var(--green); }
     .badge-gray { background: rgba(120,120,160,.12); color: var(--muted); }
     .badge-yellow { background: rgba(245,158,11,.12); color: var(--yellow); }
+    .badge-blue { background: rgba(59,130,246,.12); color: var(--blue); }
     .popup-card-config {
       font-size: 12px;
       color: var(--muted);
@@ -357,7 +452,7 @@
     .empty { text-align: center; padding: 60px 20px; }
     .empty-icon { font-size: 48px; margin-bottom: 16px; }
     .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-    .empty-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+    .empty-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
 
     /* ─── MODAL ───────────────────────────────────────── */
     .modal-overlay {
@@ -447,6 +542,90 @@
     .tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; transition: all .15s; }
     .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
 
+    /* Sub-tabs for Pop Up Studio */
+    .studio-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .studio-tab {
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .studio-tab:hover { color: var(--text); }
+    .studio-tab.active { color: var(--accent-light); border-bottom-color: var(--accent); font-weight: 600; }
+
+    /* ─── GAMES GRID ──────────────────────────────────── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .game-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .game-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+    .game-card-icon { font-size: 36px; margin-bottom: 10px; }
+    .game-card-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .game-card-desc { font-size: 11px; color: var(--muted); }
+    .game-card.coming-soon { opacity: .5; pointer-events: none; }
+
+    /* ─── INTEGRATIONS ────────────────────────────────── */
+    .integration-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .integration-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: border-color .2s;
+    }
+    .integration-card:hover { border-color: rgba(124,92,252,.25); }
+    .integration-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .integration-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .integration-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+
+    /* ─── ACCOUNT ─────────────────────────────────────── */
+    .account-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 800px; }
+    .account-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .account-card-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .account-card.full { grid-column: 1 / -1; }
+
+    /* ─── LEADS TABLE HEADER ─────────────────────────── */
+    .leads-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .leads-count { font-size: 13px; color: var(--muted); }
+
     /* ─── LOGIN ────────────────────────────────────────── */
     #login-view { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
     .login-box { text-align: center; padding: 40px; }
@@ -457,8 +636,11 @@
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 768px) {
       #sidebar { display: none; }
+      .dash-grid { grid-template-columns: 1fr 1fr; }
+      .dash-row { grid-template-columns: 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .form-row { grid-template-columns: 1fr; }
+      .account-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -485,20 +667,27 @@
         <div class="sidebar-logo-icon">🎯</div>
         <div>
           <div class="sidebar-logo-text">Pop Up Studio</div>
-          <div class="sidebar-logo-version">v1.0 — Gamificação</div>
+          <div class="sidebar-logo-version">v2.0 — Gamificação</div>
         </div>
       </div>
 
       <div class="sidebar-divider"></div>
 
-      <!-- Menu Principal -->
-      <div class="sidebar-section">Menu</div>
+      <!-- Principal -->
+      <div class="sidebar-section">Principal</div>
       <div class="sidebar-nav">
-        <div class="nav-item active" data-view="popups" onclick="showView('popups', this)">
+        <div class="nav-item active" data-view="dashboard" onclick="showView('dashboard', this)">
+          <div class="nav-icon-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          </div>
+          <span>Dashboard</span>
+        </div>
+
+        <div class="nav-item" data-view="studio" onclick="showView('studio', this)">
           <div class="nav-icon-box">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
-          <span>Meus Popups</span>
+          <span>Pop Up Studio</span>
           <span class="nav-badge" id="nav-badge-popups">0</span>
         </div>
 
@@ -509,41 +698,25 @@
           <span>Leads</span>
           <span class="nav-badge green" id="nav-badge-leads" style="display:none">0</span>
         </div>
-
-        <div class="nav-item" data-view="analytics" onclick="showView('analytics', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <span>Analytics</span>
-        </div>
       </div>
 
       <div style="height: 8px;"></div>
 
-      <!-- Ferramentas -->
-      <div class="sidebar-section">Ferramentas</div>
+      <!-- Configurar -->
+      <div class="sidebar-section">Configurar</div>
       <div class="sidebar-nav">
-        <div class="nav-item" data-view="games" onclick="showView('games', this)">
+        <div class="nav-item" data-view="integracoes" onclick="showView('integracoes', this)">
           <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </div>
-          <span>Jogos</span>
-          <span class="nav-badge muted">13</span>
+          <span>Integrações</span>
         </div>
 
-        <div class="nav-item" data-view="templates" onclick="showView('templates', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          </div>
-          <span>Templates</span>
-          <span class="nav-badge muted">Em breve</span>
-        </div>
-
-        <div class="nav-item" data-view="settings" onclick="showView('settings', this)">
+        <div class="nav-item" data-view="conta" onclick="showView('conta', this)">
           <div class="nav-icon-box">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </div>
-          <span>Configurações</span>
+          <span>Conta</span>
         </div>
       </div>
 
@@ -565,16 +738,104 @@
     <!-- ─── MAIN ────────────────────────────────────── -->
     <main id="main">
 
-      <!-- POPUPS VIEW -->
-      <div id="view-popups" class="view active">
+      <!-- ═══════════════ DASHBOARD VIEW ═══════════════ -->
+      <div id="view-dashboard" class="view active">
         <div class="page-header">
           <div>
-            <h1 class="page-title">Meus Popups</h1>
-            <p class="page-sub">Crie e gerencie popups gamificados para sua loja</p>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-sub">Visão geral do desempenho dos seus popups</p>
+          </div>
+        </div>
+        <div class="dash-content">
+          <!-- KPI Cards -->
+          <div class="dash-grid">
+            <div class="dash-card">
+              <div class="dash-card-glow" style="background:var(--accent)"></div>
+              <div class="dash-card-icon purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="dash-card-label">Popups Ativos</div>
+              <div class="dash-card-value purple" id="dash-active">—</div>
+              <div class="dash-card-sub" id="dash-active-sub">de 0 criados</div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-glow" style="background:var(--green)"></div>
+              <div class="dash-card-icon green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div class="dash-card-label">Leads Capturados</div>
+              <div class="dash-card-value green" id="dash-leads">—</div>
+              <div class="dash-card-sub" id="dash-leads-sub">total acumulado</div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-glow" style="background:var(--blue)"></div>
+              <div class="dash-card-icon blue">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div class="dash-card-label">Impressões</div>
+              <div class="dash-card-value blue" id="dash-views">—</div>
+              <div class="dash-card-sub">visualizações dos popups</div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-glow" style="background:var(--pink)"></div>
+              <div class="dash-card-icon pink">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="dash-card-label">Taxa de Conversão</div>
+              <div class="dash-card-value pink" id="dash-conversion">—</div>
+              <div class="dash-card-sub">leads / impressões</div>
+            </div>
+          </div>
+
+          <!-- Charts row -->
+          <div class="dash-row">
+            <div class="dash-panel">
+              <div class="dash-panel-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Leads nos últimos 7 dias
+              </div>
+              <div class="mini-chart" id="dash-chart">
+                <div class="mini-bar" style="height:20%"><span class="mini-bar-label">Seg</span></div>
+                <div class="mini-bar" style="height:40%"><span class="mini-bar-label">Ter</span></div>
+                <div class="mini-bar" style="height:30%"><span class="mini-bar-label">Qua</span></div>
+                <div class="mini-bar" style="height:60%"><span class="mini-bar-label">Qui</span></div>
+                <div class="mini-bar" style="height:45%"><span class="mini-bar-label">Sex</span></div>
+                <div class="mini-bar" style="height:80%"><span class="mini-bar-label">Sáb</span></div>
+                <div class="mini-bar" style="height:55%"><span class="mini-bar-label">Dom</span></div>
+              </div>
+            </div>
+            <div class="dash-panel">
+              <div class="dash-panel-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                Popups Recentes
+              </div>
+              <div id="dash-recent">
+                <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum popup criado ainda</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ POP UP STUDIO VIEW ═══════════ -->
+      <div id="view-studio" class="view">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Pop Up Studio</h1>
+            <p class="page-sub">Crie, edite e personalize seus popups gamificados</p>
           </div>
           <button class="btn btn-primary" onclick="openCreateModal()">＋ Novo Popup</button>
         </div>
-        <div class="view" style="display:block; padding-top: 20px;">
+        <div style="padding: 24px 32px 0;">
+          <div class="studio-tabs">
+            <button class="studio-tab active" onclick="switchStudioTab('meus-popups', this)">Meus Popups</button>
+            <button class="studio-tab" onclick="switchStudioTab('jogos', this)">Biblioteca de Jogos</button>
+            <button class="studio-tab" onclick="switchStudioTab('templates', this)">Templates</button>
+          </div>
+        </div>
+
+        <!-- Sub-tab: Meus Popups -->
+        <div id="studio-meus-popups" style="padding: 0 32px 32px;">
           <div class="stats-row" id="stats-row">
             <div class="stat-card">
               <div class="stat-label">Total de Popups</div>
@@ -600,96 +861,124 @@
             <div class="loading-center"><div class="spinner"></div> Carregando...</div>
           </div>
         </div>
+
+        <!-- Sub-tab: Jogos -->
+        <div id="studio-jogos" style="padding: 0 32px 32px; display:none;">
+          <div style="margin-bottom:20px;">
+            <p style="font-size:14px;color:var(--muted);line-height:1.6;">Escolha um jogo para seus popups. Os jogos aparecem após o lead preencher seus dados, aumentando o engajamento e a conversão.</p>
+          </div>
+          <div class="games-grid" id="games-list"></div>
+        </div>
+
+        <!-- Sub-tab: Templates -->
+        <div id="studio-templates" style="padding: 0 32px 32px; display:none;">
+          <div class="empty">
+            <div class="empty-icon">🌋</div>
+            <h3 class="empty-title">Biblioteca de Templates</h3>
+            <p class="empty-sub">Em breve: Templates prontos para Black Friday, Dia das Mães, Natal,<br>Dia dos Namorados, Ano Novo e mais datas especiais.</p>
+          </div>
+        </div>
       </div>
 
-      <!-- LEADS VIEW -->
+      <!-- ═══════════════ LEADS VIEW ═══════════════════ -->
       <div id="view-leads" class="view">
         <div class="page-header">
           <div>
             <h1 class="page-title">Leads Capturados</h1>
-            <p class="page-sub">E-mails coletados pelos seus popups</p>
+            <p class="page-sub">Todos os contatos coletados pelos seus popups</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline" onclick="loadLeads()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Atualizar
+            </button>
+            <button class="btn btn-green" onclick="exportLeadsCSV()" id="btn-export-csv">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar CSV
+            </button>
           </div>
         </div>
-        <div style="padding: 20px 0;">
+        <div style="padding: 20px 32px;">
+          <div class="leads-header">
+            <span class="leads-count" id="leads-count">Carregando...</span>
+          </div>
           <div id="leads-list">
             <div class="loading-center"><div class="spinner"></div> Carregando...</div>
           </div>
         </div>
       </div>
 
-      <!-- ANALYTICS VIEW -->
-      <div id="view-analytics" class="view">
+      <!-- ═══════════════ INTEGRAÇÕES VIEW ═════════════ -->
+      <div id="view-integracoes" class="view">
         <div class="page-header">
           <div>
-            <h1 class="page-title">Analytics</h1>
-            <p class="page-sub">Desempenho dos seus popups</p>
+            <h1 class="page-title">Integrações</h1>
+            <p class="page-sub">Conecte o Pop Up Studio com suas ferramentas favoritas</p>
           </div>
         </div>
-        <div style="padding: 20px 0;">
-          <div id="analytics-list">
-            <div class="loading-center"><div class="spinner"></div> Carregando...</div>
-          </div>
+        <div style="padding: 24px 32px;">
+          <div class="integration-grid" id="integrations-list"></div>
         </div>
       </div>
 
-      <!-- GAMES VIEW -->
-      <div id="view-games" class="view">
+      <!-- ═══════════════ CONTA VIEW ═══════════════════ -->
+      <div id="view-conta" class="view">
         <div class="page-header">
           <div>
-            <h1 class="page-title">Jogos Disponíveis</h1>
-            <p class="page-sub">13 jogos gamificados para engajar seus clientes</p>
+            <h1 class="page-title">Minha Conta</h1>
+            <p class="page-sub">Informações da sua loja e plano</p>
           </div>
         </div>
-        <div style="padding: 20px 0;">
-          <div class="empty">
-            <div class="empty-icon">🎮</div>
-            <h3 class="empty-title">Biblioteca de Jogos</h3>
-            <p class="empty-sub">Em breve: Roleta, Slot Machine, Skate Grind e mais 10 jogos interativos.<br>Os jogos aparecem dentro do popup após o lead preencher seus dados.</p>
-          </div>
-        </div>
-      </div>
+        <div style="padding: 24px 32px;">
+          <div class="account-grid">
+            <div class="account-card">
+              <div class="account-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Dados da Loja
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nome da Loja</label>
+                <input class="form-input" id="account-name" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">URL da Loja</label>
+                <input class="form-input" id="account-url" readonly>
+              </div>
+            </div>
 
-      <!-- TEMPLATES VIEW -->
-      <div id="view-templates" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Templates</h1>
-            <p class="page-sub">Templates prontos para usar na sua loja</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div class="empty">
-            <div class="empty-icon">📋</div>
-            <h3 class="empty-title">Biblioteca de Templates</h3>
-            <p class="empty-sub">Em breve: Templates prontos para Black Friday, Dia das Mães, Natal e mais.</p>
-          </div>
-        </div>
-      </div>
+            <div class="account-card">
+              <div class="account-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Plano Atual
+              </div>
+              <div class="form-group">
+                <label class="form-label">Plano</label>
+                <input class="form-input" id="account-plan" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;">
+                  <span style="width:8px;height:8px;border-radius:50%;background:var(--green);"></span>
+                  <span style="font-size:14px;">Ativo</span>
+                </div>
+              </div>
+            </div>
 
-      <!-- SETTINGS VIEW -->
-      <div id="view-settings" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Configurações</h1>
-            <p class="page-sub">Dados da sua loja conectada</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; max-width: 500px;">
-            <div class="form-group">
-              <label class="form-label">Nome da Loja</label>
-              <input class="form-input" id="settings-name" readonly>
-            </div>
-            <div class="form-group">
-              <label class="form-label">URL da Loja</label>
-              <input class="form-input" id="settings-url" readonly>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Plano</label>
-              <input class="form-input" id="settings-plan" readonly>
-            </div>
-            <div style="margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border);">
-              <a href="/api/auth/logout" class="btn btn-red btn-sm">Desconectar</a>
+            <div class="account-card full">
+              <div class="account-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Ações
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <a href="/api/auth/install" class="btn btn-outline">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  Reinstalar App
+                </a>
+                <a href="/api/auth/logout" class="btn btn-red">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Desconectar
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -783,7 +1072,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Emoji / Ícone decorativo</label>
-            <input class="form-input" id="f-emoji" placeholder="🎁" maxlength="4" oninput="updatePreview()">
+            <input class="form-input" id="f-emoji" placeholder="🎡" maxlength="4" oninput="updatePreview()">
           </div>
         </div>
         <!-- PREVIEW TAB -->
@@ -817,8 +1106,39 @@
 // ─── STATE ──────────────────────────────────────────────────────────────────
 let store = null;
 let popups = [];
+let leadsData = [];
 let editingId = null;
 let currentTab = 'config';
+
+// ─── GAMES CATALOG ──────────────────────────────────────────────────────────
+const GAMES = [
+  { id: 'spin_wheel', icon: '🎡', name: 'Roleta da Sorte', desc: 'Gire a roleta e ganhe prêmios', available: true },
+  { id: 'slot_machine', icon: '🎰', name: 'Slot Machine', desc: 'Caça-níqueis com cupons', available: true },
+  { id: 'scratch_card', icon: '🃏', name: 'Raspadinha', desc: 'Raspe e descubra seu prêmio', available: true },
+  { id: 'quiz', icon: '🧠', name: 'Quiz Interativo', desc: 'Perguntas com recompensa', available: false },
+  { id: 'memory_game', icon: '🧩', name: 'Jogo da Memória', desc: 'Encontre os pares e ganhe', available: false },
+  { id: 'fortune_cookie', icon: '🥠', name: 'Biscoito da Sorte', desc: 'Abra e descubra a mensagem', available: false },
+  { id: 'dice_roll', icon: '🎲', name: 'Dados da Sorte', desc: 'Role os dados e ganhe', available: false },
+  { id: 'treasure_chest', icon: '🗝️', name: 'Baú do Tesouro', desc: 'Abra o baú misterioso', available: false },
+  { id: 'gift_box', icon: '🎁', name: 'Caixa Surpresa', desc: 'Escolha uma caixa e ganhe', available: false },
+  { id: 'wheel_fortune', icon: '💫', name: 'Roda Premiada', desc: 'Gire e descubra o prêmio', available: false },
+  { id: 'candy_crush', icon: '🍬', name: 'Candy Match', desc: 'Combine doces e ganhe', available: false },
+  { id: 'balloon_pop', icon: '🎈', name: 'Estoura Balão', desc: 'Estoure o balão premiado', available: false },
+  { id: 'skate_grind', icon: '🛹', name: 'Skate Grind', desc: 'Faça manobras e ganhe pontos', available: false }
+];
+
+// ─── INTEGRATIONS CATALOG ───────────────────────────────────────────────────
+const INTEGRATIONS = [
+  { icon: '📧', name: 'E-mail Marketing', desc: 'Envie leads automaticamente para Mailchimp, Klaviyo, RD Station e outras ferramentas de e-mail marketing.', status: 'soon', bg: 'rgba(59,130,246,.12)', color: 'var(--blue)' },
+  { icon: '💬', name: 'WhatsApp', desc: 'Envie mensagens automáticas de boas-vindas e cupons por WhatsApp quando um lead é capturado.', status: 'soon', bg: 'rgba(34,197,94,.12)', color: 'var(--green)' },
+  { icon: '🔗', name: 'Webhooks', desc: 'Receba dados de leads em tempo real via webhook para integrar com qualquer sistema ou automação.', status: 'soon', bg: 'rgba(124,92,252,.12)', color: 'var(--accent-light)' },
+  { icon: '📊', name: 'Google Analytics', desc: 'Dispare eventos personalizados no GA4 para rastrear impressões, cliques e conversões dos popups.', status: 'soon', bg: 'rgba(245,158,11,.12)', color: 'var(--yellow)' },
+  { icon: '📱', name: 'Facebook Pixel', desc: 'Integre com o Pixel do Facebook/Meta para rastrear conversões e criar públicos personalizados.', status: 'soon', bg: 'rgba(59,130,246,.12)', color: 'var(--blue)' },
+  { icon: '🗄️', name: 'Supabase', desc: 'Banco de dados padrão do Pop Up Studio. Todos os leads e eventos são armazenados automaticamente.', status: 'active', bg: 'rgba(34,197,94,.12)', color: 'var(--green)' },
+  { icon: '📋', name: 'Google Sheets', desc: 'Exporte leads automaticamente para uma planilha Google Sheets em tempo real.', status: 'soon', bg: 'rgba(34,197,94,.12)', color: 'var(--green)' },
+  { icon: '🤖', name: 'Zapier / Make', desc: 'Conecte com mais de 5.000 apps usando Zapier ou Make (Integromat) para automações ilimitadas.', status: 'soon', bg: 'rgba(236,72,153,.12)', color: 'var(--pink)' },
+  { icon: '🏪', name: 'Nuvemshop', desc: 'Integração nativa com a Nuvemshop. Popups são injetados automaticamente na loja via Scripts API.', status: 'active', bg: 'rgba(124,92,252,.12)', color: 'var(--accent-light)' }
+];
 
 // ─── INIT ───────────────────────────────────────────────────────────────────
 async function init() {
@@ -831,9 +1151,11 @@ async function init() {
     document.getElementById('store-name').textContent = storeName;
     document.getElementById('store-url').textContent = store.url || '';
     document.getElementById('store-avatar').textContent = storeName.charAt(0).toUpperCase();
-    document.getElementById('settings-name').value = storeName;
-    document.getElementById('settings-url').value = store.url || '';
-    document.getElementById('settings-plan').value = store.plan_name || 'Básico';
+    document.getElementById('account-name').value = storeName;
+    document.getElementById('account-url').value = store.url || '';
+    document.getElementById('account-plan').value = store.plan_name || 'Básico';
+    renderGames();
+    renderIntegrations();
     loadPopups();
   } catch (e) {
     document.getElementById('login-view').style.display = 'flex';
@@ -852,13 +1174,101 @@ async function api(method, url, body) {
 
 // ─── NAVIGATION ────────────────────────────────────────────────────────────
 function showView(name, el) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#main > .view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const viewEl = document.getElementById('view-' + name);
   if (viewEl) viewEl.classList.add('active');
   if (el) el.classList.add('active');
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'studio') loadPopups();
   if (name === 'leads') loadLeads();
-  if (name === 'analytics') loadAnalytics();
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const total = popups.length;
+  const pub = popups.filter(p => p.is_published).length;
+  document.getElementById('dash-active').textContent = pub;
+  document.getElementById('dash-active-sub').textContent = 'de ' + total + ' criados';
+
+  try {
+    const [l, e] = await Promise.all([
+      api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
+      api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
+    ]);
+    const leads = l.count || 0;
+    const views = e.count || 0;
+    document.getElementById('dash-leads').textContent = leads;
+    document.getElementById('dash-views').textContent = views;
+    const rate = views > 0 ? ((leads / views) * 100).toFixed(1) + '%' : '0%';
+    document.getElementById('dash-conversion').textContent = rate;
+  } catch {
+    document.getElementById('dash-leads').textContent = '0';
+    document.getElementById('dash-views').textContent = '0';
+    document.getElementById('dash-conversion').textContent = '0%';
+  }
+
+  // Recent popups
+  const recentEl = document.getElementById('dash-recent');
+  if (popups.length === 0) {
+    recentEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum popup criado ainda</div>';
+  } else {
+    recentEl.innerHTML = popups.slice(0, 4).map(p => {
+      const pub = p.is_published;
+      return '<div class="recent-item">'
+        + '<div class="recent-avatar">' + (p.config?.emoji || '🎯') + '</div>'
+        + '<div class="recent-info"><div class="recent-name">' + esc(p.name) + '</div>'
+        + '<div class="recent-meta">' + gameLabel(p.game_type) + '</div></div>'
+        + '<span class="recent-badge" style="background:' + (pub ? 'var(--green-dim);color:var(--green)' : 'rgba(120,120,160,.12);color:var(--muted)') + '">'
+        + (pub ? '● Ativo' : '○ Rascunho') + '</span>'
+        + '</div>';
+    }).join('');
+  }
+}
+
+// ─── STUDIO TABS ───────────────────────────────────────────────────────────
+function switchStudioTab(name, el) {
+  document.querySelectorAll('.studio-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  ['meus-popups', 'jogos', 'templates'].forEach(t => {
+    const panel = document.getElementById('studio-' + t);
+    if (panel) panel.style.display = t === name ? 'block' : 'none';
+  });
+}
+
+// ─── GAMES ─────────────────────────────────────────────────────────────────
+function renderGames() {
+  const el = document.getElementById('games-list');
+  el.innerHTML = GAMES.map(g => {
+    return '<div class="game-card' + (g.available ? '' : ' coming-soon') + '"' + (g.available ? ' onclick="selectGame(\'' + g.id + '\')"' : '') + '>'
+      + '<div class="game-card-icon">' + g.icon + '</div>'
+      + '<div class="game-card-name">' + g.name + '</div>'
+      + '<div class="game-card-desc">' + g.desc + '</div>'
+      + (!g.available ? '<div style="margin-top:8px;"><span class="badge badge-gray">Em breve</span></div>' : '<div style="margin-top:8px;"><span class="badge badge-green">Disponível</span></div>')
+      + '</div>';
+  }).join('');
+}
+
+function selectGame(id) {
+  openCreateModal();
+  document.getElementById('f-type').value = id;
+}
+
+// ─── INTEGRATIONS ──────────────────────────────────────────────────────────
+function renderIntegrations() {
+  const el = document.getElementById('integrations-list');
+  el.innerHTML = INTEGRATIONS.map(i => {
+    const isActive = i.status === 'active';
+    return '<div class="integration-card">'
+      + '<div class="integration-icon" style="background:' + i.bg + ';color:' + i.color + '">' + i.icon + '</div>'
+      + '<div>'
+      + '<div class="integration-name">' + i.name + '</div>'
+      + '<div class="integration-desc">' + i.desc + '</div>'
+      + (isActive
+        ? '<span class="badge badge-green">● Conectado</span>'
+        : '<span class="badge badge-gray">Em breve</span>')
+      + '</div></div>';
+  }).join('');
 }
 
 // ─── POPUPS ─────────────────────────────────────────────────────────────────
@@ -901,7 +1311,7 @@ function popupCard(p) {
     + (published
       ? '<button class="btn btn-red btn-sm" onclick="togglePublish(\''+p.id+'\',false)">⬇ Despublicar</button>'
       : '<button class="btn btn-green btn-sm" onclick="togglePublish(\''+p.id+'\',true)">⬆ Publicar</button>')
-    + '<button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup(\''+p.id+'\')">🗑</button>'
+    + '<button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup(\''+p.id+'\')">👑</button>'
     + '</div></div>';
 }
 
@@ -1079,14 +1489,59 @@ function syncColor(field) {
 async function loadLeads() {
   var el = document.getElementById('leads-list');
   el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
-  el.innerHTML = '<div class="empty"><div class="empty-icon">📧</div><h3 class="empty-title">Leads</h3><p class="empty-sub">Os leads capturados ficam armazenados no Supabase.<br>Acesse o painel do Supabase para ver os dados da tabela <strong>leads</strong>.</p><a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase ↗</a></div>';
+  try {
+    const result = await api('GET', '/api/public/lead');
+    leadsData = Array.isArray(result) ? result : (result.leads || []);
+    document.getElementById('leads-count').textContent = leadsData.length + ' lead' + (leadsData.length !== 1 ? 's' : '') + ' capturado' + (leadsData.length !== 1 ? 's' : '');
+
+    if (!leadsData.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📧</div><h3 class="empty-title">Nenhum lead capturado ainda</h3><p class="empty-sub">Quando seus popups começarem a capturar e-mails, eles aparecerão aqui.<br>Publique um popup para começar!</p></div>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Popup</th><th>Data</th></tr></thead><tbody>';
+    leadsData.forEach(l => {
+      const d = l.created_at ? new Date(l.created_at).toLocaleDateString('pt-BR') : '—';
+      html += '<tr>'
+        + '<td>' + esc(l.name || '—') + '</td>'
+        + '<td>' + esc(l.email || '—') + '</td>'
+        + '<td>' + esc(l.phone || l.contact || '—') + '</td>'
+        + '<td><span class="badge badge-blue">' + esc(l.popup_name || l.popup_id || '—') + '</span></td>'
+        + '<td>' + d + '</td>'
+        + '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📧</div><h3 class="empty-title">Leads</h3><p class="empty-sub">Os leads capturados ficam armazenados no Supabase.<br>Acesse o painel do Supabase para ver os dados da tabela <strong>leads</strong>.</p><a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase ↗</a></div>';
+  }
 }
 
-// ─── ANALYTICS ──────────────────────────────────────────────────────────────
-async function loadAnalytics() {
-  var el = document.getElementById('analytics-list');
-  el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
-  el.innerHTML = '<div class="empty"><div class="empty-icon">📊</div><h3 class="empty-title">Analytics</h3><p class="empty-sub">Os eventos ficam na tabela <strong>events</strong> no Supabase.<br>Consulte impressões, cliques e conversões diretamente no banco.</p><a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase ↗</a></div>';
+// ─── CSV EXPORT ─────────────────────────────────────────────────────────────
+function exportLeadsCSV() {
+  if (!leadsData.length) {
+    toast('Nenhum lead para exportar.', 'error');
+    return;
+  }
+  const headers = ['Nome', 'E-mail', 'Telefone', 'Popup', 'Data'];
+  const rows = leadsData.map(l => [
+    l.name || '',
+    l.email || '',
+    l.phone || l.contact || '',
+    l.popup_name || l.popup_id || '',
+    l.created_at ? new Date(l.created_at).toLocaleDateString('pt-BR') : ''
+  ]);
+  let csv = '\uFEFF' + headers.join(';') + '\n';
+  rows.forEach(r => {
+    csv += r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';') + '\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'leads_popup_studio_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exportado com sucesso!', 'success');
 }
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
@@ -1109,1129 +1564,6 @@ function toast(msg, type) {
   var el = document.createElement('div');
   el.className = 'toast-item ' + type;
   el.textContent = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : '⏳ ') + msg;
-  t.appendChild(el);
-  setTimeout(function(){ el.remove(); }, 3500);
-}
-
-// Close modal on backdrop click
-document.getElementById('popup-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-// Start
-init();
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pop Up Studio</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0a0a10;
-      --surface: #12121a;
-      --surface2: #1a1a26;
-      --surface3: #222230;
-      --border: #2a2a3d;
-      --accent: #7c5cfc;
-      --accent-light: #9b7fff;
-      --accent-glow: rgba(124,92,252,.25);
-      --accent-dim: rgba(124,92,252,.10);
-      --green: #22c55e;
-      --red: #ef4444;
-      --yellow: #f59e0b;
-      --text: #e8e8f0;
-      --muted: #6e6e90;
-      --radius: 10px;
-      --sidebar-w: 260px;
-    }
-    body {
-      font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* âââ LAYOUT ââââââââââââââââââââââââââââââââââââââââ */
-    #app { display: flex; min-height: 100vh; }
-    #main { flex: 1; overflow-y: auto; }
-
-    /* âââ SIDEBAR âââââââââââââââââââââââââââââââââââââââ */
-    #sidebar {
-      width: var(--sidebar-w);
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 10;
-    }
-
-    /* Logo */
-    .sidebar-logo {
-      padding: 22px 20px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .sidebar-logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #7c5cfc 0%, #a855f7 50%, #ec4899 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 4px 16px rgba(124,92,252,.35);
-      flex-shrink: 0;
-    }
-    .sidebar-logo-text {
-      font-weight: 800;
-      font-size: 16px;
-      letter-spacing: -.3px;
-      background: linear-gradient(135deg, #e8e8f0 0%, #9b7fff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .sidebar-logo-version {
-      font-size: 10px;
-      color: var(--muted);
-      font-weight: 500;
-      letter-spacing: .5px;
-    }
-
-    /* Divider */
-    .sidebar-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-      margin: 4px 16px 12px;
-    }
-
-    /* Section Label */
-    .sidebar-section {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--muted);
-      padding: 8px 20px 6px;
-      opacity: .6;
-    }
-
-    /* Nav Items */
-    .sidebar-nav {
-      padding: 0 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all .2s ease;
-      position: relative;
-      border: 1px solid transparent;
-    }
-    .nav-item:hover {
-      background: var(--surface2);
-      color: var(--text);
-    }
-    .nav-item.active {
-      background: var(--accent-dim);
-      color: var(--accent-light);
-      border-color: rgba(124,92,252,.15);
-      font-weight: 600;
-    }
-    .nav-item.active .nav-icon-box {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(124,92,252,.35);
-    }
-    .nav-icon-box {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--surface3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      transition: all .2s ease;
-      flex-shrink: 0;
-    }
-    .nav-item:hover .nav-icon-box {
-      background: var(--surface3);
-      color: var(--text);
-    }
-    .nav-item.active .nav-icon-box {
-      background: var(--accent);
-      color: #fff;
-    }
-    .nav-badge {
-      margin-left: auto;
-      background: var(--accent);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 10px;
-      min-width: 20px;
-      text-align: center;
-    }
-    .nav-badge.green { background: var(--green); }
-    .nav-badge.muted { background: var(--surface3); color: var(--muted); }
-
-    /* Sidebar bottom */
-    .sidebar-bottom {
-      margin-top: auto;
-      padding: 0 10px 16px;
-    }
-    .sidebar-store {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .store-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent-dim), var(--surface3));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--accent-light);
-      flex-shrink: 0;
-      border: 1px solid var(--border);
-    }
-    .store-info { flex: 1; min-width: 0; }
-    .store-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .store-url {
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .store-plan {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      color: var(--green);
-      background: rgba(34,197,94,.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-top: 4px;
-    }
-
-    /* Sidebar powered by */
-    .sidebar-powered {
-      text-align: center;
-      padding: 8px 0 0;
-      font-size: 10px;
-      color: var(--muted);
-      opacity: .4;
-    }
-
-    /* âââ HEADER ââââââââââââââââââââââââââââââââââââââââ */
-    .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 24px 32px 0;
-    }
-    .page-title { font-size: 22px; font-weight: 700; }
-    .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
-
-    /* âââ VIEWS âââââââââââââââââââââââââââââââââââââââââ */
-    .view { padding: 24px 32px; display: none; }
-    .view.active { display: block; }
-
-    /* âââ STAT CARDS ââââââââââââââââââââââââââââââââââââ */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-    }
-    .stat-label {
-      font-size: 12px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-    .stat-value { font-size: 28px; font-weight: 700; margin: 6px 0 0; }
-    .stat-value.green { color: var(--green); }
-    .stat-value.purple { color: var(--accent-light); }
-
-    /* âââ POPUP LIST ââââââââââââââââââââââââââââââââââââ */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .section-title { font-size: 15px; font-weight: 600; }
-    .popup-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-    }
-    .popup-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      cursor: pointer;
-      transition: all .2s ease;
-      position: relative;
-    }
-    .popup-card:hover {
-      border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(124,92,252,.08);
-    }
-    .popup-card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .popup-card-name { font-size: 15px; font-weight: 600; }
-    .popup-card-type { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 20px;
-    }
-    .badge-green { background: rgba(34,197,94,.15); color: var(--green); }
-    .badge-gray { background: rgba(120,120,160,.12); color: var(--muted); }
-    .badge-yellow { background: rgba(245,158,11,.12); color: var(--yellow); }
-    .popup-card-config {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.5;
-      margin-bottom: 14px;
-    }
-    .popup-card-actions { display: flex; gap: 8px; }
-
-    /* âââ BUTTONS âââââââââââââââââââââââââââââââââââââââ */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all .15s;
-    }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: var(--accent-light); box-shadow: 0 4px 16px rgba(124,92,252,.3); }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-outline:hover { background: var(--surface2); border-color: var(--muted); }
-    .btn-green { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
-    .btn-green:hover { background: rgba(34,197,94,.25); }
-    .btn-red { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.25); }
-    .btn-red:hover { background: rgba(239,68,68,.2); }
-    .btn-sm { padding: 5px 10px; font-size: 12px; }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-
-    /* âââ EMPTY STATE âââââââââââââââââââââââââââââââââââ */
-    .empty { text-align: center; padding: 60px 20px; }
-    .empty-icon { font-size: 48px; margin-bottom: 16px; }
-    .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-    .empty-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
-
-    /* âââ MODAL âââââââââââââââââââââââââââââââââââââââââ */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.7);
-      backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 100; padding: 20px;
-    }
-    .modal-overlay.hidden { display: none; }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      width: 100%; max-width: 580px;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    .modal-title { font-size: 17px; font-weight: 700; }
-    .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; padding: 4px; }
-    .modal-close:hover { color: var(--text); }
-    .modal-body { padding: 24px; }
-    .modal-footer {
-      display: flex; gap: 10px; justify-content: flex-end;
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-    }
-
-    /* âââ FORM ââââââââââââââââââââââââââââââââââââââââââ */
-    .form-group { margin-bottom: 18px; }
-    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 14px;
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s;
-      font-family: inherit;
-    }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
-    .form-textarea { resize: vertical; min-height: 80px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .form-select option { background: var(--surface2); }
-    .color-row { display: flex; gap: 10px; align-items: center; }
-    .color-input { width: 48px; height: 36px; border: 1px solid var(--border); border-radius: 6px; padding: 2px; cursor: pointer; background: transparent; }
-
-    /* âââ TABLE ââââââââââââââââââââââââââââââââââââââââââ */
-    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--surface2); }
-    td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--surface2); }
-
-    /* âââ LOADER âââââââââââââââââââââââââââââââââââââââââ */
-    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-center { display: flex; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: var(--muted); }
-
-    /* âââ TOAST ââââââââââââââââââââââââââââââââââââââââââ */
-    #toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
-    .toast-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideIn .2s ease; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
-    .toast-item.success { border-color: rgba(34,197,94,.4); }
-    .toast-item.error { border-color: rgba(239,68,68,.4); }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-    /* âââ PREVIEW POPUP âââââââââââââââââââââââââââââââââ */
-    .preview-popup { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 16px; }
-    .preview-header { background: var(--surface2); padding: 8px 12px; font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-    .preview-frame { padding: 20px; display: flex; justify-content: center; }
-    .popup-preview-box { border-radius: 12px; padding: 28px 24px; max-width: 320px; width: 100%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
-    .popup-preview-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-    .popup-preview-desc { font-size: 13px; opacity: .8; margin-bottom: 16px; }
-    .popup-preview-input { width: 100%; padding: 10px 12px; border-radius: 8px; border: none; font-size: 13px; margin-bottom: 10px; }
-    .popup-preview-btn { width: 100%; padding: 11px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
-
-    /* âââ TABS âââââââââââââââââââââââââââââââââââââââââââ */
-    .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 4px; margin-bottom: 20px; }
-    .tab { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: none; transition: all .15s; }
-    .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
-
-    /* âââ LOGIN ââââââââââââââââââââââââââââââââââââââââââ */
-    #login-view { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .login-box { text-align: center; padding: 40px; }
-    .login-icon { font-size: 56px; margin-bottom: 16px; }
-    .login-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-    .login-sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
-
-    /* âââ RESPONSIVE ââââââââââââââââââââââââââââââââââââ */
-    @media (max-width: 768px) {
-      #sidebar { display: none; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- LOGIN STATE -->
-  <div id="login-view" style="display:none">
-    <div class="login-box">
-      <div class="login-icon">ð¯</div>
-      <h1 class="login-title">Pop Up Studio</h1>
-      <p class="login-sub">SessÃ£o expirada. Por favor, reinstale o aplicativo.</p>
-      <a href="/api/auth/install" class="btn btn-primary" style="display:inline-flex">Entrar novamente</a>
-    </div>
-  </div>
-
-  <!-- MAIN APP -->
-  <div id="app" style="display:none">
-
-    <!-- âââ SIDEBAR âââââââââââââââââââââââââââââââââââ -->
-    <nav id="sidebar">
-
-      <!-- Logo -->
-      <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">ð¯</div>
-        <div>
-          <div class="sidebar-logo-text">Pop Up Studio</div>
-          <div class="sidebar-logo-version">v1.0 â GamificaÃ§Ã£o</div>
-        </div>
-      </div>
-
-      <div class="sidebar-divider"></div>
-
-      <!-- Menu Principal -->
-      <div class="sidebar-section">Menu</div>
-      <div class="sidebar-nav">
-        <div class="nav-item active" data-view="popups" onclick="showView('popups', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <span>Meus Popups</span>
-          <span class="nav-badge" id="nav-badge-popups">0</span>
-        </div>
-
-        <div class="nav-item" data-view="leads" onclick="showView('leads', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
-          <span>Leads</span>
-          <span class="nav-badge green" id="nav-badge-leads" style="display:none">0</span>
-        </div>
-
-        <div class="nav-item" data-view="analytics" onclick="showView('analytics', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <span>Analytics</span>
-        </div>
-      </div>
-
-      <div style="height: 8px;"></div>
-
-      <!-- Ferramentas -->
-      <div class="sidebar-section">Ferramentas</div>
-      <div class="sidebar-nav">
-        <div class="nav-item" data-view="games" onclick="showView('games', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-          </div>
-          <span>Jogos</span>
-          <span class="nav-badge muted">13</span>
-        </div>
-
-        <div class="nav-item" data-view="templates" onclick="showView('templates', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          </div>
-          <span>Templates</span>
-          <span class="nav-badge muted">Em breve</span>
-        </div>
-
-        <div class="nav-item" data-view="settings" onclick="showView('settings', this)">
-          <div class="nav-icon-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          </div>
-          <span>ConfiguraÃ§Ãµes</span>
-        </div>
-      </div>
-
-      <!-- Store info bottom -->
-      <div class="sidebar-bottom">
-        <div class="sidebar-store">
-          <div class="store-avatar" id="store-avatar">M</div>
-          <div class="store-info">
-            <div class="store-name" id="store-name">Carregando...</div>
-            <div class="store-url" id="store-url"></div>
-            <div class="store-plan" id="store-plan-badge">â Conectado</div>
-          </div>
-        </div>
-        <div class="sidebar-powered">Nuvemshop Partner App</div>
-      </div>
-
-    </nav>
-
-    <!-- âââ MAIN ââââââââââââââââââââââââââââââââââââââ -->
-    <main id="main">
-
-      <!-- POPUPS VIEW -->
-      <div id="view-popups" class="view active">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Meus Popups</h1>
-            <p class="page-sub">Crie e gerencie popups gamificados para sua loja</p>
-          </div>
-          <button class="btn btn-primary" onclick="openCreateModal()">ï¼ Novo Popup</button>
-        </div>
-        <div class="view" style="display:block; padding-top: 20px;">
-          <div class="stats-row" id="stats-row">
-            <div class="stat-card">
-              <div class="stat-label">Total de Popups</div>
-              <div class="stat-value purple" id="stat-total">â</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Publicados</div>
-              <div class="stat-value green" id="stat-published">â</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Leads Capturados</div>
-              <div class="stat-value" id="stat-leads">â</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">ImpressÃµes</div>
-              <div class="stat-value" id="stat-views">â</div>
-            </div>
-          </div>
-          <div class="section-header">
-            <span class="section-title">Todos os Popups</span>
-          </div>
-          <div id="popup-list">
-            <div class="loading-center"><div class="spinner"></div> Carregando...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LEADS VIEW -->
-      <div id="view-leads" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Leads Capturados</h1>
-            <p class="page-sub">E-mails coletados pelos seus popups</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div id="leads-list">
-            <div class="loading-center"><div class="spinner"></div> Carregando...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ANALYTICS VIEW -->
-      <div id="view-analytics" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Analytics</h1>
-            <p class="page-sub">Desempenho dos seus popups</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div id="analytics-list">
-            <div class="loading-center"><div class="spinner"></div> Carregando...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- GAMES VIEW -->
-      <div id="view-games" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Jogos DisponÃ­veis</h1>
-            <p class="page-sub">13 jogos gamificados para engajar seus clientes</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div class="empty">
-            <div class="empty-icon">ð®</div>
-            <h3 class="empty-title">Biblioteca de Jogos</h3>
-            <p class="empty-sub">Em breve: Roleta, Slot Machine, Skate Grind e mais 10 jogos interativos.<br>Os jogos aparecem dentro do popup apÃ³s o lead preencher seus dados.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- TEMPLATES VIEW -->
-      <div id="view-templates" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Templates</h1>
-            <p class="page-sub">Templates prontos para usar na sua loja</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div class="empty">
-            <div class="empty-icon">ð</div>
-            <h3 class="empty-title">Biblioteca de Templates</h3>
-            <p class="empty-sub">Em breve: Templates prontos para Black Friday, Dia das MÃ£es, Natal e mais.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SETTINGS VIEW -->
-      <div id="view-settings" class="view">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">ConfiguraÃ§Ãµes</h1>
-            <p class="page-sub">Dados da sua loja conectada</p>
-          </div>
-        </div>
-        <div style="padding: 20px 0;">
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; max-width: 500px;">
-            <div class="form-group">
-              <label class="form-label">Nome da Loja</label>
-              <input class="form-input" id="settings-name" readonly>
-            </div>
-            <div class="form-group">
-              <label class="form-label">URL da Loja</label>
-              <input class="form-input" id="settings-url" readonly>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Plano</label>
-              <input class="form-input" id="settings-plan" readonly>
-            </div>
-            <div style="margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--border);">
-              <a href="/api/auth/logout" class="btn btn-red btn-sm">Desconectar</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-  <!-- CREATE / EDIT MODAL -->
-  <div class="modal-overlay hidden" id="popup-modal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title" id="modal-title">Novo Popup</h2>
-        <button class="modal-close" onclick="closeModal()">â</button>
-      </div>
-      <div class="modal-body">
-        <div class="tabs">
-          <button class="tab active" onclick="switchTab('config')">ConfiguraÃ§Ã£o</button>
-          <button class="tab" onclick="switchTab('design')">Design</button>
-          <button class="tab" onclick="switchTab('preview')">Preview</button>
-        </div>
-        <!-- CONFIG TAB -->
-        <div id="tab-config">
-          <div class="form-group">
-            <label class="form-label">Nome do Popup (interno)</label>
-            <input class="form-input" id="f-name" placeholder="Ex: Popup Black Friday">
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Jogo</label>
-              <select class="form-select" id="f-type">
-                <option value="spin_wheel">ð¡ Roleta da Sorte</option>
-                <option value="slot_machine">ð° Slot Machine</option>
-                <option value="scratch_card">ð Raspadinha</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Atraso (segundos)</label>
-              <input class="form-input" id="f-delay" type="number" min="0" max="60" value="3">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">TÃ­tulo do Popup</label>
-            <input class="form-input" id="f-title" placeholder="Ex: ð Ganhe 15% de desconto!">
-          </div>
-          <div class="form-group">
-            <label class="form-label">DescriÃ§Ã£o</label>
-            <textarea class="form-textarea" id="f-desc" placeholder="Ex: Cadastre seu e-mail e jogue para ganhar um cupom exclusivo!"></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Texto do BotÃ£o</label>
-              <input class="form-input" id="f-btn" placeholder="Quero jogar!">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Cupom de Desconto</label>
-              <input class="form-input" id="f-prize" placeholder="Ex: BEMVINDO15">
-            </div>
-          </div>
-        </div>
-        <!-- DESIGN TAB -->
-        <div id="tab-design" style="display:none">
-          <div class="form-group">
-            <label class="form-label">Cor de Fundo</label>
-            <div class="color-row">
-              <input type="color" class="color-input" id="f-bg" value="#1a1a2e" oninput="updatePreview()">
-              <input class="form-input" id="f-bg-text" value="#1a1a2e" oninput="syncColor('bg')">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Cor do Texto</label>
-            <div class="color-row">
-              <input type="color" class="color-input" id="f-text-color" value="#ffffff" oninput="updatePreview()">
-              <input class="form-input" id="f-text-text" value="#ffffff" oninput="syncColor('text')">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Cor do BotÃ£o</label>
-            <div class="color-row">
-              <input type="color" class="color-input" id="f-btn-color" value="#7c5cfc" oninput="updatePreview()">
-              <input class="form-input" id="f-btn-text" value="#7c5cfc" oninput="syncColor('btn')">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">PosiÃ§Ã£o</label>
-            <select class="form-select" id="f-position">
-              <option value="center">Centro</option>
-              <option value="bottom-left">Canto inferior esquerdo</option>
-              <option value="bottom-right">Canto inferior direito</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Emoji / Ãcone decorativo</label>
-            <input class="form-input" id="f-emoji" placeholder="ð" maxlength="4" oninput="updatePreview()">
-          </div>
-        </div>
-        <!-- PREVIEW TAB -->
-        <div id="tab-preview" style="display:none">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">PrÃ©via de como o popup aparecerÃ¡ na loja:</p>
-          <div class="preview-popup">
-            <div class="preview-header">ð¥ï¸ Preview</div>
-            <div class="preview-frame">
-              <div class="popup-preview-box" id="preview-box">
-                <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
-                <div class="popup-preview-title" id="preview-title">TÃ­tulo do Popup</div>
-                <div class="popup-preview-desc" id="preview-desc">DescriÃ§Ã£o aqui</div>
-                <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
-                <button class="popup-preview-btn" id="preview-btn">Quero jogar!</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="savePopup()" id="save-btn">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div id="toast"></div>
-
-<script>
-// âââ STATE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-let store = null;
-let popups = [];
-let editingId = null;
-let currentTab = 'config';
-
-// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-async function init() {
-  try {
-    const res = await api('GET', '/api/me');
-    store = res;
-    document.getElementById('app').style.display = 'flex';
-
-    const storeName = store.name || store.original_name || 'Minha Loja';
-    document.getElementById('store-name').textContent = storeName;
-    document.getElementById('store-url').textContent = store.url || '';
-    document.getElementById('store-avatar').textContent = storeName.charAt(0).toUpperCase();
-    document.getElementById('settings-name').value = storeName;
-    document.getElementById('settings-url').value = store.url || '';
-    document.getElementById('settings-plan').value = store.plan_name || 'BÃ¡sico';
-    loadPopups();
-  } catch (e) {
-    document.getElementById('login-view').style.display = 'flex';
-  }
-}
-
-// âââ API HELPER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-async function api(method, url, body) {
-  const opts = { method, credentials: 'include', headers: {} };
-  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-  const res = await fetch(url, opts);
-  if (res.status === 401) throw new Error('unauthorized');
-  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || 'Erro ' + res.status); }
-  return res.json().catch(() => ({}));
-}
-
-// âââ NAVIGATION ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function showView(name, el) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const viewEl = document.getElementById('view-' + name);
-  if (viewEl) viewEl.classList.add('active');
-  if (el) el.classList.add('active');
-  if (name === 'leads') loadLeads();
-  if (name === 'analytics') loadAnalytics();
-}
-
-// âââ POPUPS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-async function loadPopups() {
-  try {
-    const result = await api('GET', '/api/popups');
-    popups = Array.isArray(result) ? result : (result.popups || []);
-    renderPopups();
-    updateStats();
-  } catch(e) {
-    document.getElementById('popup-list').innerHTML = '<div class="empty"><div class="empty-icon">â ï¸</div><p>'+e.message+'</p></div>';
-  }
-}
-
-function renderPopups() {
-  const el = document.getElementById('popup-list');
-  if (!popups.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">ðª</div><h3 class="empty-title">Nenhum popup criado ainda</h3><p class="empty-sub">Crie seu primeiro popup para comeÃ§ar a capturar leads e engajar clientes.</p><button class="btn btn-primary" onclick="openCreateModal()">ï¼ Criar meu primeiro popup</button></div>';
-    return;
-  }
-  el.innerHTML = '<div class="popup-grid">'+popups.map(p => popupCard(p)).join('')+'</div>';
-}
-
-function popupCard(p) {
-  const cfg = p.config || {};
-  const published = p.is_published;
-  return '<div class="popup-card" onclick="openEditModal(\''+p.id+'\')">'
-    + '<div class="popup-card-header"><div>'
-    + '<div class="popup-card-name">'+esc(p.name)+'</div>'
-    + '<div class="popup-card-type">'+gameLabel(p.game_type)+'</div>'
-    + '</div>'
-    + '<span class="badge '+(published ? 'badge-green' : 'badge-gray')+'">'
-    + (published ? 'â Publicado' : 'â Rascunho')+'</span></div>'
-    + '<div class="popup-card-config">'
-    + (cfg.title ? '<strong>'+esc(cfg.title)+'</strong><br>' : '')
-    + (cfg.description ? esc(cfg.description).substring(0,80)+(cfg.description.length>80?'â¦':'') : 'Sem descriÃ§Ã£o')
-    + '</div>'
-    + '<div class="popup-card-actions" onclick="event.stopPropagation()">'
-    + '<button class="btn btn-outline btn-sm" onclick="openEditModal(\''+p.id+'\')">âï¸ Editar</button>'
-    + (published
-      ? '<button class="btn btn-red btn-sm" onclick="togglePublish(\''+p.id+'\',false)">â¬ Despublicar</button>'
-      : '<button class="btn btn-green btn-sm" onclick="togglePublish(\''+p.id+'\',true)">â¬ Publicar</button>')
-    + '<button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup(\''+p.id+'\')">ð</button>'
-    + '</div></div>';
-}
-
-async function updateStats() {
-  const total = popups.length;
-  const pub = popups.filter(p => p.is_published).length;
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-published').textContent = pub;
-  document.getElementById('nav-badge-popups').textContent = total;
-  try {
-    const [l, e] = await Promise.all([
-      api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
-      api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
-    ]);
-    document.getElementById('stat-leads').textContent = l.count ?? 'â';
-    document.getElementById('stat-views').textContent = e.count ?? 'â';
-    if (l.count > 0) {
-      const lb = document.getElementById('nav-badge-leads');
-      lb.textContent = l.count;
-      lb.style.display = '';
-    }
-  } catch {}
-}
-
-async function togglePublish(id, publish) {
-  try {
-    toast('Processando...', 'info');
-    const endpoint = publish ? '/api/popups/publish' : '/api/popups/unpublish';
-    await api('POST', endpoint, { id });
-    toast(publish ? 'Popup publicado! O script foi injetado na loja.' : 'Popup despublicado.', 'success');
-    await loadPopups();
-  } catch(e) { toast('Erro: ' + e.message, 'error'); }
-}
-
-async function deletePopup(id) {
-  if (!confirm('Tem certeza que deseja excluir este popup?')) return;
-  try {
-    await api('DELETE', '/api/popups/' + id);
-    toast('Popup excluÃ­do.', 'success');
-    await loadPopups();
-  } catch(e) { toast('Erro: ' + e.message, 'error'); }
-}
-
-// âââ MODAL ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function openCreateModal() {
-  editingId = null;
-  document.getElementById('modal-title').textContent = 'Novo Popup';
-  document.getElementById('f-name').value = '';
-  document.getElementById('f-type').value = 'spin_wheel';
-  document.getElementById('f-delay').value = '3';
-  document.getElementById('f-title').value = 'ð Ganhe um desconto exclusivo!';
-  document.getElementById('f-desc').value = 'Cadastre seu e-mail e jogue para ganhar um cupom especial!';
-  document.getElementById('f-btn').value = 'Quero jogar!';
-  document.getElementById('f-prize').value = '';
-  document.getElementById('f-bg').value = '#1a1a2e';
-  document.getElementById('f-bg-text').value = '#1a1a2e';
-  document.getElementById('f-text-color').value = '#ffffff';
-  document.getElementById('f-text-text').value = '#ffffff';
-  document.getElementById('f-btn-color').value = '#7c5cfc';
-  document.getElementById('f-btn-text').value = '#7c5cfc';
-  document.getElementById('f-emoji').value = 'ð';
-  document.getElementById('f-position').value = 'center';
-  switchTab('config');
-  document.getElementById('popup-modal').classList.remove('hidden');
-  updatePreview();
-}
-
-function openEditModal(id) {
-  const p = popups.find(x => x.id === id);
-  if (!p) return;
-  editingId = id;
-  const cfg = p.config || {};
-  document.getElementById('modal-title').textContent = 'Editar Popup';
-  document.getElementById('f-name').value = p.name || '';
-  document.getElementById('f-type').value = p.game_type || 'spin_wheel';
-  document.getElementById('f-delay').value = cfg.trigger_delay ?? 3;
-  document.getElementById('f-title').value = cfg.title || '';
-  document.getElementById('f-desc').value = cfg.description || '';
-  document.getElementById('f-btn').value = cfg.button_text || '';
-  document.getElementById('f-prize').value = cfg.prize || '';
-  const bg = cfg.background_color || '#1a1a2e';
-  const tc = cfg.text_color || '#ffffff';
-  const bc = cfg.button_color || '#7c5cfc';
-  document.getElementById('f-bg').value = bg;
-  document.getElementById('f-bg-text').value = bg;
-  document.getElementById('f-text-color').value = tc;
-  document.getElementById('f-text-text').value = tc;
-  document.getElementById('f-btn-color').value = bc;
-  document.getElementById('f-btn-text').value = bc;
-  document.getElementById('f-emoji').value = cfg.emoji || 'ð';
-  document.getElementById('f-position').value = cfg.position || 'center';
-  switchTab('config');
-  document.getElementById('popup-modal').classList.remove('hidden');
-  updatePreview();
-}
-
-function closeModal() {
-  document.getElementById('popup-modal').classList.add('hidden');
-  editingId = null;
-}
-
-async function savePopup() {
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) { toast('Digite um nome para o popup.', 'error'); return; }
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true; btn.textContent = 'Salvando...';
-  const payload = {
-    name,
-    game_type: document.getElementById('f-type').value,
-    config: {
-      title: document.getElementById('f-title').value,
-      description: document.getElementById('f-desc').value,
-      button_text: document.getElementById('f-btn').value,
-      prize: document.getElementById('f-prize').value,
-      trigger_delay: parseInt(document.getElementById('f-delay').value) || 3,
-      background_color: document.getElementById('f-bg').value,
-      text_color: document.getElementById('f-text-color').value,
-      button_color: document.getElementById('f-btn-color').value,
-      emoji: document.getElementById('f-emoji').value,
-      position: document.getElementById('f-position').value,
-    }
-  };
-  try {
-    if (editingId) {
-      await api('PUT', '/api/popups/' + editingId, payload);
-      toast('Popup atualizado!', 'success');
-    } else {
-      await api('POST', '/api/popups', payload);
-      toast('Popup criado com sucesso!', 'success');
-    }
-    closeModal();
-    await loadPopups();
-  } catch(e) { toast('Erro: ' + e.message, 'error'); }
-  finally { btn.disabled = false; btn.textContent = 'Salvar'; }
-}
-
-// âââ TABS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function switchTab(name) {
-  currentTab = name;
-  ['config','design','preview'].forEach(t => {
-    document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
-    document.querySelectorAll('.tab').forEach((el, i) => {
-      el.classList.toggle('active', ['config','design','preview'][i] === name);
-    });
-  });
-  if (name === 'preview') updatePreview();
-}
-
-function updatePreview() {
-  const bg = document.getElementById('f-bg').value;
-  const tc = document.getElementById('f-text-color').value;
-  const bc = document.getElementById('f-btn-color').value;
-  const emoji = document.getElementById('f-emoji').value;
-  const box = document.getElementById('preview-box');
-  if (!box) return;
-  box.style.background = bg;
-  box.style.color = tc;
-  document.getElementById('preview-emoji').textContent = emoji;
-  document.getElementById('preview-title').textContent = document.getElementById('f-title').value || 'TÃ­tulo do Popup';
-  document.getElementById('preview-desc').textContent = document.getElementById('f-desc').value || 'DescriÃ§Ã£o';
-  var pbtn = document.getElementById('preview-btn');
-  pbtn.textContent = document.getElementById('f-btn').value || 'Quero jogar!';
-  pbtn.style.background = bc;
-  pbtn.style.color = '#fff';
-}
-
-function syncColor(field) {
-  const map = { bg: ['f-bg', 'f-bg-text'], text: ['f-text-color', 'f-text-text'], btn: ['f-btn-color', 'f-btn-text'] };
-  const [picker, input] = map[field];
-  document.getElementById(picker).value = document.getElementById(input).value;
-  updatePreview();
-}
-
-// âââ LEADS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-async function loadLeads() {
-  var el = document.getElementById('leads-list');
-  el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
-  el.innerHTML = '<div class="empty"><div class="empty-icon">ð§</div><h3 class="empty-title">Leads</h3><p class="empty-sub">Os leads capturados ficam armazenados no Supabase.<br>Acesse o painel do Supabase para ver os dados da tabela <strong>leads</strong>.</p><a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase â</a></div>';
-}
-
-// âââ ANALYTICS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-async function loadAnalytics() {
-  var el = document.getElementById('analytics-list');
-  el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
-  el.innerHTML = '<div class="empty"><div class="empty-icon">ð</div><h3 class="empty-title">Analytics</h3><p class="empty-sub">Os eventos ficam na tabela <strong>events</strong> no Supabase.<br>Consulte impressÃµes, cliques e conversÃµes diretamente no banco.</p><a href="https://supabase.com/dashboard/project/hvifamnmrofdxiuexfpi/editor" target="_blank" class="btn btn-primary" style="margin-top:8px">Abrir Supabase â</a></div>';
-}
-
-// âââ HELPERS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function gameLabel(t) {
-  return {
-    spin_wheel: 'ð¡ Roleta da Sorte',
-    slot_machine: 'ð° Slot Machine',
-    scratch_card: 'ð Raspadinha',
-    email_capture: 'ð§ Captura de E-mail',
-    coupon: 'ðï¸ Cupom',
-    announcement: 'ð¢ AnÃºncio'
-  }[t] || t;
-}
-
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function toast(msg, type) {
-  type = type || 'info';
-  var t = document.getElementById('toast');
-  var el = document.createElement('div');
-  el.className = 'toast-item ' + type;
-  el.textContent = (type === 'success' ? 'â ' : type === 'error' ? 'â ' : 'â³ ') + msg;
   t.appendChild(el);
   setTimeout(function(){ el.remove(); }, 3500);
 }
