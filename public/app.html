@@ -739,6 +739,8 @@
     .slot-victory-text { font-size: 22px; font-weight: 900; color: #f1c40f; margin: 10px 0 4px; text-transform: uppercase; text-shadow: 0 0 10px rgba(241,196,15,.5); }
     .slot-victory-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 10px; }
     .slot-coupon-box { background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; padding: 12px 28px; border-radius: 10px; font-size: 22px; font-weight: 900; letter-spacing: 3px; border: 2px dashed rgba(26,6,64,.4); margin-top: 4px; box-shadow: 0 4px 16px rgba(241,196,15,.3); }
+    .slot-copy-btn { animation: copyPulse 1.5s ease infinite; }
+    @keyframes copyPulse { 0%,100%{box-shadow:0 4px 20px rgba(var(--slot-accent-rgb,34,197,94),.35)} 50%{box-shadow:0 4px 30px rgba(var(--slot-accent-rgb,34,197,94),.6), 0 0 15px rgba(var(--slot-accent-rgb,34,197,94),.3)} }
     .slot-confetti { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall 1.5s ease-out forwards; z-index: 11; pointer-events: none; }
     @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(200px) rotate(720deg);opacity:0} }
 
@@ -2472,9 +2474,42 @@ function showSlotVictory() {
   victory.innerHTML = '<div class="slot-victory-emoji">' + winEmoji + '</div>'
     + '<div class="slot-victory-text">JACKPOT!</div>'
     + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
-    + '<div class="slot-coupon-box">' + esc(coupon) + '</div>'
-    + '<button class="slot-btn-main" style="margin-top:14px;width:auto;padding:8px 20px;font-size:12px;" onclick="resetSlotGame()">🔄 JOGAR NOVAMENTE</button>';
+    + '<div class="slot-coupon-box" id="slot-coupon-code">' + esc(coupon) + '</div>'
+    + '<button class="slot-btn-main slot-copy-btn" style="margin-top:14px;width:100%;max-width:260px;padding:12px 20px;font-size:13px;letter-spacing:1.5px;" onclick="copySlotCoupon()">'
+    + '🎉 USAR MEU CUPOM AGORA</button>'
+    + '<div class="slot-copy-feedback" id="slot-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
   machine.appendChild(victory);
+}
+
+function copySlotCoupon() {
+  var couponEl = document.getElementById('slot-coupon-code');
+  var feedbackEl = document.getElementById('slot-copy-feedback');
+  var btn = document.querySelector('.slot-copy-btn');
+  if (!couponEl) return;
+  var couponText = couponEl.textContent.trim();
+  navigator.clipboard.writeText(couponText).then(function() {
+    if (feedbackEl) { feedbackEl.style.opacity = '1'; }
+    if (btn) { btn.innerHTML = '✅ CUPOM COPIADO!'; btn.style.background = 'linear-gradient(180deg, #22c55e, #16a34a)'; }
+    setTimeout(function() {
+      if (btn) { btn.innerHTML = '🎉 USAR MEU CUPOM AGORA'; btn.style.background = ''; }
+      if (feedbackEl) { feedbackEl.style.opacity = '0'; }
+    }, 3000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = couponText;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (feedbackEl) { feedbackEl.style.opacity = '1'; }
+    if (btn) { btn.innerHTML = '✅ CUPOM COPIADO!'; btn.style.background = 'linear-gradient(180deg, #22c55e, #16a34a)'; }
+    setTimeout(function() {
+      if (btn) { btn.innerHTML = '🎉 USAR MEU CUPOM AGORA'; btn.style.background = ''; }
+      if (feedbackEl) { feedbackEl.style.opacity = '0'; }
+    }, 3000);
+  });
 }
 
 function unlockSlotMachine() {
