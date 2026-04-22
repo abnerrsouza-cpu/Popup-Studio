@@ -1575,8 +1575,12 @@
                 </div>
                 <!-- Slot Machine preview -->
                 <div id="preview-slot" style="display:none;width:100%;max-width:340px;position:relative;">
+                  <div style="display:flex;gap:8px;margin-bottom:10px;justify-content:center;">
+                    <button id="slot-sim-unlock" onclick="unlockSlotMachine()" style="background:#22c55e;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;">▶ Simular Cadastro</button>
+                    <button id="slot-sim-relock" onclick="relockSlotMachine()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;">🔒 Resetar</button>
+                  </div>
                   <div class="slot-lock-container">
-                    <button class="slot-relock-btn" id="slot-relock-btn" onclick="relockSlotMachine()" title="Simular bloqueio">🔒 Simular</button>
+                    <button class="slot-relock-btn" id="slot-relock-btn" onclick="relockSlotMachine()" title="Simular bloqueio" style="display:none;">🔒 Simular</button>
                     <!-- Slot Machine (visible, generates curiosity) -->
                     <div class="slot-machine slot-lock-blur" id="slot-machine-preview">
                       <!-- Popup Header with title -->
