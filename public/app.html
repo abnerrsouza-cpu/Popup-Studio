@@ -650,23 +650,28 @@
     .slot-lever-base { width:16px; height:8px; background:linear-gradient(180deg,#aaa,#666); border-radius:0 0 6px 6px; margin-top:-1px; }
     /* ─── BLUR LOCK OVERLAY ───────────────────────────── */
     .slot-lock-container { position: relative; }
-    .slot-lock-blur { filter: blur(6px) brightness(.7); pointer-events: none; transition: filter .6s ease; }
-    .slot-lock-blur.unlocked, .slot-machine:not(.slot-lock-blur) { filter: none; pointer-events: auto; }
+    .slot-lock-blur { pointer-events: none; transition: filter .6s ease; }
+    .slot-lock-blur .slot-btn-panel { display: none; }
+    .slot-lock-blur .slot-attempts-vegas { display: none; }
+    .slot-lock-blur.unlocked, .slot-machine:not(.slot-lock-blur) { pointer-events: auto; }
+    .slot-lock-blur.unlocked .slot-btn-panel, .slot-machine:not(.slot-lock-blur) .slot-btn-panel { display: flex; }
+    .slot-lock-blur.unlocked .slot-attempts-vegas, .slot-machine:not(.slot-lock-blur) .slot-attempts-vegas { display: block; }
     .slot-lock-overlay {
-      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 20; background: rgba(0,0,0,.3); border-radius: 20px; backdrop-filter: blur(2px);
-      transition: opacity .5s ease, transform .5s ease; padding: 20px;
+      position: relative; display: flex; flex-direction: column; align-items: center;
+      z-index: 20; background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.85) 100%);
+      border-radius: 0 0 16px 16px; padding: 16px 14px 18px;
+      transition: opacity .5s ease, max-height .5s ease; overflow: hidden;
     }
-    .slot-lock-overlay.hidden { opacity: 0; transform: scale(.9); pointer-events: none; }
-    .slot-lock-icon { font-size: 40px; margin-bottom: 10px; animation: lockPulse 2s ease infinite; }
+    .slot-lock-overlay.hidden { opacity: 0; max-height: 0; padding: 0 14px; pointer-events: none; }
+    .slot-lock-icon { font-size: 28px; margin-bottom: 6px; animation: lockPulse 2s ease infinite; }
     @keyframes lockPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-    .slot-lock-title { font-size: 16px; font-weight: 800; color: #f1c40f; text-align: center; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
-    .slot-lock-subtitle { font-size: 11px; color: rgba(255,255,255,.7); text-align: center; margin-bottom: 14px; }
-    .slot-lock-form { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 220px; }
-    .slot-lock-input { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 13px; outline: none; text-align: center; transition: border-color .2s; }
+    .slot-lock-title { font-size: 14px; font-weight: 800; color: #f1c40f; text-align: center; margin-bottom: 3px; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+    .slot-lock-subtitle { font-size: 10px; color: rgba(255,255,255,.7); text-align: center; margin-bottom: 10px; }
+    .slot-lock-form { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 240px; }
+    .slot-lock-input { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 12px; outline: none; text-align: center; transition: border-color .2s; }
     .slot-lock-input::placeholder { color: rgba(255,255,255,.4); }
     .slot-lock-input:focus { border-color: #f1c40f; }
-    .slot-lock-btn { background: linear-gradient(180deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 12px rgba(241,196,15,.3); transition: all .15s; }
+    .slot-lock-btn { background: linear-gradient(180deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; border: none; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 12px rgba(241,196,15,.3); transition: all .15s; }
     .slot-lock-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(241,196,15,.4); }
     .slot-relock-btn { position:absolute; top:6px; right:6px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:6px; padding:4px 8px; font-size:10px; color:rgba(255,255,255,.6); cursor:pointer; z-index:25; transition:all .15s; }
     .slot-relock-btn:hover { background:rgba(255,255,255,.2); color:#fff; }
@@ -927,12 +932,13 @@
       .slot-victory-text { font-size: 18px; }
       .slot-victory-emoji { font-size: 36px; }
       .slot-coupon-box { font-size: 16px; padding: 10px 20px; letter-spacing: 2px; }
-      .slot-lock-title { font-size: 14px; }
-      .slot-lock-subtitle { font-size: 10px; }
-      .slot-lock-icon { font-size: 32px; }
-      .slot-lock-form { max-width: 200px; }
-      .slot-lock-input { padding: 8px 10px; font-size: 12px; }
-      .slot-lock-btn { padding: 9px; font-size: 12px; }
+      .slot-lock-title { font-size: 12px; }
+      .slot-lock-subtitle { font-size: 9px; }
+      .slot-lock-icon { font-size: 22px; }
+      .slot-lock-form { max-width: 180px; }
+      .slot-lock-input { padding: 7px 8px; font-size: 11px; }
+      .slot-lock-btn { padding: 8px; font-size: 11px; }
+      .slot-lock-overlay { padding: 12px 10px 14px; }
       .popup-preview-box { max-width: 260px; padding: 20px 16px; }
       .popup-preview-title { font-size: 17px; }
       .popup-preview-desc { font-size: 12px; }
@@ -1318,7 +1324,7 @@
           <div class="modal-form-side">
             <div class="tabs">
               <button class="tab active" onclick="switchTab('config')">Configuração</button>
-              <button class="tab" onclick="switchTab('design')">Design</button>
+              <button class="tab" onclick="switchTab('design')">Design & Templates</button>
             </div>
             <!-- CONFIG TAB -->
             <div id="tab-config">
@@ -1409,11 +1415,33 @@
                   </div>
                 </div>
               </div>
-              <!-- COLOR PRESETS (only for slot_machine) -->
-              <div id="slot-presets-section" style="display:none;">
+              <!-- COLOR PRESETS (always visible) -->
+              <div id="color-presets-section">
                 <div class="form-group">
-                  <label class="form-label">Temas Prontos</label>
-                  <div class="preset-grid">
+                  <label class="form-label">🎨 Temas Prontos</label>
+                  <div class="preset-grid" id="preset-grid-general" style="display:none;">
+                    <div class="preset-card active" style="background:linear-gradient(135deg,#1a1a2e,#0d0d1a);" onclick="applyGeneralPreset(0)" data-gpreset="0">
+                      <div class="preset-mini-slot" style="background:#7c5cfc;color:#fff;font-size:10px;">Aa</div>
+                      <div class="preset-card-name">Escuro</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#ffffff,#f0f0f0);" onclick="applyGeneralPreset(1)" data-gpreset="1">
+                      <div class="preset-mini-slot" style="background:#7c5cfc;color:#fff;font-size:10px;">Aa</div>
+                      <div class="preset-card-name">Claro</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#1a0640,#0d0220);" onclick="applyGeneralPreset(2)" data-gpreset="2">
+                      <div class="preset-mini-slot" style="background:#f1c40f;color:#1a0640;font-size:10px;">Aa</div>
+                      <div class="preset-card-name">Gold</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#0f172a,#020617);" onclick="applyGeneralPreset(3)" data-gpreset="3">
+                      <div class="preset-mini-slot" style="background:#22c55e;color:#fff;font-size:10px;">Aa</div>
+                      <div class="preset-card-name">Neon</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#fef3c7,#fde68a);" onclick="applyGeneralPreset(4)" data-gpreset="4">
+                      <div class="preset-mini-slot" style="background:#d97706;color:#fff;font-size:10px;">Aa</div>
+                      <div class="preset-card-name">Sunset</div>
+                    </div>
+                  </div>
+                  <div class="preset-grid" id="preset-grid-slot">
                     <div class="preset-card active" style="background:linear-gradient(135deg,#c0392b,#8B0000);" onclick="applySlotPreset(0)" data-preset="0">
                       <div class="preset-mini-slot" style="background:#1a1a2e;">🎰</div>
                       <div class="preset-card-name">Clássico</div>
@@ -1483,25 +1511,16 @@
                   <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
                   <div class="popup-preview-title" id="preview-title">Título do Popup</div>
                   <div class="popup-preview-desc" id="preview-desc">Descrição aqui</div>
+                  <input class="popup-preview-input" placeholder="Seu nome" id="preview-input-name">
                   <input class="popup-preview-input" placeholder="Seu melhor e-mail" id="preview-input">
+                  <input class="popup-preview-input" placeholder="Seu telefone" id="preview-input-phone">
                   <button class="popup-preview-btn" id="preview-btn">Quero jogar!</button>
                 </div>
                 <!-- Slot Machine preview -->
                 <div id="preview-slot" style="display:none;width:100%;max-width:340px;position:relative;">
                   <div class="slot-lock-container">
                     <button class="slot-relock-btn" id="slot-relock-btn" onclick="relockSlotMachine()" title="Simular bloqueio">🔒 Simular</button>
-                    <!-- Lock Overlay -->
-                    <div class="slot-lock-overlay" id="slot-lock-overlay">
-                      <div class="slot-lock-icon">🔒</div>
-                      <div class="slot-lock-title" id="slot-lock-title">Cadastre-se para jogar!</div>
-                      <div class="slot-lock-subtitle" id="slot-lock-subtitle">Preencha seus dados e desbloqueie o caça-níquel</div>
-                      <div class="slot-lock-form">
-                        <input class="slot-lock-input" id="slot-lock-name" placeholder="Seu nome" type="text">
-                        <input class="slot-lock-input" id="slot-lock-email" placeholder="Seu melhor e-mail" type="email">
-                        <button class="slot-lock-btn" onclick="unlockSlotMachine()">🔓 DESBLOQUEAR</button>
-                      </div>
-                    </div>
-                    <!-- Slot Machine -->
+                    <!-- Slot Machine (visible, generates curiosity) -->
                     <div class="slot-machine slot-lock-blur" id="slot-machine-preview">
                       <div class="slot-jackpot" id="slot-jackpot">
                         <div class="slot-jackpot-star">★ ★ ★</div>
@@ -1543,6 +1562,18 @@
                         </div>
                       </div>
                       <div class="slot-coin-tray"><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span></div>
+                      <!-- Lock Overlay (registration form below the machine) -->
+                      <div class="slot-lock-overlay" id="slot-lock-overlay">
+                        <div class="slot-lock-icon">🔒</div>
+                        <div class="slot-lock-title" id="slot-lock-title">Cadastre-se para jogar!</div>
+                        <div class="slot-lock-subtitle" id="slot-lock-subtitle">Preencha seus dados e desbloqueie o caça-níquel</div>
+                        <div class="slot-lock-form">
+                          <input class="slot-lock-input" id="slot-lock-name" placeholder="Seu nome" type="text">
+                          <input class="slot-lock-input" id="slot-lock-email" placeholder="Seu melhor e-mail" type="email">
+                          <input class="slot-lock-input" id="slot-lock-phone" placeholder="Seu telefone" type="tel">
+                          <button class="slot-lock-btn" onclick="unlockSlotMachine()">🔓 DESBLOQUEAR</button>
+                        </div>
+                      </div>
                       <div class="slot-lever-area" id="slot-lever" onclick="pullSlotLever()">
                         <div class="slot-lever-track"><div class="slot-lever-ball"></div></div>
                         <div class="slot-lever-base"></div>
@@ -2105,9 +2136,30 @@ function onGameTypeChange() {
   const isSlot = type === 'slot_machine';
   document.getElementById('slot-config').style.display = isSlot ? 'block' : 'none';
   document.getElementById('slot-format-section').style.display = isSlot ? 'block' : 'none';
-  document.getElementById('slot-presets-section').style.display = isSlot ? 'block' : 'none';
+  document.getElementById('preset-grid-slot').style.display = isSlot ? 'grid' : 'none';
+  document.getElementById('preset-grid-general').style.display = isSlot ? 'none' : 'grid';
   document.getElementById('emoji-deco-group').style.display = isSlot ? 'none' : 'block';
   resetSlotGame();
+  updatePreview();
+}
+
+const GENERAL_PRESETS = [
+  { name: 'Escuro', bg: '#1a1a2e', text: '#ffffff', btn: '#7c5cfc' },
+  { name: 'Claro', bg: '#ffffff', text: '#1a1a2e', btn: '#7c5cfc' },
+  { name: 'Gold', bg: '#1a0640', text: '#ffffff', btn: '#f1c40f' },
+  { name: 'Neon', bg: '#0f172a', text: '#ffffff', btn: '#22c55e' },
+  { name: 'Sunset', bg: '#fef3c7', text: '#78350f', btn: '#d97706' }
+];
+
+function applyGeneralPreset(idx) {
+  document.querySelectorAll('#preset-grid-general .preset-card').forEach((el, i) => el.classList.toggle('active', i === idx));
+  const p = GENERAL_PRESETS[idx];
+  document.getElementById('f-bg').value = p.bg;
+  document.getElementById('f-bg-text').value = p.bg;
+  document.getElementById('f-text-color').value = p.text;
+  document.getElementById('f-text-text').value = p.text;
+  document.getElementById('f-btn-color').value = p.btn;
+  document.getElementById('f-btn-text').value = p.btn;
   updatePreview();
 }
 
@@ -2353,6 +2405,7 @@ function relockSlotMachine() {
   if (machine) { machine.classList.add('slot-lock-blur'); machine.classList.remove('unlocked'); }
   document.getElementById('slot-lock-name').value = '';
   document.getElementById('slot-lock-email').value = '';
+  document.getElementById('slot-lock-phone').value = '';
   resetSlotGame();
 }
 
