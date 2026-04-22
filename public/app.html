@@ -734,10 +734,10 @@
       align-items: center; justify-content: center; border-radius: 16px; z-index: 10; animation: victoryFadeIn .4s ease;
     }
     @keyframes victoryFadeIn { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
-    .slot-victory-emoji { font-size: 48px; animation: victoryBounce .6s ease infinite; }
+    .slot-victory-emoji { font-size: 36px; animation: victoryBounce .6s ease infinite; }
     @keyframes victoryBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-    .slot-victory-text { font-size: 22px; font-weight: 900; color: #f1c40f; margin: 10px 0 4px; text-transform: uppercase; text-shadow: 0 0 10px rgba(241,196,15,.5); }
-    .slot-victory-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 10px; }
+    .slot-victory-text { font-size: 20px; font-weight: 900; color: #f1c40f; margin: 6px 0 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(241,196,15,.5); }
+    .slot-victory-sub { font-size: 11px; color: rgba(255,255,255,.7); margin-bottom: 6px; }
     .slot-coupon-box { background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; padding: 12px 28px; border-radius: 10px; font-size: 22px; font-weight: 900; letter-spacing: 3px; border: 2px dashed rgba(26,6,64,.4); margin-top: 4px; box-shadow: 0 4px 16px rgba(241,196,15,.3); }
     .slot-copy-btn { animation: copyPulse 1.5s ease infinite; }
     @keyframes copyPulse { 0%,100%{box-shadow:0 4px 20px rgba(var(--slot-accent-rgb,34,197,94),.35)} 50%{box-shadow:0 4px 30px rgba(var(--slot-accent-rgb,34,197,94),.6), 0 0 15px rgba(var(--slot-accent-rgb,34,197,94),.3)} }
@@ -2475,7 +2475,7 @@ function showSlotVictory() {
     + '<div class="slot-victory-text">JACKPOT!</div>'
     + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
     + '<div class="slot-coupon-box" id="slot-coupon-code">' + esc(coupon) + '</div>'
-    + '<button class="slot-btn-main slot-copy-btn" style="margin-top:14px;width:100%;max-width:260px;padding:12px 20px;font-size:13px;letter-spacing:1.5px;" onclick="copySlotCoupon()">'
+    + '<button class="slot-btn-main slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;" onclick="copySlotCoupon()">'
     + '🎉 USAR MEU CUPOM AGORA</button>'
     + '<div class="slot-copy-feedback" id="slot-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
   machine.appendChild(victory);
