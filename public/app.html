@@ -814,13 +814,140 @@
     .login-sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
 
     /* ─── RESPONSIVE ──────────────────────────────────── */
+    
+    /* ─── MOBILE HEADER ──────────────────────────── */
+    .mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .mobile-header-left { display: flex; align-items: center; gap: 10px; }
+    .mobile-header-logo { width: 32px; height: 32px; background: linear-gradient(135deg, #7c5cfc 0%, #a855f7 50%, #ec4899 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .mobile-header-title { font-weight: 800; font-size: 15px; background: linear-gradient(135deg, #e8e8f0 0%, #9b7fff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hamburger-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+    .hamburger-btn span { display: block; width: 18px; height: 2px; background: var(--text); border-radius: 1px; transition: all .3s; }
+    .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 55; opacity: 0; transition: opacity .3s; }
+    .mobile-overlay.active { display: block; opacity: 1; }
+
     @media (max-width: 768px) {
-      #sidebar { display: none; }
-      .dash-grid { grid-template-columns: 1fr 1fr; }
-      .dash-row { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
+      .mobile-header { display: flex; }
+      #sidebar {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        width: 280px;
+        transform: translateX(-100%);
+        transition: transform .3s ease;
+        z-index: 60;
+        overflow-y: auto;
+      }
+      #sidebar.open { transform: translateX(0); }
+      #app { flex-direction: column; }
+      #main { width: 100%; }
+      .page-header { padding: 16px 16px 0; flex-wrap: wrap; gap: 10px; }
+      .page-title { font-size: 18px; }
+      .page-sub { font-size: 12px; }
+      .dash-content { padding: 16px; }
+      .dash-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+      .dash-card { padding: 14px; }
+      .dash-card-value { font-size: 22px; }
+      .dash-card-icon { width: 32px; height: 32px; font-size: 15px; margin-bottom: 10px; }
+      .dash-row { grid-template-columns: 1fr; gap: 12px; }
+      .dash-panel { padding: 16px; }
+      .mini-chart { height: 60px; }
+      .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-card { padding: 14px; }
+      .stat-value { font-size: 22px; }
+      div[style*="padding: 24px 32px 0"] { padding: 16px 16px 0 !important; }
+      div[id="studio-meus-popups"] { padding: 0 16px 16px !important; }
+      .studio-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 0; flex-wrap: nowrap; }
+      .studio-tab { padding: 10px 14px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+      .popup-grid { grid-template-columns: 1fr; gap: 12px; }
+      .popup-card { padding: 16px; }
+      .popup-card-actions { flex-wrap: wrap; }
+      .games-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .game-card { padding: 14px; }
+      .game-card-icon { font-size: 28px; }
+      .game-card-name { font-size: 12px; }
+      .integration-grid { grid-template-columns: 1fr; }
+      .integration-card { padding: 16px; gap: 12px; }
+      .account-grid { grid-template-columns: 1fr; gap: 12px; }
+      .account-card { padding: 16px; }
       .form-row { grid-template-columns: 1fr; }
-      .account-grid { grid-template-columns: 1fr; }
+      .form-group { margin-bottom: 14px; }
+      .modal-overlay { padding: 0; align-items: stretch; }
+      .modal { max-width: 100%; max-height: 100vh; border-radius: 0; height: 100vh; }
+      .modal-header { padding: 14px 16px; }
+      .modal-title { font-size: 15px; }
+      .modal-body { padding: 16px; }
+      .modal-split { grid-template-columns: 1fr; gap: 16px; }
+      .modal-preview-side { position: static; }
+      .modal-footer { padding: 12px 16px; flex-wrap: wrap; }
+      .modal-footer .btn { flex: 1; justify-content: center; min-width: 0; }
+      .tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .tab { white-space: nowrap; flex-shrink: 0; padding: 7px 12px; font-size: 12px; }
+      .preset-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .format-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .format-card { padding: 10px 6px; }
+      .format-card-icon { font-size: 22px; }
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table { min-width: 500px; }
+      th, td { padding: 10px 12px; font-size: 12px; }
+      .leads-header { flex-wrap: wrap; gap: 8px; }
+      .btn { padding: 8px 12px; font-size: 12px; }
+      .section-header { flex-wrap: wrap; gap: 8px; }
+      #toast { bottom: 16px; right: 16px; left: 16px; }
+      .toast-item { font-size: 12px; padding: 10px 14px; }
+      .empty { padding: 40px 16px; }
+      .empty-icon { font-size: 36px; }
+      .empty-title { font-size: 16px; }
+      .empty-sub { font-size: 13px; }
+      .slot-machine { max-width: 280px; border-width: 3px; }
+      .slot-jackpot { padding: 6px 10px 5px; }
+      .slot-jackpot-text { font-size: 18px; letter-spacing: 3px; }
+      .slot-body-vegas { padding: 10px 8px 8px; }
+      .slot-cell { width: 56px; height: 44px; font-size: 22px; }
+      .slot-grid { gap: 4px; }
+      .slot-column { gap: 3px; }
+      .slot-info-panel { gap: 4px; margin-top: 8px; }
+      .slot-info-label { font-size: 6px; }
+      .slot-info-value { font-size: 11px; }
+      .slot-btn-main { padding: 8px 6px; font-size: 11px; }
+      .slot-btn-secondary { padding: 6px 3px; font-size: 8px; }
+      .slot-lever-area { right: -28px; }
+      .slot-lever-track { height: 50px; width: 8px; }
+      .slot-lever-ball { width: 20px; height: 20px; }
+      .slot-coin-tray { padding: 6px 12px 8px; }
+      .slot-coin { font-size: 13px; }
+      .slot-victory-text { font-size: 18px; }
+      .slot-victory-emoji { font-size: 36px; }
+      .slot-coupon-box { font-size: 16px; padding: 10px 20px; letter-spacing: 2px; }
+      .slot-lock-title { font-size: 14px; }
+      .slot-lock-subtitle { font-size: 10px; }
+      .slot-lock-icon { font-size: 32px; }
+      .slot-lock-form { max-width: 200px; }
+      .slot-lock-input { padding: 8px 10px; font-size: 12px; }
+      .slot-lock-btn { padding: 9px; font-size: 12px; }
+      .popup-preview-box { max-width: 260px; padding: 20px 16px; }
+      .popup-preview-title { font-size: 17px; }
+      .popup-preview-desc { font-size: 12px; }
+      .color-row { flex-wrap: wrap; }
+      .color-input { width: 40px; height: 32px; }
+    }
+
+    @media (max-width: 400px) {
+      .dash-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+      .games-grid { grid-template-columns: 1fr; }
+      .slot-machine { max-width: 240px; }
+      .slot-cell { width: 46px; height: 38px; font-size: 18px; }
+      .slot-jackpot-text { font-size: 15px; letter-spacing: 2px; }
+      .preset-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -840,6 +967,17 @@
   <div id="app" style="display:none">
 
     <!-- ─── SIDEBAR ─────────────────────────────────── -->
+    <div class="mobile-header">
+      <div class="mobile-header-left">
+        <div class="mobile-header-logo">🎯</div>
+        <span class="mobile-header-title">Pop Up Studio</span>
+      </div>
+      <button class="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
     <nav id="sidebar">
 
       <!-- Logo -->
@@ -2237,6 +2375,26 @@ function initSlotBulbs() {
 document.getElementById('popup-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
 // Start
+function toggleMobileMenu() {
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('mobile-overlay');
+  var isOpen = sidebar.classList.contains('open');
+  if (isOpen) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  } else {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  }
+}
+document.querySelectorAll('.nav-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    if (window.innerWidth <= 768) {
+      setTimeout(function() { toggleMobileMenu(); }, 150);
+    }
+  });
+});
+
 init();
 </script>
 </body>
