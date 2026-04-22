@@ -590,7 +590,7 @@
     .slot-bulb:nth-child(even) { animation-delay: .6s; }
     @keyframes bulbBlink { 0%,100%{opacity:1;box-shadow:0 0 6px currentColor} 50%{opacity:.3;box-shadow:none} }
     /* Machine body */
-    .slot-body-vegas { padding: 14px 12px 10px; position: relative; background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, transparent 100%); }
+    .slot-body-vegas { padding: 10px 10px 6px; position: relative; background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, transparent 100%); }
     /* 3x3 Grid Display */
     .slot-screen {
       background: linear-gradient(180deg, #0a0a18 0%, #050510 100%);
@@ -604,7 +604,7 @@
     .slot-grid { display: flex; gap: 6px; justify-content: center; position: relative; }
     .slot-column { display: flex; flex-direction: column; gap: 4px; position: relative; }
     .slot-cell {
-      width: 68px; height: 52px;
+      width: 64px; height: 48px;
       background: linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.02) 50%, rgba(255,255,255,.06) 100%);
       border-radius: 8px; display: flex; align-items: center; justify-content: center;
       font-size: 28px; border: 1px solid rgba(255,255,255,.08); transition: transform .1s;
@@ -650,7 +650,7 @@
     .slot-lever-base { width:16px; height:8px; background:linear-gradient(180deg,#aaa,#666); border-radius:0 0 6px 6px; margin-top:-1px; }
     /* ─── SLOT POPUP HEADER (title above machine) ────── */
     .slot-popup-header {
-      text-align: center; padding: 18px 16px 12px;
+      text-align: center; padding: 14px 14px 8px;
       background: linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 100%);
       border-radius: 16px 16px 0 0;
     }
@@ -659,6 +659,7 @@
       text-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 2px 0 rgba(0,0,0,.5);
       margin-bottom: 4px;
     }
+    .slot-popup-stars { color: #f1c40f; font-size: 14px; letter-spacing: 6px; margin-bottom: 2px; text-shadow: 0 0 8px rgba(241,196,15,.5); }
     .slot-popup-subtitle { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 500; }
     .slot-popup-close {
       position: absolute; top: 10px; right: 10px; width: 28px; height: 28px;
@@ -688,7 +689,7 @@
     .slot-lock-overlay {
       position: relative; display: flex; flex-direction: column; align-items: center;
       z-index: 20; background: linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,.7) 100%);
-      padding: 14px 16px 18px;
+      padding: 12px 14px 14px;
       transition: opacity .5s ease, max-height .5s ease; overflow: hidden;
     }
     .slot-lock-overlay.hidden { opacity: 0; max-height: 0; padding: 0 16px; pointer-events: none; }
@@ -710,7 +711,7 @@
     }
     .slot-lock-input {
       width: 100%; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
-      border-radius: 10px; padding: 12px 12px 12px 38px; color: #fff; font-size: 13px;
+      border-radius: 10px; padding: 10px 12px 10px 36px; color: #fff; font-size: 13px;
       outline: none; text-align: left; transition: border-color .2s, background .2s;
     }
     .slot-lock-input::placeholder { color: rgba(255,255,255,.4); }
@@ -718,7 +719,7 @@
     .slot-lock-btn {
       background: linear-gradient(180deg, var(--slot-accent, #22c55e) 0%, var(--slot-accent-dark, #16a34a) 100%);
       color: #fff; border: 2px solid var(--slot-accent-dark, #16a34a); border-radius: 10px;
-      padding: 13px; font-size: 14px; font-weight: 900; cursor: pointer;
+      padding: 11px; font-size: 13px; font-weight: 900; cursor: pointer;
       text-transform: uppercase; letter-spacing: 2px;
       box-shadow: 0 4px 20px rgba(var(--slot-accent-rgb, 34,197,94),.35), inset 0 1px 0 rgba(255,255,255,.15);
       transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -1581,14 +1582,11 @@
                       <!-- Popup Header with title -->
                       <div class="slot-popup-header">
                         <button class="slot-popup-close" onclick="return false;" title="Fechar">✕</button>
+                        <div class="slot-popup-stars">★ ★ ★</div>
                         <div class="slot-popup-title" id="slot-popup-title" style="color:#f1c40f;">GIRE E GANHE!</div>
                         <div class="slot-popup-subtitle" id="slot-popup-subtitle">Cadastre-se para jogar e ganhar um cupom de desconto.</div>
                       </div>
-                      <div class="slot-jackpot" id="slot-jackpot" style="border-radius:0;">
-                        <div class="slot-jackpot-star">★ ★ ★</div>
-                        <div class="slot-jackpot-text" id="slot-preview-title">JACKPOT!</div>
-                        <div class="slot-bulbs" id="slot-bulbs"></div>
-                      </div>
+                      <div id="slot-jackpot" style="display:none;"><div class="slot-jackpot-text" id="slot-preview-title">JACKPOT!</div><div class="slot-bulbs" id="slot-bulbs"></div></div>
                       <div class="slot-body-vegas">
                         <div class="slot-screen" id="slot-screen">
                           <div class="slot-payline-left">▶</div>
@@ -1611,22 +1609,17 @@
                             </div>
                           </div>
                         </div>
-                        <div class="slot-info-panel">
-                          <div class="slot-info-box slot-info-credits"><div class="slot-info-label">Créditos</div><div class="slot-info-value" id="slot-credits">1250</div></div>
-                          <div class="slot-info-box slot-info-message"><div class="slot-info-label">Mensagem</div><div class="slot-info-value" id="slot-message">BOA SORTE!</div></div>
-                          <div class="slot-info-box slot-info-bet"><div class="slot-info-label">Aposta</div><div class="slot-info-value" id="slot-bet">50</div></div>
+                        <div style="display:none;">
+                          <span id="slot-credits">1250</span>
+                          <span id="slot-message">BOA SORTE!</span>
+                          <span id="slot-bet">50</span>
                         </div>
                         <div class="slot-attempts-vegas" id="slot-attempts">Tentativa 1 de 3</div>
                         <div class="slot-btn-panel">
-                          <button class="slot-btn-secondary" onclick="return false;">APOSTA</button>
                           <button class="slot-btn-main" id="slot-pull-btn" onclick="pullSlotLever()">🎰 JOGAR</button>
-                          <button class="slot-btn-secondary" onclick="return false;">MÁXIMO</button>
                         </div>
                       </div>
-                      <div class="slot-coin-tray"><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span></div>
-                      <!-- Coupon Banner -->
                       <div class="slot-coupon-banner" id="slot-coupon-banner" style="color:#f1c40f;">🎁 CUPOM SURPRESA DE DESCONTO</div>
-                      <!-- Lock Overlay (registration form below the machine) -->
                       <div class="slot-lock-overlay" id="slot-lock-overlay">
                         <div class="slot-lock-icon">🔒</div>
                         <div class="slot-lock-title" id="slot-lock-title">Cadastre-se para jogar!</div>
