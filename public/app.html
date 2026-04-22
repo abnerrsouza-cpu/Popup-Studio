@@ -549,72 +549,168 @@
     .popup-preview-desc { font-size: 13px; opacity: .8; margin-bottom: 16px; }
     .popup-preview-input { width: 100%; padding: 10px 12px; border-radius: 8px; border: none; font-size: 13px; margin-bottom: 10px; }
     .popup-preview-btn { width: 100%; padding: 11px; border-radius: 8px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
-    /* ─── SLOT MACHINE ────────────────────────────────── */
+
+    /* ─── SLOT MACHINE REALISTA LAS VEGAS ─────────────── */
     .slot-machine-wrap { perspective: 800px; }
     .slot-machine {
-      background: linear-gradient(180deg, #c0392b 0%, #e74c3c 8%, #c0392b 15%, #a93226 100%);
-      border-radius: 18px; padding: 0; max-width: 300px; width: 100%;
-      box-shadow: 0 8px 40px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,255,255,.15);
-      position: relative; overflow: visible; border: 3px solid #8B0000;
+      background: linear-gradient(180deg, #3a1078 0%, #2a0a5e 40%, #1a0640 100%);
+      border-radius: 20px;
+      padding: 0;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 10px 50px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,215,0,.12);
+      position: relative;
+      overflow: visible;
+      border: 4px solid #d4a017;
     }
-    .slot-top-bar {
-      background: linear-gradient(180deg, #f1c40f 0%, #f39c12 50%, #e67e22 100%);
-      padding: 10px 16px; text-align: center; border-radius: 14px 14px 0 0;
-      box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.3);
+    /* JACKPOT Marquee */
+    .slot-jackpot {
+      background: linear-gradient(180deg, #1a0640 0%, #2a0a5e 100%);
+      border-radius: 16px 16px 0 0;
+      padding: 8px 12px 6px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid #d4a017;
     }
-    .slot-top-title { font-size: 16px; font-weight: 900; color: #8B0000; text-shadow: 0 1px 0 rgba(255,255,255,.4); letter-spacing: 1px; text-transform: uppercase; }
-    .slot-top-stars { font-size: 10px; color: #8B0000; letter-spacing: 4px; }
-    .slot-body { padding: 16px 16px 12px; position: relative; }
-    .slot-display {
-      background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
-      border-radius: 12px; padding: 16px 10px; display: flex; gap: 8px;
-      justify-content: center; align-items: center;
-      box-shadow: inset 0 4px 12px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.1);
-      border: 2px solid #333; position: relative; overflow: hidden;
+    .slot-jackpot-text {
+      font-size: 22px;
+      font-weight: 900;
+      color: #f1c40f;
+      text-shadow: 0 0 10px rgba(241,196,15,.6), 0 0 20px rgba(241,196,15,.3), 0 2px 0 #b8860b;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 2;
     }
-    .slot-display::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(255,215,0,.3); transform: translateY(-50%); z-index: 2; pointer-events: none; }
-    .slot-reel {
-      width: 64px; height: 72px; background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 50%, rgba(255,255,255,.08) 100%);
-      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 36px;
-      border: 1px solid rgba(255,255,255,.1); position: relative; overflow: hidden; transition: transform .1s;
+    .slot-jackpot-star { color: #f1c40f; font-size: 12px; text-shadow: 0 0 6px rgba(241,196,15,.5); }
+    .slot-bulbs { display: flex; justify-content: center; gap: 8px; margin-top: 4px; position: relative; z-index: 2; }
+    .slot-bulb { width: 8px; height: 8px; border-radius: 50%; animation: bulbBlink 1.2s ease infinite; }
+    .slot-bulb:nth-child(odd) { animation-delay: 0s; }
+    .slot-bulb:nth-child(even) { animation-delay: .6s; }
+    @keyframes bulbBlink { 0%,100%{opacity:1;box-shadow:0 0 6px currentColor} 50%{opacity:.3;box-shadow:none} }
+    /* Machine body */
+    .slot-body-vegas { padding: 14px 12px 10px; position: relative; background: linear-gradient(180deg, rgba(255,255,255,.03) 0%, transparent 100%); }
+    /* 3x3 Grid Display */
+    .slot-screen {
+      background: linear-gradient(180deg, #0a0a18 0%, #050510 100%);
+      border-radius: 14px;
+      padding: 8px;
+      box-shadow: inset 0 4px 16px rgba(0,0,0,.8), 0 2px 0 rgba(255,215,0,.15);
+      border: 3px solid #333;
+      position: relative;
+      overflow: hidden;
     }
-    .slot-reel.spinning { animation: reelSpin .15s linear infinite; }
-    @keyframes reelSpin { 0%{transform:translateY(-5px)} 50%{transform:translateY(5px)} 100%{transform:translateY(-5px)} }
-    .slot-reel.winner { animation: reelWin .5s ease infinite; border-color: #f1c40f; box-shadow: 0 0 16px rgba(241,196,15,.5); }
-    @keyframes reelWin { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-    .slot-divider { width: 2px; height: 50px; background: rgba(255,255,255,.08); border-radius: 1px; }
-    .slot-attempts { text-align: center; margin-top: 10px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.7); letter-spacing: .5px; }
-    .slot-lever-area { position: absolute; right: -32px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 5; }
-    .slot-lever-track { width: 8px; height: 60px; background: linear-gradient(180deg, #bbb, #888); border-radius: 4px; position: relative; box-shadow: inset 0 1px 2px rgba(0,0,0,.3); }
-    .slot-lever-ball { width: 22px; height: 22px; background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b, #8B0000); border-radius: 50%; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); box-shadow: 0 2px 8px rgba(0,0,0,.4), inset 0 -2px 4px rgba(0,0,0,.3); transition: top .3s cubic-bezier(.68,-.55,.27,1.55); }
-    .slot-lever-area.pulled .slot-lever-ball { top: 42px; }
-    .slot-lever-base { width: 14px; height: 6px; background: linear-gradient(180deg, #999, #666); border-radius: 0 0 4px 4px; margin-top: -1px; }
-    .slot-bottom-bar { background: linear-gradient(180deg, #333 0%, #222 100%); padding: 10px 16px; border-radius: 0 0 14px 14px; text-align: center; }
-    .slot-pull-btn { background: linear-gradient(180deg, #f1c40f 0%, #e67e22 100%); color: #8B0000; border: 2px solid #d4a017; border-radius: 10px; padding: 10px 28px; font-size: 14px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; transition: all .15s; box-shadow: 0 3px 10px rgba(0,0,0,.3); width: 100%; }
-    .slot-pull-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(0,0,0,.4); }
-    .slot-pull-btn:active { transform: translateY(1px); }
-    .slot-pull-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .slot-message { text-align: center; padding: 8px; font-size: 13px; font-weight: 700; min-height: 28px; color: rgba(255,255,255,.9); }
-    .slot-message.win { color: #f1c40f; animation: pulseText .6s ease infinite; }
-    .slot-message.lose { color: rgba(255,255,255,.6); }
-    @keyframes pulseText { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-    .slot-victory { position: absolute; inset: 0; background: rgba(0,0,0,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 14px; z-index: 10; animation: victoryFadeIn .4s ease; }
+    .slot-grid { display: flex; gap: 6px; justify-content: center; position: relative; }
+    .slot-column { display: flex; flex-direction: column; gap: 4px; position: relative; }
+    .slot-cell {
+      width: 68px; height: 52px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.02) 50%, rgba(255,255,255,.06) 100%);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; border: 1px solid rgba(255,255,255,.08); transition: transform .1s;
+    }
+    .slot-cell.payline-cell { border-color: rgba(255,215,0,.25); background: linear-gradient(180deg, rgba(255,215,0,.06) 0%, rgba(255,215,0,.02) 50%, rgba(255,215,0,.06) 100%); }
+    .slot-cell.spinning { animation: cellSpin .12s linear infinite; }
+    @keyframes cellSpin { 0%{transform:translateY(-4px)} 50%{transform:translateY(4px)} 100%{transform:translateY(-4px)} }
+    .slot-cell.winner { animation: cellWin .5s ease infinite; border-color: #f1c40f; box-shadow: 0 0 12px rgba(241,196,15,.5); }
+    @keyframes cellWin { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+    /* Payline indicators */
+    .slot-payline-left, .slot-payline-right { position: absolute; top: 50%; transform: translateY(-50%); font-size: 14px; color: #f1c40f; text-shadow: 0 0 8px rgba(241,196,15,.5); z-index: 3; }
+    .slot-payline-left { left: -2px; }
+    .slot-payline-right { right: -2px; }
+    .slot-screen::after { content:''; position:absolute; left:8px; right:8px; top:50%; height:2px; background:linear-gradient(90deg, rgba(255,215,0,.4), rgba(255,215,0,.1), rgba(255,215,0,.4)); transform:translateY(-50%); z-index:2; pointer-events:none; }
+    /* Info Panel */
+    .slot-info-panel { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 6px; }
+    .slot-info-box { background: #0a0a14; border: 1px solid #333; border-radius: 6px; padding: 4px 8px; text-align: center; flex: 1; }
+    .slot-info-label { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.4); margin-bottom: 2px; }
+    .slot-info-value { font-size: 13px; font-weight: 800; font-family: 'Courier New', monospace; }
+    .slot-info-credits .slot-info-value { color: #22c55e; }
+    .slot-info-message .slot-info-value { color: #f1c40f; font-family: inherit; font-size: 10px; font-weight: 700; }
+    .slot-info-bet .slot-info-value { color: #ef4444; }
+    .slot-attempts-vegas { text-align: center; margin-top: 8px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.6); letter-spacing: .5px; }
+    /* Button Panel */
+    .slot-btn-panel { display: flex; gap: 6px; margin-top: 8px; }
+    .slot-btn-secondary { flex:1; background:linear-gradient(180deg,#444,#333); color:#ccc; border:1px solid #555; border-radius:8px; padding:8px 4px; font-size:9px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:.5px; transition:all .15s; }
+    .slot-btn-secondary:hover { background:linear-gradient(180deg,#555,#444); color:#fff; }
+    .slot-btn-main { flex:2; background:linear-gradient(180deg,#22c55e,#16a34a); color:#fff; border:2px solid #15803d; border-radius:8px; padding:10px 8px; font-size:13px; font-weight:900; cursor:pointer; text-transform:uppercase; letter-spacing:1px; transition:all .15s; box-shadow:0 3px 12px rgba(34,197,94,.3); }
+    .slot-btn-main:hover { transform:translateY(-1px); box-shadow:0 5px 18px rgba(34,197,94,.4); }
+    .slot-btn-main:active { transform:translateY(1px); }
+    .slot-btn-main:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+    /* Coin Tray */
+    .slot-coin-tray { background:linear-gradient(180deg,#222,#1a1a1a); border-radius:0 0 16px 16px; padding:8px 16px 10px; border-top:3px solid #d4a017; display:flex; align-items:center; justify-content:center; gap:4px; position:relative; overflow:hidden; }
+    .slot-coin-tray::before { content:''; position:absolute; top:0; left:10%; right:10%; height:6px; background:linear-gradient(180deg,rgba(212,160,23,.3),transparent); border-radius:0 0 50% 50%; }
+    .slot-coin { font-size:16px; opacity:.5; animation:coinShine 2s ease infinite; }
+    .slot-coin:nth-child(odd) { animation-delay:.5s; }
+    @keyframes coinShine { 0%,100%{opacity:.4} 50%{opacity:.7} }
+    /* Lever */
+    .slot-lever-area { position:absolute; right:-34px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; align-items:center; cursor:pointer; z-index:5; }
+    .slot-lever-track { width:10px; height:65px; background:linear-gradient(90deg,#999,#ccc,#999); border-radius:5px; position:relative; box-shadow:inset 0 1px 3px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.2); }
+    .slot-lever-ball { width:24px; height:24px; background:radial-gradient(circle at 35% 35%,#ff6b6b,#c0392b,#8B0000); border-radius:50%; position:absolute; top:-8px; left:50%; transform:translateX(-50%); box-shadow:0 3px 10px rgba(0,0,0,.5), inset 0 -2px 4px rgba(0,0,0,.3), inset 0 2px 4px rgba(255,255,255,.2); transition:top .3s cubic-bezier(.68,-.55,.27,1.55); }
+    .slot-lever-area.pulled .slot-lever-ball { top:44px; }
+    .slot-lever-base { width:16px; height:8px; background:linear-gradient(180deg,#aaa,#666); border-radius:0 0 6px 6px; margin-top:-1px; }
+    /* ─── BLUR LOCK OVERLAY ───────────────────────────── */
+    .slot-lock-container { position: relative; }
+    .slot-lock-blur { filter: blur(6px) brightness(.7); pointer-events: none; transition: filter .6s ease; }
+    .slot-lock-blur.unlocked, .slot-machine:not(.slot-lock-blur) { filter: none; pointer-events: auto; }
+    .slot-lock-overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 20; background: rgba(0,0,0,.3); border-radius: 20px; backdrop-filter: blur(2px);
+      transition: opacity .5s ease, transform .5s ease; padding: 20px;
+    }
+    .slot-lock-overlay.hidden { opacity: 0; transform: scale(.9); pointer-events: none; }
+    .slot-lock-icon { font-size: 40px; margin-bottom: 10px; animation: lockPulse 2s ease infinite; }
+    @keyframes lockPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+    .slot-lock-title { font-size: 16px; font-weight: 800; color: #f1c40f; text-align: center; margin-bottom: 4px; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+    .slot-lock-subtitle { font-size: 11px; color: rgba(255,255,255,.7); text-align: center; margin-bottom: 14px; }
+    .slot-lock-form { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 220px; }
+    .slot-lock-input { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 10px 12px; color: #fff; font-size: 13px; outline: none; text-align: center; transition: border-color .2s; }
+    .slot-lock-input::placeholder { color: rgba(255,255,255,.4); }
+    .slot-lock-input:focus { border-color: #f1c40f; }
+    .slot-lock-btn { background: linear-gradient(180deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; border: none; border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 12px rgba(241,196,15,.3); transition: all .15s; }
+    .slot-lock-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(241,196,15,.4); }
+    .slot-relock-btn { position:absolute; top:6px; right:6px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:6px; padding:4px 8px; font-size:10px; color:rgba(255,255,255,.6); cursor:pointer; z-index:25; transition:all .15s; }
+    .slot-relock-btn:hover { background:rgba(255,255,255,.2); color:#fff; }
+    /* Victory Overlay */
+    .slot-victory {
+      position: absolute; inset: 0; background: rgba(0,0,0,.88); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; border-radius: 16px; z-index: 10; animation: victoryFadeIn .4s ease;
+    }
     @keyframes victoryFadeIn { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
     .slot-victory-emoji { font-size: 48px; animation: victoryBounce .6s ease infinite; }
     @keyframes victoryBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-    .slot-victory-text { font-size: 20px; font-weight: 900; color: #f1c40f; margin: 10px 0 4px; text-transform: uppercase; }
+    .slot-victory-text { font-size: 22px; font-weight: 900; color: #f1c40f; margin: 10px 0 4px; text-transform: uppercase; text-shadow: 0 0 10px rgba(241,196,15,.5); }
     .slot-victory-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 10px; }
-    .slot-coupon-box { background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: #8B0000; padding: 10px 24px; border-radius: 10px; font-size: 20px; font-weight: 900; letter-spacing: 3px; border: 2px dashed #8B0000; margin-top: 4px; }
+    .slot-coupon-box { background: linear-gradient(135deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; padding: 12px 28px; border-radius: 10px; font-size: 22px; font-weight: 900; letter-spacing: 3px; border: 2px dashed rgba(26,6,64,.4); margin-top: 4px; box-shadow: 0 4px 16px rgba(241,196,15,.3); }
     .slot-confetti { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall 1.5s ease-out forwards; z-index: 11; pointer-events: none; }
     @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(200px) rotate(720deg);opacity:0} }
+
+    /* Color presets in design tab */
     .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
-    .preset-card { border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
+    .preset-card {
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all .2s;
+      position: relative;
+    }
     .preset-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
     .preset-card.active { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,.2); }
     .preset-card-name { font-size: 9px; font-weight: 700; margin-top: 6px; color: rgba(255,255,255,.9); text-transform: uppercase; letter-spacing: .3px; }
     .preset-mini-slot { width: 32px; height: 24px; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    /* Format selector */
     .format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-    .format-card { border: 2px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface2); }
+    .format-card {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--surface2);
+    }
     .format-card:hover { border-color: var(--accent); }
     .format-card.active { border-color: var(--accent); background: var(--accent-dim); }
     .format-card-icon { font-size: 28px; margin-bottom: 6px; }
@@ -957,7 +1053,7 @@
         <!-- Sub-tab: Templates -->
         <div id="studio-templates" style="padding: 0 32px 32px; display:none;">
           <div class="empty">
-            <div class="empty-icon">🌋</div>
+            <div class="empty-icon">📋</div>
             <h3 class="empty-title">Biblioteca de Templates</h3>
             <p class="empty-sub">Em breve: Templates prontos para Black Friday, Dia das Mães, Natal,<br>Dia dos Namorados, Ano Novo e mais datas especiais.</p>
           </div>
@@ -1157,7 +1253,7 @@
             </div>
             <!-- DESIGN TAB -->
             <div id="tab-design" style="display:none">
-              <!-- SLOT FORMAT SELECTOR -->
+              <!-- SLOT FORMAT SELECTOR (only for slot_machine) -->
               <div id="slot-format-section" style="display:none;">
                 <div class="form-group">
                   <label class="form-label">Formato do Template</label>
@@ -1175,16 +1271,31 @@
                   </div>
                 </div>
               </div>
-              <!-- COLOR PRESETS -->
+              <!-- COLOR PRESETS (only for slot_machine) -->
               <div id="slot-presets-section" style="display:none;">
                 <div class="form-group">
                   <label class="form-label">Temas Prontos</label>
                   <div class="preset-grid">
-                    <div class="preset-card active" style="background:linear-gradient(135deg,#c0392b,#8B0000);" onclick="applySlotPreset(0)" data-preset="0"><div class="preset-mini-slot" style="background:#1a1a2e;">🎰</div><div class="preset-card-name">Clássico</div></div>
-                    <div class="preset-card" style="background:linear-gradient(135deg,#7c5cfc,#4a2fb3);" onclick="applySlotPreset(1)" data-preset="1"><div class="preset-mini-slot" style="background:#0d0d2b;">🎰</div><div class="preset-card-name">Neon</div></div>
-                    <div class="preset-card" style="background:linear-gradient(135deg,#0077b6,#023e8a);" onclick="applySlotPreset(2)" data-preset="2"><div class="preset-mini-slot" style="background:#001d3d;">🎰</div><div class="preset-card-name">Oceano</div></div>
-                    <div class="preset-card" style="background:linear-gradient(135deg,#2d6a4f,#1b4332);" onclick="applySlotPreset(3)" data-preset="3"><div class="preset-mini-slot" style="background:#0a1f14;">🎰</div><div class="preset-card-name">Esmeralda</div></div>
-                    <div class="preset-card" style="background:linear-gradient(135deg,#c2185b,#880e4f);" onclick="applySlotPreset(4)" data-preset="4"><div class="preset-mini-slot" style="background:#1a0a12;">🎰</div><div class="preset-card-name">Midnight</div></div>
+                    <div class="preset-card active" style="background:linear-gradient(135deg,#c0392b,#8B0000);" onclick="applySlotPreset(0)" data-preset="0">
+                      <div class="preset-mini-slot" style="background:#1a1a2e;">🎰</div>
+                      <div class="preset-card-name">Clássico</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#7c5cfc,#4a2fb3);" onclick="applySlotPreset(1)" data-preset="1">
+                      <div class="preset-mini-slot" style="background:#0d0d2b;">🎰</div>
+                      <div class="preset-card-name">Neon</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#0077b6,#023e8a);" onclick="applySlotPreset(2)" data-preset="2">
+                      <div class="preset-mini-slot" style="background:#001d3d;">🎰</div>
+                      <div class="preset-card-name">Oceano</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#2d6a4f,#1b4332);" onclick="applySlotPreset(3)" data-preset="3">
+                      <div class="preset-mini-slot" style="background:#0a1f14;">🎰</div>
+                      <div class="preset-card-name">Esmeralda</div>
+                    </div>
+                    <div class="preset-card" style="background:linear-gradient(135deg,#c2185b,#880e4f);" onclick="applySlotPreset(4)" data-preset="4">
+                      <div class="preset-mini-slot" style="background:#1a0a12;">🎰</div>
+                      <div class="preset-card-name">Midnight</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1229,6 +1340,7 @@
             <div class="preview-popup">
               <div class="preview-header">🖥️ Prévia da loja</div>
               <div class="preview-frame" style="background:#0d0d14;min-height:320px;align-items:center;">
+                <!-- Standard popup preview -->
                 <div class="popup-preview-box" id="preview-box">
                   <div id="preview-emoji" style="font-size:36px;margin-bottom:8px"></div>
                   <div class="popup-preview-title" id="preview-title">Título do Popup</div>
@@ -1237,30 +1349,66 @@
                   <button class="popup-preview-btn" id="preview-btn">Quero jogar!</button>
                 </div>
                 <!-- Slot Machine preview -->
-                <div id="preview-slot" style="display:none;width:100%;max-width:320px;position:relative;">
-                  <div class="slot-machine" id="slot-machine-preview">
-                    <div class="slot-top-bar" id="slot-top-bar">
-                      <div class="slot-top-stars">★ ★ ★ ★ ★</div>
-                      <div class="slot-top-title" id="slot-preview-title">SLOT MACHINE</div>
-                      <div class="slot-top-stars">★ ★ ★ ★ ★</div>
-                    </div>
-                    <div class="slot-body">
-                      <div class="slot-display" id="slot-display">
-                        <div class="slot-reel" id="slot-reel-1">👕</div>
-                        <div class="slot-divider"></div>
-                        <div class="slot-reel" id="slot-reel-2">🧢</div>
-                        <div class="slot-divider"></div>
-                        <div class="slot-reel" id="slot-reel-3">👟</div>
+                <div id="preview-slot" style="display:none;width:100%;max-width:340px;position:relative;">
+                  <div class="slot-lock-container">
+                    <button class="slot-relock-btn" id="slot-relock-btn" onclick="relockSlotMachine()" title="Simular bloqueio">🔒 Simular</button>
+                    <!-- Lock Overlay -->
+                    <div class="slot-lock-overlay" id="slot-lock-overlay">
+                      <div class="slot-lock-icon">🔒</div>
+                      <div class="slot-lock-title" id="slot-lock-title">Cadastre-se para jogar!</div>
+                      <div class="slot-lock-subtitle" id="slot-lock-subtitle">Preencha seus dados e desbloqueie o caça-níquel</div>
+                      <div class="slot-lock-form">
+                        <input class="slot-lock-input" id="slot-lock-name" placeholder="Seu nome" type="text">
+                        <input class="slot-lock-input" id="slot-lock-email" placeholder="Seu melhor e-mail" type="email">
+                        <button class="slot-lock-btn" onclick="unlockSlotMachine()">🔓 DESBLOQUEAR</button>
                       </div>
-                      <div class="slot-attempts" id="slot-attempts">Tentativa 1 de 3</div>
-                      <div class="slot-message" id="slot-message">Puxe a alavanca para jogar!</div>
                     </div>
-                    <div class="slot-bottom-bar">
-                      <button class="slot-pull-btn" id="slot-pull-btn" onclick="pullSlotLever()">🎰 PUXAR ALAVANCA</button>
-                    </div>
-                    <div class="slot-lever-area" id="slot-lever" onclick="pullSlotLever()">
-                      <div class="slot-lever-track"><div class="slot-lever-ball"></div></div>
-                      <div class="slot-lever-base"></div>
+                    <!-- Slot Machine -->
+                    <div class="slot-machine slot-lock-blur" id="slot-machine-preview">
+                      <div class="slot-jackpot" id="slot-jackpot">
+                        <div class="slot-jackpot-star">★ ★ ★</div>
+                        <div class="slot-jackpot-text" id="slot-preview-title">JACKPOT!</div>
+                        <div class="slot-bulbs" id="slot-bulbs"></div>
+                      </div>
+                      <div class="slot-body-vegas">
+                        <div class="slot-screen" id="slot-screen">
+                          <div class="slot-payline-left">▶</div>
+                          <div class="slot-payline-right">◀</div>
+                          <div class="slot-grid">
+                            <div class="slot-column" id="slot-col-1">
+                              <div class="slot-cell" id="sc-1-1">👕</div>
+                              <div class="slot-cell payline-cell" id="sc-1-2">👕</div>
+                              <div class="slot-cell" id="sc-1-3">🧢</div>
+                            </div>
+                            <div class="slot-column" id="slot-col-2">
+                              <div class="slot-cell" id="sc-2-1">👟</div>
+                              <div class="slot-cell payline-cell" id="sc-2-2">🧢</div>
+                              <div class="slot-cell" id="sc-2-3">👕</div>
+                            </div>
+                            <div class="slot-column" id="slot-col-3">
+                              <div class="slot-cell" id="sc-3-1">🧢</div>
+                              <div class="slot-cell payline-cell" id="sc-3-2">👟</div>
+                              <div class="slot-cell" id="sc-3-3">👕</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="slot-info-panel">
+                          <div class="slot-info-box slot-info-credits"><div class="slot-info-label">Créditos</div><div class="slot-info-value" id="slot-credits">1250</div></div>
+                          <div class="slot-info-box slot-info-message"><div class="slot-info-label">Mensagem</div><div class="slot-info-value" id="slot-message">BOA SORTE!</div></div>
+                          <div class="slot-info-box slot-info-bet"><div class="slot-info-label">Aposta</div><div class="slot-info-value" id="slot-bet">50</div></div>
+                        </div>
+                        <div class="slot-attempts-vegas" id="slot-attempts">Tentativa 1 de 3</div>
+                        <div class="slot-btn-panel">
+                          <button class="slot-btn-secondary" onclick="return false;">APOSTA</button>
+                          <button class="slot-btn-main" id="slot-pull-btn" onclick="pullSlotLever()">🎰 JOGAR</button>
+                          <button class="slot-btn-secondary" onclick="return false;">MÁXIMO</button>
+                        </div>
+                      </div>
+                      <div class="slot-coin-tray"><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span></div>
+                      <div class="slot-lever-area" id="slot-lever" onclick="pullSlotLever()">
+                        <div class="slot-lever-track"><div class="slot-lever-ball"></div></div>
+                        <div class="slot-lever-base"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1487,7 +1635,7 @@ function popupCard(p) {
     + (published
       ? '<button class="btn btn-red btn-sm" onclick="togglePublish(\''+p.id+'\',false)">⬇ Despublicar</button>'
       : '<button class="btn btn-green btn-sm" onclick="togglePublish(\''+p.id+'\',true)">⬆ Publicar</button>')
-    + '<button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup(\''+p.id+'\')">👑</button>'
+    + '<button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="deletePopup(\''+p.id+'\')">🗑</button>'
     + '</div></div>';
 }
 
@@ -1550,12 +1698,13 @@ function openCreateModal() {
   document.getElementById('f-btn-text').value = '#7c5cfc';
   document.getElementById('f-emoji').value = '🎁';
   document.getElementById('f-position').value = 'center';
+  // Slot machine defaults
   document.getElementById('f-slot-emoji1').value = '👕';
   document.getElementById('f-slot-emoji2').value = '🧢';
   document.getElementById('f-slot-emoji3').value = '👟';
   document.getElementById('f-slot-lose-text').value = 'Que pena! Tente novamente...';
   document.getElementById('f-slot-win-text').value = '🎉 PARABÉNS! Você ganhou!';
-  document.getElementById('f-slot-machine-title').value = 'SLOT MACHINE';
+  document.getElementById('f-slot-machine-title').value = 'JACKPOT!';
   slotFormat = 'slot_machine';
   slotPresetIdx = 0;
   onGameTypeChange();
@@ -1589,12 +1738,13 @@ function openEditModal(id) {
   document.getElementById('f-btn-text').value = bc;
   document.getElementById('f-emoji').value = cfg.emoji || '🎁';
   document.getElementById('f-position').value = cfg.position || 'center';
+  // Load slot machine config
   document.getElementById('f-slot-emoji1').value = cfg.slot_emoji1 || '👕';
   document.getElementById('f-slot-emoji2').value = cfg.slot_emoji2 || '🧢';
   document.getElementById('f-slot-emoji3').value = cfg.slot_emoji3 || '👟';
   document.getElementById('f-slot-lose-text').value = cfg.slot_lose_text || 'Que pena! Tente novamente...';
   document.getElementById('f-slot-win-text').value = cfg.slot_win_text || '🎉 PARABÉNS! Você ganhou!';
-  document.getElementById('f-slot-machine-title').value = cfg.slot_machine_title || 'SLOT MACHINE';
+  document.getElementById('f-slot-machine-title').value = cfg.slot_machine_title || 'JACKPOT!';
   slotFormat = cfg.slot_format || 'slot_machine';
   slotPresetIdx = cfg.slot_preset ?? 0;
   selectFormat(slotFormat);
@@ -1629,6 +1779,7 @@ async function savePopup() {
     emoji: document.getElementById('f-emoji').value,
     position: document.getElementById('f-position').value,
   };
+  // Add slot machine specific config
   if (gameType === 'slot_machine') {
     configObj.slot_emoji1 = document.getElementById('f-slot-emoji1').value;
     configObj.slot_emoji2 = document.getElementById('f-slot-emoji2').value;
@@ -1639,7 +1790,11 @@ async function savePopup() {
     configObj.slot_format = slotFormat;
     configObj.slot_preset = slotPresetIdx;
   }
-  const payload = { name, game_type: gameType, config: configObj };
+  const payload = {
+    name,
+    game_type: gameType,
+    config: configObj
+  };
   try {
     if (editingId) {
       await api('PUT', '/api/popups/' + editingId, payload);
@@ -1672,15 +1827,28 @@ function updatePreview() {
   const bc = document.getElementById('f-btn-color').value;
   const emoji = document.getElementById('f-emoji').value;
   const gameType = document.getElementById('f-type').value;
+
   const isSlot = gameType === 'slot_machine' && slotFormat === 'slot_machine';
+
+  // Toggle which preview is visible
   document.getElementById('preview-box').style.display = isSlot ? 'none' : 'block';
   document.getElementById('preview-slot').style.display = isSlot ? 'block' : 'none';
+
   if (isSlot) {
     updateSlotPreviewTheme();
     updateSlotReelEmojis();
     var slotTitle = document.getElementById('f-slot-machine-title');
-    if (slotTitle) document.getElementById('slot-preview-title').textContent = slotTitle.value || 'SLOT MACHINE';
+    if (slotTitle) {
+      document.getElementById('slot-preview-title').textContent = slotTitle.value || 'JACKPOT!';
+    }
+    // Update lock overlay with popup title/desc
+    var lockTitle = document.getElementById('slot-lock-title');
+    var lockSub = document.getElementById('slot-lock-subtitle');
+    if (lockTitle) lockTitle.textContent = document.getElementById('f-title').value || 'Cadastre-se para jogar!';
+    if (lockSub) lockSub.textContent = document.getElementById('f-desc').value || 'Preencha seus dados e desbloqueie o caça-níquel';
+    initSlotBulbs();
   } else {
+    // Standard preview
     const box = document.getElementById('preview-box');
     if (!box) return;
     box.style.background = bg;
@@ -1786,159 +1954,12 @@ function toast(msg, type) {
 }
 
 // ─── SLOT MACHINE PRESETS ───────────────────────────────────────────────────
-function showSlotVictory() {
-  var machine = document.getElementById('slot-machine-preview');
-  if (!machine) return;
-  var colors = ['#f1c40f','#e74c3c','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c','#ec4899'];
-  for (var i = 0; i < 40; i++) {
-    var conf = document.createElement('div');
-    conf.className = 'slot-confetti';
-    conf.style.left = Math.random()*100 + '%';
-    conf.style.top = '-10px';
-    conf.style.background = colors[Math.floor(Math.random()*colors.length)];
-    conf.style.animationDelay = (Math.random()*0.8)+'s';
-    conf.style.animationDuration = (1+Math.random()*1)+'s';
-    conf.style.width = (4+Math.random()*6)+'px';
-    conf.style.height = (4+Math.random()*6)+'px';
-    machine.appendChild(conf);
-  }
-  var coupon = document.getElementById('f-prize').value || 'DESCONTO10';
-  var winEmoji = document.getElementById('f-slot-emoji3').value || '👟';
-  var victory = document.createElement('div');
-  victory.className = 'slot-victory';
-  victory.innerHTML = '<div class="slot-victory-emoji">'+winEmoji+'</div>'
-    +'<div class="slot-victory-text">JACKPOT!</div>'
-    +'<div class="slot-victory-sub">Seu cupom de desconto:</div>'
-    +'<div class="slot-coupon-box">'+esc(coupon)+'</div>'
-    +'<button class="slot-pull-btn" style="margin-top:14px;width:auto;padding:8px 20px;font-size:12px;" onclick="resetSlotGame()">🔄 JOGAR NOVAMENTE</button>';
-  machine.appendChild(victory);
-}
-
-function pullSlotLever() {
-  if (slotSpinning || slotAttempt >= 3) return;
-  slotSpinning = true; slotAttempt++;
-  var lever = document.getElementById('slot-lever');
-  var btn = document.getElementById('slot-pull-btn');
-  var msg = document.getElementById('slot-message');
-  var att = document.getElementById('slot-attempts');
-  btn.disabled = true; btn.textContent = '⏳ GIRANDO...';
-  msg.textContent = ''; msg.className = 'slot-message';
-  att.textContent = 'Tentativa ' + slotAttempt + ' de 3';
-  if (lever) lever.classList.add('pulled');
-  setTimeout(function(){ if (lever) lever.classList.remove('pulled'); }, 600);
-  var emojis = [
-    document.getElementById('f-slot-emoji1').value || '👕',
-    document.getElementById('f-slot-emoji2').value || '🧢',
-    document.getElementById('f-slot-emoji3').value || '👟'
-  ];
-  var winEmoji = emojis[2];
-  ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id) {
-    var r = document.getElementById(id); if (r) r.className = 'slot-reel spinning';
-  });
-  var spinInterval = setInterval(function() {
-    ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id) {
-      var r = document.getElementById(id);
-      if (r && r.classList.contains('spinning')) r.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-    });
-  }, 80);
-  var isWin = slotAttempt === 3;
-  setTimeout(function() {
-    var r1 = document.getElementById('slot-reel-1');
-    if (r1) { r1.classList.remove('spinning'); r1.textContent = isWin ? winEmoji : emojis[Math.floor(Math.random()*2)]; }
-  }, 800);
-  setTimeout(function() {
-    var r2 = document.getElementById('slot-reel-2');
-    if (r2) { r2.classList.remove('spinning'); r2.textContent = isWin ? winEmoji : emojis[Math.floor(Math.random()*emojis.length)]; }
-  }, 1400);
-  setTimeout(function() {
-    clearInterval(spinInterval);
-    var r3 = document.getElementById('slot-reel-3');
-    if (r3) {
-      r3.classList.remove('spinning');
-      if (isWin) { r3.textContent = winEmoji; }
-      else {
-        var r1t = document.getElementById('slot-reel-1').textContent;
-        var r2t = document.getElementById('slot-reel-2').textContent;
-        if (r1t === r2t) { r3.textContent = emojis.find(function(e){return e!==r1t;}) || emojis[0]; }
-        else { r3.textContent = emojis[Math.floor(Math.random()*emojis.length)]; }
-      }
-    }
-    slotSpinning = false;
-    var loseText = document.getElementById('f-slot-lose-text').value || 'Que pena! Tente novamente...';
-    var winText = document.getElementById('f-slot-win-text').value || '🎉 PARABÉNS! Você ganhou!';
-    if (isWin) {
-      ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id){ document.getElementById(id).classList.add('winner'); });
-      msg.textContent = winText; msg.className = 'slot-message win';
-      btn.textContent = '🎉 VOCÊ GANHOU!'; btn.disabled = true;
-      setTimeout(function(){ showSlotVictory(); }, 800);
-    } else {
-      msg.textContent = loseText; msg.className = 'slot-message lose';
-      btn.disabled = false;
-      btn.textContent = '🎰 TENTAR NOVAMENTE (' + (3-slotAttempt) + ' restante' + ((3-slotAttempt)>1?'s':'') + ')';
-    }
-  }, 2000);
-}
-
-function darkenColor(hex, amount) {
-  hex = hex.replace('#','');
-  let r = Math.max(0, parseInt(hex.substring(0,2),16) - amount);
-  let g = Math.max(0, parseInt(hex.substring(2,4),16) - amount);
-  let b = Math.max(0, parseInt(hex.substring(4,6),16) - amount);
-  return '#' + r.toString(16).padStart(2,'0') + g.toString(16).padStart(2,'0') + b.toString(16).padStart(2,'0');
-}
-
-function updateSlotPreviewTheme() {
-  const p = SLOT_PRESETS[slotPresetIdx];
-  const machine = document.getElementById('slot-machine-preview');
-  if (!machine) return;
-  machine.style.background = 'linear-gradient(180deg, '+p.machine+' 0%, '+p.machineDark+' 100%)';
-  machine.style.borderColor = p.machineDark;
-  const topBar = document.getElementById('slot-top-bar');
-  topBar.style.background = 'linear-gradient(180deg, '+p.topBar+' 0%, '+p.topBarEnd+' 100%)';
-  topBar.querySelector('.slot-top-title').style.color = p.machineDark;
-  topBar.querySelectorAll('.slot-top-stars').forEach(s => s.style.color = p.machineDark);
-  const display = document.getElementById('slot-display');
-  display.style.background = 'linear-gradient(180deg, '+p.display+' 0%, '+darkenColor(p.display,20)+' 100%)';
-  const pullBtn = document.getElementById('slot-pull-btn');
-  pullBtn.style.background = 'linear-gradient(180deg, '+p.btnBg+' 0%, '+p.topBarEnd+' 100%)';
-  pullBtn.style.color = p.btnColor;
-  pullBtn.style.borderColor = p.topBarEnd;
-}
-
-function resetSlotGame() {
-  slotAttempt = 0; slotSpinning = false;
-  var msg = document.getElementById('slot-message');
-  var att = document.getElementById('slot-attempts');
-  var btn = document.getElementById('slot-pull-btn');
-  if (msg) { msg.textContent = 'Puxe a alavanca para jogar!'; msg.className = 'slot-message'; }
-  if (att) att.textContent = 'Tentativa 1 de 3';
-  if (btn) { btn.disabled = false; btn.textContent = '🎰 PUXAR ALAVANCA'; }
-  ['slot-reel-1','slot-reel-2','slot-reel-3'].forEach(function(id) { var r = document.getElementById(id); if (r) r.className = 'slot-reel'; });
-  var victory = document.querySelector('.slot-victory');
-  if (victory) victory.remove();
-  document.querySelectorAll('.slot-confetti').forEach(function(c) { c.remove(); });
-  var lever = document.getElementById('slot-lever');
-  if (lever) lever.classList.remove('pulled');
-  updateSlotReelEmojis();
-}
-
-function updateSlotReelEmojis() {
-  var e1 = document.getElementById('f-slot-emoji1');
-  if (!e1) return;
-  var r1 = document.getElementById('slot-reel-1');
-  var r2 = document.getElementById('slot-reel-2');
-  var r3 = document.getElementById('slot-reel-3');
-  if (r1) r1.textContent = e1.value || '👕';
-  if (r2) r2.textContent = (document.getElementById('f-slot-emoji2').value) || '🧢';
-  if (r3) r3.textContent = (document.getElementById('f-slot-emoji3').value) || '👟';
-}
-
 const SLOT_PRESETS = [
-  { name:'Clássico', machine:'#c0392b', machineDark:'#8B0000', topBar:'#f1c40f', topBarEnd:'#e67e22', display:'#1a1a2e', accent:'#f1c40f', btnBg:'#f1c40f', btnColor:'#8B0000' },
-  { name:'Neon', machine:'#7c5cfc', machineDark:'#4a2fb3', topBar:'#a855f7', topBarEnd:'#ec4899', display:'#0d0d2b', accent:'#a855f7', btnBg:'#a855f7', btnColor:'#fff' },
-  { name:'Oceano', machine:'#0077b6', machineDark:'#023e8a', topBar:'#00b4d8', topBarEnd:'#0096c7', display:'#001d3d', accent:'#48cae4', btnBg:'#00b4d8', btnColor:'#001d3d' },
-  { name:'Esmeralda', machine:'#2d6a4f', machineDark:'#1b4332', topBar:'#52b788', topBarEnd:'#40916c', display:'#0a1f14', accent:'#95d5b2', btnBg:'#52b788', btnColor:'#1b4332' },
-  { name:'Midnight', machine:'#c2185b', machineDark:'#880e4f', topBar:'#f06292', topBarEnd:'#ec407a', display:'#1a0a12', accent:'#f48fb1', btnBg:'#f06292', btnColor:'#880e4f' }
+  { name: 'Clássico', machine: '#c0392b', machineDark: '#8B0000', topBar: '#f1c40f', topBarEnd: '#e67e22', display: '#1a1a2e', accent: '#f1c40f', btnBg: '#f1c40f', btnColor: '#8B0000' },
+  { name: 'Neon', machine: '#7c5cfc', machineDark: '#4a2fb3', topBar: '#a855f7', topBarEnd: '#ec4899', display: '#0d0d2b', accent: '#a855f7', btnBg: '#a855f7', btnColor: '#fff' },
+  { name: 'Oceano', machine: '#0077b6', machineDark: '#023e8a', topBar: '#00b4d8', topBarEnd: '#0096c7', display: '#001d3d', accent: '#48cae4', btnBg: '#00b4d8', btnColor: '#001d3d' },
+  { name: 'Esmeralda', machine: '#2d6a4f', machineDark: '#1b4332', topBar: '#52b788', topBarEnd: '#40916c', display: '#0a1f14', accent: '#95d5b2', btnBg: '#52b788', btnColor: '#1b4332' },
+  { name: 'Midnight', machine: '#c2185b', machineDark: '#880e4f', topBar: '#f06292', topBarEnd: '#ec407a', display: '#1a0a12', accent: '#f48fb1', btnBg: '#f06292', btnColor: '#880e4f' }
 ];
 
 function onGameTypeChange() {
@@ -1970,6 +1991,248 @@ function applySlotPreset(idx) {
   updatePreview();
 }
 
+function updateSlotPreviewTheme() {
+  const p = SLOT_PRESETS[slotPresetIdx];
+  const machine = document.getElementById('slot-machine-preview');
+  if (!machine) return;
+  machine.style.background = 'linear-gradient(180deg, ' + p.machine + ' 0%, ' + p.machineDark + ' 100%)';
+  machine.style.borderColor = p.accent;
+  const jackpot = document.getElementById('slot-jackpot');
+  if (jackpot) {
+    jackpot.style.background = 'linear-gradient(180deg, ' + p.machineDark + ' 0%, ' + p.machine + ' 100%)';
+    jackpot.style.borderBottomColor = p.accent;
+    var jtext = jackpot.querySelector('.slot-jackpot-text');
+    if (jtext) { jtext.style.color = p.accent; jtext.style.textShadow = '0 0 10px ' + p.accent + '99, 0 0 20px ' + p.accent + '44'; }
+    jackpot.querySelectorAll('.slot-jackpot-star').forEach(function(s) { s.style.color = p.accent; });
+  }
+  const screen = document.getElementById('slot-screen');
+  if (screen) screen.style.background = 'linear-gradient(180deg, ' + p.display + ' 0%, ' + darkenColor(p.display, 20) + ' 100%)';
+  const pullBtn = document.getElementById('slot-pull-btn');
+  if (pullBtn) { pullBtn.style.background = 'linear-gradient(180deg, ' + p.btnBg + ' 0%, ' + p.topBarEnd + ' 100%)'; pullBtn.style.color = p.btnColor; pullBtn.style.borderColor = p.topBarEnd; }
+  const coinTray = machine.querySelector('.slot-coin-tray');
+  if (coinTray) coinTray.style.borderTopColor = p.accent;
+  var lockBtn = document.querySelector('.slot-lock-btn');
+  if (lockBtn) { lockBtn.style.background = 'linear-gradient(180deg, ' + p.btnBg + ' 0%, ' + p.topBarEnd + ' 100%)'; lockBtn.style.color = p.btnColor; }
+  var lockTitle = document.querySelector('.slot-lock-title');
+  if (lockTitle) lockTitle.style.color = p.accent;
+  initSlotBulbs();
+}
+
+function darkenColor(hex, amount) {
+  hex = hex.replace('#', '');
+  let r = Math.max(0, parseInt(hex.substring(0, 2), 16) - amount);
+  let g = Math.max(0, parseInt(hex.substring(2, 4), 16) - amount);
+  let b = Math.max(0, parseInt(hex.substring(4, 6), 16) - amount);
+  return '#' + r.toString(16).padStart(2, '0') + g.toString(16).padStart(2, '0') + b.toString(16).padStart(2, '0');
+}
+
+function resetSlotGame() {
+  slotAttempt = 0;
+  slotSpinning = false;
+  var msg = document.getElementById('slot-message');
+  var att = document.getElementById('slot-attempts');
+  var btn = document.getElementById('slot-pull-btn');
+  var credits = document.getElementById('slot-credits');
+  if (msg) msg.textContent = 'BOA SORTE!';
+  if (att) att.textContent = 'Tentativa 1 de 3';
+  if (btn) { btn.disabled = false; btn.textContent = '🎰 JOGAR'; }
+  if (credits) credits.textContent = '1250';
+  for (var c = 1; c <= 3; c++) {
+    for (var r = 1; r <= 3; r++) {
+      var cell = document.getElementById('sc-' + c + '-' + r);
+      if (cell) cell.className = r === 2 ? 'slot-cell payline-cell' : 'slot-cell';
+    }
+  }
+  var victory = document.querySelector('.slot-victory');
+  if (victory) victory.remove();
+  document.querySelectorAll('.slot-confetti').forEach(function(c) { c.remove(); });
+  var lever = document.getElementById('slot-lever');
+  if (lever) lever.classList.remove('pulled');
+  updateSlotReelEmojis();
+}
+
+function updateSlotReelEmojis() {
+  var e1 = document.getElementById('f-slot-emoji1');
+  var e2 = document.getElementById('f-slot-emoji2');
+  var e3 = document.getElementById('f-slot-emoji3');
+  if (!e1) return;
+  var emojis = [e1.value || '👕', e2.value || '🧢', e3.value || '👟'];
+  var grid = [
+    ['sc-1-1','sc-1-2','sc-1-3'],
+    ['sc-2-1','sc-2-2','sc-2-3'],
+    ['sc-3-1','sc-3-2','sc-3-3']
+  ];
+  // Col1: e0, e0(payline), e1
+  var sets = [[0,0,1],[2,1,0],[1,2,0]];
+  for (var c = 0; c < 3; c++) {
+    for (var r = 0; r < 3; r++) {
+      var cell = document.getElementById(grid[c][r]);
+      if (cell) cell.textContent = emojis[sets[c][r]];
+    }
+  }
+}
+
+function pullSlotLever() {
+  if (slotSpinning || slotAttempt >= 3) return;
+  slotSpinning = true;
+  slotAttempt++;
+
+  var lever = document.getElementById('slot-lever');
+  var btn = document.getElementById('slot-pull-btn');
+  var msg = document.getElementById('slot-message');
+  var att = document.getElementById('slot-attempts');
+  var credits = document.getElementById('slot-credits');
+  btn.disabled = true;
+  btn.textContent = '⏳ GIRANDO...';
+  msg.textContent = '...';
+  att.textContent = 'Tentativa ' + slotAttempt + ' de 3';
+  if (credits) { var cv = parseInt(credits.textContent) - 50; credits.textContent = cv; }
+
+  if (lever) lever.classList.add('pulled');
+  setTimeout(function(){ if (lever) lever.classList.remove('pulled'); }, 600);
+
+  var emojis = [
+    document.getElementById('f-slot-emoji1').value || '👕',
+    document.getElementById('f-slot-emoji2').value || '🧢',
+    document.getElementById('f-slot-emoji3').value || '👟'
+  ];
+  var winEmoji = emojis[2];
+
+  // Start spinning all 9 cells
+  for (var cc = 1; cc <= 3; cc++) {
+    for (var rr = 1; rr <= 3; rr++) {
+      var cell = document.getElementById('sc-' + cc + '-' + rr);
+      if (cell) cell.classList.add('spinning');
+    }
+  }
+
+  var spinInterval = setInterval(function() {
+    for (var cc = 1; cc <= 3; cc++) {
+      for (var rr = 1; rr <= 3; rr++) {
+        var cell = document.getElementById('sc-' + cc + '-' + rr);
+        if (cell && cell.classList.contains('spinning')) {
+          cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        }
+      }
+    }
+  }, 80);
+
+  var isWin = slotAttempt === 3;
+
+  // Stop column 1 after 800ms
+  setTimeout(function() {
+    for (var rr = 1; rr <= 3; rr++) {
+      var cell = document.getElementById('sc-1-' + rr);
+      if (cell) { cell.classList.remove('spinning'); cell.textContent = (rr === 2 && isWin) ? winEmoji : (rr === 2 ? emojis[Math.floor(Math.random() * 2)] : emojis[Math.floor(Math.random() * emojis.length)]); }
+    }
+  }, 800);
+
+  // Stop column 2 after 1400ms
+  setTimeout(function() {
+    for (var rr = 1; rr <= 3; rr++) {
+      var cell = document.getElementById('sc-2-' + rr);
+      if (cell) { cell.classList.remove('spinning'); cell.textContent = (rr === 2 && isWin) ? winEmoji : emojis[Math.floor(Math.random() * emojis.length)]; }
+    }
+  }, 1400);
+
+  // Stop column 3 after 2000ms
+  setTimeout(function() {
+    clearInterval(spinInterval);
+    for (var rr = 1; rr <= 3; rr++) {
+      var cell = document.getElementById('sc-3-' + rr);
+      if (cell) {
+        cell.classList.remove('spinning');
+        if (rr === 2) {
+          if (isWin) { cell.textContent = winEmoji; }
+          else {
+            var p1 = document.getElementById('sc-1-2').textContent;
+            var p2 = document.getElementById('sc-2-2').textContent;
+            if (p1 === p2) { cell.textContent = emojis.find(function(e) { return e !== p1; }) || emojis[0]; }
+            else { cell.textContent = emojis[Math.floor(Math.random() * emojis.length)]; }
+          }
+        } else { cell.textContent = emojis[Math.floor(Math.random() * emojis.length)]; }
+      }
+    }
+
+    slotSpinning = false;
+    var loseText = document.getElementById('f-slot-lose-text').value || 'Que pena! Tente novamente...';
+    var winText = document.getElementById('f-slot-win-text').value || '🎉 PARABÉNS!';
+
+    if (isWin) {
+      for (var cc = 1; cc <= 3; cc++) { document.getElementById('sc-' + cc + '-2').classList.add('winner'); }
+      msg.textContent = winText;
+      btn.textContent = '🎉 JACKPOT!';
+      btn.disabled = true;
+      if (credits) credits.textContent = '9999';
+      setTimeout(function() { showSlotVictory(); }, 800);
+    } else {
+      msg.textContent = loseText;
+      btn.disabled = false;
+      btn.textContent = '🎰 JOGAR (' + (3 - slotAttempt) + ')';
+    }
+  }, 2000);
+}
+
+function showSlotVictory() {
+  var machine = document.getElementById('slot-machine-preview');
+  if (!machine) return;
+  var colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#ec4899'];
+  for (var i = 0; i < 40; i++) {
+    var conf = document.createElement('div');
+    conf.className = 'slot-confetti';
+    conf.style.left = Math.random() * 100 + '%';
+    conf.style.top = '-10px';
+    conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.animationDelay = (Math.random() * 0.8) + 's';
+    conf.style.animationDuration = (1 + Math.random() * 1) + 's';
+    conf.style.width = (4 + Math.random() * 6) + 'px';
+    conf.style.height = (4 + Math.random() * 6) + 'px';
+    machine.appendChild(conf);
+  }
+  var coupon = document.getElementById('f-prize').value || 'DESCONTO10';
+  var winEmoji = document.getElementById('f-slot-emoji3').value || '👟';
+  var victory = document.createElement('div');
+  victory.className = 'slot-victory';
+  victory.innerHTML = '<div class="slot-victory-emoji">' + winEmoji + '</div>'
+    + '<div class="slot-victory-text">JACKPOT!</div>'
+    + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
+    + '<div class="slot-coupon-box">' + esc(coupon) + '</div>'
+    + '<button class="slot-btn-main" style="margin-top:14px;width:auto;padding:8px 20px;font-size:12px;" onclick="resetSlotGame()">🔄 JOGAR NOVAMENTE</button>';
+  machine.appendChild(victory);
+}
+
+function unlockSlotMachine() {
+  var overlay = document.getElementById('slot-lock-overlay');
+  var machine = document.getElementById('slot-machine-preview');
+  if (overlay) overlay.classList.add('hidden');
+  if (machine) { machine.classList.remove('slot-lock-blur'); machine.classList.add('unlocked'); }
+}
+
+function relockSlotMachine() {
+  var overlay = document.getElementById('slot-lock-overlay');
+  var machine = document.getElementById('slot-machine-preview');
+  if (overlay) overlay.classList.remove('hidden');
+  if (machine) { machine.classList.add('slot-lock-blur'); machine.classList.remove('unlocked'); }
+  document.getElementById('slot-lock-name').value = '';
+  document.getElementById('slot-lock-email').value = '';
+  resetSlotGame();
+}
+
+function initSlotBulbs() {
+  var container = document.getElementById('slot-bulbs');
+  if (!container) return;
+  container.innerHTML = '';
+  var colors = ['#f1c40f','#ef4444','#22c55e','#3b82f6','#f1c40f','#ec4899','#f1c40f','#22c55e','#ef4444'];
+  colors.forEach(function(color) {
+    var bulb = document.createElement('div');
+    bulb.className = 'slot-bulb';
+    bulb.style.background = color;
+    bulb.style.color = color;
+    container.appendChild(bulb);
+  });
+}
+
+// ─── UPDATED PREVIEW ───────────────────────────────────────────────────────
 // Close modal on backdrop click
 document.getElementById('popup-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
