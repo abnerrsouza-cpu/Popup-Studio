@@ -558,10 +558,10 @@
       padding: 0;
       max-width: 320px;
       width: 100%;
-      box-shadow: 0 10px 50px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,215,0,.12);
+      box-shadow: 0 10px 50px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,215,0,.12), 0 0 60px rgba(255,215,0,.06);
       position: relative;
       overflow: visible;
-      border: 4px solid #d4a017;
+      border: 3px solid rgba(255,215,0,.3);
     }
     /* JACKPOT Marquee */
     .slot-jackpot {
@@ -648,6 +648,35 @@
     .slot-lever-ball { width:24px; height:24px; background:radial-gradient(circle at 35% 35%,#ff6b6b,#c0392b,#8B0000); border-radius:50%; position:absolute; top:-8px; left:50%; transform:translateX(-50%); box-shadow:0 3px 10px rgba(0,0,0,.5), inset 0 -2px 4px rgba(0,0,0,.3), inset 0 2px 4px rgba(255,255,255,.2); transition:top .3s cubic-bezier(.68,-.55,.27,1.55); }
     .slot-lever-area.pulled .slot-lever-ball { top:44px; }
     .slot-lever-base { width:16px; height:8px; background:linear-gradient(180deg,#aaa,#666); border-radius:0 0 6px 6px; margin-top:-1px; }
+    /* ─── SLOT POPUP HEADER (title above machine) ────── */
+    .slot-popup-header {
+      text-align: center; padding: 18px 16px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 100%);
+      border-radius: 16px 16px 0 0;
+    }
+    .slot-popup-title {
+      font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+      text-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 2px 0 rgba(0,0,0,.5);
+      margin-bottom: 4px;
+    }
+    .slot-popup-subtitle { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 500; }
+    .slot-popup-close {
+      position: absolute; top: 10px; right: 10px; width: 28px; height: 28px;
+      background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.15); border-radius: 50%;
+      color: rgba(255,255,255,.7); font-size: 14px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: all .2s; z-index: 30;
+    }
+    .slot-popup-close:hover { background: rgba(255,255,255,.15); color: #fff; }
+    /* ─── COUPON BANNER ──────────────────────────────── */
+    .slot-coupon-banner {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 8px 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.5px; color: currentColor; border-top: 2px solid currentColor;
+      border-bottom: 2px solid currentColor; position: relative;
+    }
+    .slot-coupon-banner::before, .slot-coupon-banner::after {
+      content: '◆'; font-size: 6px; opacity: .6;
+    }
     /* ─── BLUR LOCK OVERLAY ───────────────────────────── */
     .slot-lock-container { position: relative; }
     .slot-lock-blur { pointer-events: none; transition: filter .6s ease; }
@@ -658,21 +687,44 @@
     .slot-lock-blur.unlocked .slot-attempts-vegas, .slot-machine:not(.slot-lock-blur) .slot-attempts-vegas { display: block; }
     .slot-lock-overlay {
       position: relative; display: flex; flex-direction: column; align-items: center;
-      z-index: 20; background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.85) 100%);
-      border-radius: 0 0 16px 16px; padding: 16px 14px 18px;
+      z-index: 20; background: linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,.7) 100%);
+      padding: 14px 16px 18px;
       transition: opacity .5s ease, max-height .5s ease; overflow: hidden;
     }
-    .slot-lock-overlay.hidden { opacity: 0; max-height: 0; padding: 0 14px; pointer-events: none; }
-    .slot-lock-icon { font-size: 28px; margin-bottom: 6px; animation: lockPulse 2s ease infinite; }
+    .slot-lock-overlay.hidden { opacity: 0; max-height: 0; padding: 0 16px; pointer-events: none; }
+    .slot-lock-icon { display: none; }
     @keyframes lockPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-    .slot-lock-title { font-size: 14px; font-weight: 800; color: #f1c40f; text-align: center; margin-bottom: 3px; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
-    .slot-lock-subtitle { font-size: 10px; color: rgba(255,255,255,.7); text-align: center; margin-bottom: 10px; }
-    .slot-lock-form { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 240px; }
-    .slot-lock-input { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 12px; outline: none; text-align: center; transition: border-color .2s; }
+    .slot-lock-title { display: none; }
+    .slot-lock-subtitle {
+      font-size: 10px; color: rgba(255,255,255,.6); text-align: center; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .slot-lock-subtitle::before { content: '🔒'; font-size: 11px; }
+    .slot-lock-form { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 260px; }
+    .slot-lock-input-wrap {
+      position: relative; display: flex; align-items: center;
+    }
+    .slot-lock-input-icon {
+      position: absolute; left: 12px; font-size: 14px; color: rgba(255,255,255,.35);
+      pointer-events: none; z-index: 2;
+    }
+    .slot-lock-input {
+      width: 100%; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 10px; padding: 12px 12px 12px 38px; color: #fff; font-size: 13px;
+      outline: none; text-align: left; transition: border-color .2s, background .2s;
+    }
     .slot-lock-input::placeholder { color: rgba(255,255,255,.4); }
-    .slot-lock-input:focus { border-color: #f1c40f; }
-    .slot-lock-btn { background: linear-gradient(180deg, #f1c40f 0%, #e67e22 100%); color: #1a0640; border: none; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 3px 12px rgba(241,196,15,.3); transition: all .15s; }
-    .slot-lock-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(241,196,15,.4); }
+    .slot-lock-input:focus { border-color: currentColor; background: rgba(255,255,255,.12); }
+    .slot-lock-btn {
+      background: linear-gradient(180deg, var(--slot-accent, #22c55e) 0%, var(--slot-accent-dark, #16a34a) 100%);
+      color: #fff; border: 2px solid var(--slot-accent-dark, #16a34a); border-radius: 10px;
+      padding: 13px; font-size: 14px; font-weight: 900; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 2px;
+      box-shadow: 0 4px 20px rgba(var(--slot-accent-rgb, 34,197,94),.35), inset 0 1px 0 rgba(255,255,255,.15);
+      transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .slot-lock-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(var(--slot-accent-rgb, 34,197,94),.45); }
+    .slot-lock-btn::after { content: '→'; font-size: 16px; font-weight: 400; }
     .slot-relock-btn { position:absolute; top:6px; right:6px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:6px; padding:4px 8px; font-size:10px; color:rgba(255,255,255,.6); cursor:pointer; z-index:25; transition:all .15s; }
     .slot-relock-btn:hover { background:rgba(255,255,255,.2); color:#fff; }
     /* Victory Overlay */
@@ -932,13 +984,17 @@
       .slot-victory-text { font-size: 18px; }
       .slot-victory-emoji { font-size: 36px; }
       .slot-coupon-box { font-size: 16px; padding: 10px 20px; letter-spacing: 2px; }
-      .slot-lock-title { font-size: 12px; }
-      .slot-lock-subtitle { font-size: 9px; }
-      .slot-lock-icon { font-size: 22px; }
-      .slot-lock-form { max-width: 180px; }
-      .slot-lock-input { padding: 7px 8px; font-size: 11px; }
-      .slot-lock-btn { padding: 8px; font-size: 11px; }
-      .slot-lock-overlay { padding: 12px 10px 14px; }
+      .slot-popup-header { padding: 12px 12px 8px; }
+      .slot-popup-title { font-size: 16px; letter-spacing: 1px; }
+      .slot-popup-subtitle { font-size: 9px; }
+      .slot-popup-close { width: 24px; height: 24px; font-size: 12px; top: 8px; right: 8px; }
+      .slot-coupon-banner { font-size: 8px; padding: 6px 8px; letter-spacing: 1px; }
+      .slot-lock-form { max-width: 200px; }
+      .slot-lock-input { padding: 9px 9px 9px 32px; font-size: 11px; }
+      .slot-lock-input-icon { font-size: 12px; left: 10px; }
+      .slot-lock-btn { padding: 10px; font-size: 11px; letter-spacing: 1px; }
+      .slot-lock-overlay { padding: 10px 10px 14px; }
+      .slot-lock-subtitle { font-size: 8px; }
       .popup-preview-box { max-width: 260px; padding: 20px 16px; }
       .popup-preview-title { font-size: 17px; }
       .popup-preview-desc { font-size: 12px; }
@@ -1522,7 +1578,13 @@
                     <button class="slot-relock-btn" id="slot-relock-btn" onclick="relockSlotMachine()" title="Simular bloqueio">🔒 Simular</button>
                     <!-- Slot Machine (visible, generates curiosity) -->
                     <div class="slot-machine slot-lock-blur" id="slot-machine-preview">
-                      <div class="slot-jackpot" id="slot-jackpot">
+                      <!-- Popup Header with title -->
+                      <div class="slot-popup-header">
+                        <button class="slot-popup-close" onclick="return false;" title="Fechar">✕</button>
+                        <div class="slot-popup-title" id="slot-popup-title" style="color:#f1c40f;">GIRE E GANHE!</div>
+                        <div class="slot-popup-subtitle" id="slot-popup-subtitle">Cadastre-se para jogar e ganhar um cupom de desconto.</div>
+                      </div>
+                      <div class="slot-jackpot" id="slot-jackpot" style="border-radius:0;">
                         <div class="slot-jackpot-star">★ ★ ★</div>
                         <div class="slot-jackpot-text" id="slot-preview-title">JACKPOT!</div>
                         <div class="slot-bulbs" id="slot-bulbs"></div>
@@ -1562,16 +1624,27 @@
                         </div>
                       </div>
                       <div class="slot-coin-tray"><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span><span class="slot-coin">🪙</span></div>
+                      <!-- Coupon Banner -->
+                      <div class="slot-coupon-banner" id="slot-coupon-banner" style="color:#f1c40f;">🎁 CUPOM SURPRESA DE DESCONTO</div>
                       <!-- Lock Overlay (registration form below the machine) -->
                       <div class="slot-lock-overlay" id="slot-lock-overlay">
                         <div class="slot-lock-icon">🔒</div>
                         <div class="slot-lock-title" id="slot-lock-title">Cadastre-se para jogar!</div>
-                        <div class="slot-lock-subtitle" id="slot-lock-subtitle">Preencha seus dados e desbloqueie o caça-níquel</div>
                         <div class="slot-lock-form">
-                          <input class="slot-lock-input" id="slot-lock-name" placeholder="Seu nome" type="text">
-                          <input class="slot-lock-input" id="slot-lock-email" placeholder="Seu melhor e-mail" type="email">
-                          <input class="slot-lock-input" id="slot-lock-phone" placeholder="Seu telefone" type="tel">
-                          <button class="slot-lock-btn" onclick="unlockSlotMachine()">🔓 DESBLOQUEAR</button>
+                          <div class="slot-lock-input-wrap">
+                            <span class="slot-lock-input-icon">👤</span>
+                            <input class="slot-lock-input" id="slot-lock-name" placeholder="Seu nome" type="text">
+                          </div>
+                          <div class="slot-lock-input-wrap">
+                            <span class="slot-lock-input-icon">✉️</span>
+                            <input class="slot-lock-input" id="slot-lock-email" placeholder="Seu melhor e-mail" type="email">
+                          </div>
+                          <div class="slot-lock-input-wrap">
+                            <span class="slot-lock-input-icon">📞</span>
+                            <input class="slot-lock-input" id="slot-lock-phone" placeholder="Seu telefone" type="tel">
+                          </div>
+                          <div class="slot-lock-subtitle" id="slot-lock-subtitle">Preencha os dados para liberar sua jogada.</div>
+                          <button class="slot-lock-btn" onclick="unlockSlotMachine()">CADASTRAR E JOGAR</button>
                         </div>
                       </div>
                       <div class="slot-lever-area" id="slot-lever" onclick="pullSlotLever()">
@@ -2010,11 +2083,15 @@ function updatePreview() {
     if (slotTitle) {
       document.getElementById('slot-preview-title').textContent = slotTitle.value || 'JACKPOT!';
     }
-    // Update lock overlay with popup title/desc
-    var lockTitle = document.getElementById('slot-lock-title');
-    var lockSub = document.getElementById('slot-lock-subtitle');
-    if (lockTitle) lockTitle.textContent = document.getElementById('f-title').value || 'Cadastre-se para jogar!';
-    if (lockSub) lockSub.textContent = document.getElementById('f-desc').value || 'Preencha seus dados e desbloqueie o caça-níquel';
+    // Update popup header with title/desc
+    var popupTitle = document.getElementById('slot-popup-title');
+    var popupSub = document.getElementById('slot-popup-subtitle');
+    if (popupTitle) popupTitle.textContent = document.getElementById('f-title').value || 'GIRE E GANHE!';
+    if (popupSub) popupSub.textContent = document.getElementById('f-desc').value || 'Cadastre-se para jogar e ganhar um cupom de desconto.';
+    // Update button text
+    var lockBtn = document.querySelector('.slot-lock-btn');
+    var btnText = document.getElementById('f-btn').value;
+    if (lockBtn && btnText) lockBtn.childNodes[0].textContent = btnText;
     initSlotBulbs();
   } else {
     // Standard preview
@@ -2201,10 +2278,22 @@ function updateSlotPreviewTheme() {
   if (pullBtn) { pullBtn.style.background = 'linear-gradient(180deg, ' + p.btnBg + ' 0%, ' + p.topBarEnd + ' 100%)'; pullBtn.style.color = p.btnColor; pullBtn.style.borderColor = p.topBarEnd; }
   const coinTray = machine.querySelector('.slot-coin-tray');
   if (coinTray) coinTray.style.borderTopColor = p.accent;
+  // Style popup header
+  var popupTitle = document.getElementById('slot-popup-title');
+  if (popupTitle) popupTitle.style.color = p.accent;
+  // Style coupon banner
+  var couponBanner = document.getElementById('slot-coupon-banner');
+  if (couponBanner) couponBanner.style.color = p.accent;
+  // Style lock button with accent colors
   var lockBtn = document.querySelector('.slot-lock-btn');
-  if (lockBtn) { lockBtn.style.background = 'linear-gradient(180deg, ' + p.btnBg + ' 0%, ' + p.topBarEnd + ' 100%)'; lockBtn.style.color = p.btnColor; }
-  var lockTitle = document.querySelector('.slot-lock-title');
-  if (lockTitle) lockTitle.style.color = p.accent;
+  if (lockBtn) {
+    lockBtn.style.background = 'linear-gradient(180deg, ' + p.btnBg + ' 0%, ' + p.topBarEnd + ' 100%)';
+    lockBtn.style.color = p.btnColor;
+    lockBtn.style.borderColor = p.topBarEnd;
+  }
+  // Style input focus color
+  machine.style.setProperty('--slot-accent', p.btnBg);
+  machine.style.setProperty('--slot-accent-dark', p.topBarEnd);
   initSlotBulbs();
 }
 
