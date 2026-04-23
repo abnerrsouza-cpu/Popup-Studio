@@ -885,6 +885,82 @@
     .wheel-attempts { text-align: center; margin-top: 4px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); letter-spacing: .5px; display: none; }
     .wheel-attempts.visible { display: block; }
 
+    /* ─── SKATE GRIND ─────────────────────────────────── */
+    .skate-popup {
+      max-width: 340px; margin: 0 auto;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-radius: 12px; overflow: hidden;
+      font-family: 'Courier New', monospace; color: #e0e0e0;
+      position: relative; border: 2px solid #0f0;
+      box-shadow: 0 0 20px rgba(0,255,0,.15);
+    }
+    .skate-popup-header {
+      text-align: center; padding: 14px 12px 10px;
+      background: rgba(0,0,0,.3); border-bottom: 2px solid rgba(0,255,0,.2);
+    }
+    .skate-popup-header .skate-icon { font-size: 28px; display: block; margin-bottom: 4px; animation: skate-bounce .6s infinite; }
+    .skate-popup-header h3 { margin: 0; font-size: 16px; color: #0f0; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 6px #0f0; }
+    .skate-popup-header p { margin: 4px 0 0; font-size: 11px; color: #888; }
+    @keyframes skate-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+    .skate-canvas-wrap {
+      position: relative; width: 310px; height: 160px;
+      margin: 10px auto; border: 1px solid rgba(0,255,0,.2);
+      border-radius: 6px; overflow: hidden; background: #0d0d1a; cursor: pointer;
+    }
+    .skate-canvas-wrap canvas { display: block; width: 310px; height: 160px; image-rendering: pixelated; }
+    .skate-score { text-align: center; font-size: 13px; color: #0f0; padding: 4px 0; letter-spacing: 1px; font-family: 'Courier New', monospace; }
+    .skate-start-btn {
+      display: block; margin: 0 auto 10px; padding: 8px 28px;
+      background: #0f0; color: #1a1a2e; border: none; border-radius: 4px;
+      font-family: 'Courier New', monospace; font-weight: bold; font-size: 13px;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .skate-start-btn:hover { background: #0c0; }
+    .skate-start-btn:disabled { opacity: .4; cursor: default; }
+    .skate-lock-overlay {
+      position: absolute; inset: 0;
+      background: rgba(10,10,20,.92); display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      z-index: 10; padding: 16px; border-radius: 12px;
+    }
+    .skate-lock-overlay .lock-icon { font-size: 32px; margin-bottom: 8px; }
+    .skate-lock-overlay p { font-size: 12px; color: #aaa; margin: 0 0 10px; text-align: center; }
+    .skate-lock-overlay input {
+      width: 85%; padding: 7px 10px; margin-bottom: 6px;
+      border: 1px solid rgba(0,255,0,.2); border-radius: 4px;
+      background: #111; color: #eee; font-family: 'Courier New', monospace; font-size: 12px;
+    }
+    .skate-lock-overlay button.skate-unlock-btn {
+      margin-top: 6px; padding: 8px 24px; background: #0f0; color: #1a1a2e;
+      border: none; border-radius: 4px; font-weight: bold;
+      font-family: 'Courier New', monospace; cursor: pointer; text-transform: uppercase; font-size: 12px;
+    }
+    .skate-victory {
+      position: absolute; inset: 0;
+      background: rgba(10,10,20,.95); display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      z-index: 15; padding: 18px; border-radius: 12px; text-align: center;
+    }
+    .skate-victory.active { display: flex; }
+    .skate-victory .trophy { font-size: 36px; }
+    .skate-victory h4 { color: #0f0; margin: 8px 0 4px; font-size: 15px; font-family: 'Courier New', monospace; }
+    .skate-victory .prize-text { font-size: 22px; color: #fff; font-weight: bold; margin: 4px 0; }
+    .skate-victory .coupon-box {
+      display: flex; align-items: center; gap: 6px;
+      background: #111; border: 1px dashed #0f0; border-radius: 4px;
+      padding: 6px 12px; margin: 8px 0;
+    }
+    .skate-victory .coupon-box code { color: #0f0; font-size: 14px; letter-spacing: 1px; }
+    .skate-victory .coupon-box button {
+      background: none; border: 1px solid #0f0; color: #0f0; border-radius: 3px;
+      padding: 3px 8px; cursor: pointer; font-size: 11px; font-family: 'Courier New', monospace;
+    }
+    .skate-victory .skate-play-again {
+      margin-top: 8px; padding: 6px 18px; background: transparent;
+      border: 1px solid #0f0; color: #0f0; border-radius: 4px;
+      cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px;
+    }
+
     /* Color presets in design tab */
     .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
     .preset-card {
@@ -1538,6 +1614,7 @@
                   <select class="form-select" id="f-type" onchange="onGameTypeChange()">
                     <option value="spin_wheel">🎡 Roleta da Sorte</option>
                     <option value="slot_machine">🎰 Slot Machine</option>
+                    <option value="skate_grind">\uD83D\uDEF9 Skate Grind</option>
                     <option value="scratch_card">🃏 Raspadinha</option>
                   </select>
                 </div>
@@ -1839,6 +1916,43 @@
                     </div>
                   </div>
                 </div>
+                <div id="preview-skate" style="display:none;width:100%;max-width:360px;position:relative;">
+                  <div style="display:flex;gap:8px;margin-bottom:10px;justify-content:center;">
+                    <button onclick="unlockSkate()" style="background:#22c55e;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;">▶ Simular Cadastro</button>
+                    <button onclick="relockSkate()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;">🔒 Resetar</button>
+                  </div>
+                  <div class="skate-popup" id="skate-popup-preview">
+                    <div class="skate-popup-header">
+                      <span class="skate-icon" id="skate-popup-icon">🛹</span>
+                      <h3 id="skate-popup-title">SKATE GRIND</h3>
+                      <p id="skate-popup-subtitle">Desvie dos obstáculos e ganhe prêmios!</p>
+                    </div>
+                    <div class="skate-canvas-wrap" id="skateCanvasWrap">
+                      <canvas id="skateCanvas" width="310" height="160"></canvas>
+                    </div>
+                    <div class="skate-score">PONTOS: <span id="skateScoreVal">0</span></div>
+                    <button class="skate-start-btn" id="skateStartBtn" onclick="startSkateRun()" disabled>▶ INICIAR</button>
+                    <div class="skate-lock-overlay" id="skateLockOverlay">
+                      <div class="lock-icon">🔒</div>
+                      <p>Cadastre-se para desbloquear o jogo e ganhar seu desconto!</p>
+                      <input type="text" id="skate-name" placeholder="👤 Seu nome">
+                      <input type="email" id="skate-email" placeholder="✉️ Seu e-mail">
+                      <input type="tel" id="skate-phone" placeholder="📞 Seu telefone">
+                      <button class="skate-unlock-btn" onclick="unlockSkate()">DESBLOQUEAR 🛹</button>
+                    </div>
+                    <div class="skate-victory" id="skateVictory">
+                      <div class="trophy">🏆</div>
+                      <h4>FIM DE JOGO!</h4>
+                      <p style="font-size:12px;color:#aaa;">Sua pontuação: <span id="skateFinalScore">0</span></p>
+                      <div class="prize-text" id="skatePrizeText">10% OFF</div>
+                      <div class="coupon-box">
+                        <code id="skateCouponCode">SKATE10</code>
+                        <button onclick="skateCopyCoupon()">Copiar</button>
+                      </div>
+                      <button class="skate-play-again" onclick="resetSkateGame()">JOGAR NOVAMENTE</button>
+                    </div>
+                  </div>
+                </div>
 
               </div>
             </div>
@@ -1871,12 +1985,12 @@ let slotPresetIdx = 0;
 const GAMES = [
   { id: 'spin_wheel', icon: '🎡', name: 'Roleta da Sorte', desc: 'Gire a roleta e ganhe prêmios', available: true },
   { id: 'slot_machine', icon: '🎰', name: 'Slot Machine', desc: 'Caça-níqueis com cupons', available: true },
+  { id: 'skate_grind', icon: '\uD83D\uDEF9', name: 'Skate Grind', desc: 'Pule obst\u00e1culos e ganhe descontos', available: true },
   { id: 'scratch_card', icon: '🃏', name: 'Raspadinha', desc: 'Raspe e descubra seu prêmio', available: true },
   { id: 'quiz', icon: '🧠', name: 'Quiz Interativo', desc: 'Perguntas com recompensa', available: false },
   { id: 'memory_game', icon: '🧩', name: 'Jogo da Memória', desc: 'Encontre os pares e ganhe', available: false },
   { id: 'gift_box', icon: '🎁', name: 'Caixa Surpresa', desc: 'Escolha uma caixa e ganhe', available: false },
   { id: 'balloon_pop', icon: '🎈', name: 'Estoura Balão', desc: 'Estoure o balão premiado', available: false },
-  { id: 'skate_grind', icon: '🛹', name: 'Skate Grind', desc: 'Faça manobras e ganhe pontos', available: false }
 ];
 
 // ─── INTEGRATIONS CATALOG ───────────────────────────────────────────────────
@@ -2258,11 +2372,13 @@ function updatePreview() {
 
   const isSlot = gameType === 'slot_machine' && slotFormat === 'slot_machine';
   const isWheel = gameType === 'spin_wheel';
+  const isSkate = gameType === 'skate_grind';
 
   // Toggle which preview is visible
-  document.getElementById('preview-box').style.display = (!isSlot && !isWheel) ? 'block' : 'none';
+    document.getElementById('preview-box').style.display = (!isSlot && !isWheel && !isSkate) ? 'block' : 'none';
   document.getElementById('preview-slot').style.display = isSlot ? 'block' : 'none';
   document.getElementById('preview-wheel').style.display = isWheel ? 'block' : 'none';
+  document.getElementById('preview-skate').style.display = isSkate ? 'block' : 'none';
 
   if (isSlot) {
     updateSlotPreviewTheme();
@@ -2298,7 +2414,13 @@ function updatePreview() {
     if (wBtn && btnText) wBtn.childNodes[0].textContent = btnText;
     renderWheelSegments();
     initWheelBulbs();
-  } else {
+    } else if (isSkate) {
+    var sTitle = document.getElementById('skate-popup-title');
+    var sSub = document.getElementById('skate-popup-subtitle');
+    if (sTitle) sTitle.textContent = document.getElementById('f-title').value || 'SKATE GRIND';
+    if (sSub) sSub.textContent = document.getElementById('f-desc').value || 'Desvie dos obst\u00e1culos e ganhe pr\u00eamios!';
+    initSkateGame();
+} else {
     // Standard preview
     const box = document.getElementById('preview-box');
     if (!box) return;
@@ -2416,13 +2538,15 @@ function onGameTypeChange() {
   const type = document.getElementById('f-type').value;
   const isSlot = type === 'slot_machine';
   const isWheel = type === 'spin_wheel';
+  const isSkate = type === 'skate_grind';
   document.getElementById('slot-config').style.display = isSlot ? 'block' : 'none';
   document.getElementById('slot-format-section').style.display = isSlot ? 'block' : 'none';
   document.getElementById('preset-grid-slot').style.display = isSlot ? 'grid' : 'none';
-  document.getElementById('preset-grid-general').style.display = (isSlot || isWheel) ? 'none' : 'grid';
-  document.getElementById('emoji-deco-group').style.display = (isSlot || isWheel) ? 'none' : 'block';
+  document.getElementById('preset-grid-general').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'grid';
+  document.getElementById('emoji-deco-group').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'block';
   resetSlotGame();
   if (isWheel) { renderWheelSegments(); initWheelBulbs(); relockWheel(); }
+  if (isSkate) { relockSkate(); initSkateGame(); }
   updatePreview();
 }
 
@@ -2874,6 +2998,250 @@ function copyWheelCoupon() {
     }, 3000);
   });
 }
+
+/* ─── SKATE GRIND GAME ────────────────────────────────────────────────────── */
+var skateRunning = false;
+var skateUnlocked = false;
+var skateScore = 0;
+var skateSpeed = 2.5;
+var skateAnimId = null;
+var skaterY = 0;
+var skaterVY = 0;
+var skaterOnGround = true;
+var SKATE_GRAVITY = 0.55;
+var SKATE_JUMP_FORCE = -8.5;
+var SKATE_GROUND_Y = 130;
+var SKATER_W = 20;
+var SKATER_H = 28;
+var SKATER_X = 40;
+var skateObstacles = [];
+var skateSpawnTimer = 0;
+var skateCanvas, skateCtx;
+var skateGroundOffset = 0;
+
+function initSkateGame() {
+  skateCanvas = document.getElementById("skateCanvas");
+  if (!skateCanvas) return;
+  skateCtx = skateCanvas.getContext("2d");
+  if (!skateCanvas._jumpHandler) {
+    skateCanvas._jumpHandler = true;
+    skateCanvas.parentElement.addEventListener("click", skateJump);
+  }
+  skaterY = SKATE_GROUND_Y - SKATER_H;
+  skateObstacles = [];
+  skateScore = 0;
+  skateSpeed = 2.5;
+  skateSpawnTimer = 0;
+  skaterVY = 0;
+  skaterOnGround = true;
+  skateGroundOffset = 0;
+  var el = document.getElementById("skateScoreVal");
+  if (el) el.textContent = "0";
+  drawSkateFrame();
+}
+
+function drawSkateFrame() {
+  var ctx = skateCtx;
+  if (!ctx) return;
+  var W = 310, H = 160;
+  ctx.fillStyle = "#0d0d1a";
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(255,255,255,.15)";
+  for (var i = 0; i < 15; i++) {
+    ctx.fillRect((i * 47 + 13) % W, (i * 23 + 7) % (SKATE_GROUND_Y - 30), 2, 2);
+  }
+  ctx.fillStyle = "#111";
+  var buildings = [20,35,25,45,30,40,22,38,28,50,20,35];
+  for (var i = 0; i < buildings.length; i++) {
+    ctx.fillRect(i * 28 - (skateGroundOffset * 0.3) % 28, SKATE_GROUND_Y - buildings[i], 24, buildings[i]);
+  }
+  ctx.fillStyle = "#0f0";
+  ctx.fillRect(0, SKATE_GROUND_Y, W, 2);
+  ctx.fillStyle = "#0a0";
+  for (var x = -(skateGroundOffset % 18); x < W; x += 18) {
+    ctx.fillRect(x, SKATE_GROUND_Y + 4, 8, 2);
+  }
+  drawSkater(ctx, SKATER_X, skaterY);
+  for (var i = 0; i < skateObstacles.length; i++) drawObstacle(ctx, skateObstacles[i]);
+  ctx.fillStyle = "#0f0";
+  ctx.font = "10px Courier New";
+  ctx.fillText("SCORE: " + skateScore, 240, 14);
+}
+
+function drawSkater(ctx, x, y) {
+  ctx.fillStyle = "#ffcc00";
+  ctx.fillRect(x + 6, y, 8, 8);
+  ctx.fillStyle = "#ff4444";
+  ctx.fillRect(x + 5, y - 2, 10, 4);
+  ctx.fillStyle = "#00ff41";
+  ctx.fillRect(x + 6, y + 8, 8, 10);
+  ctx.fillRect(x + 2, y + 10, 4, 3);
+  ctx.fillRect(x + 14, y + 10, 4, 3);
+  ctx.fillStyle = "#3388ff";
+  ctx.fillRect(x + 5, y + 18, 4, 6);
+  ctx.fillRect(x + 11, y + 18, 4, 6);
+  ctx.fillStyle = "#ff5555";
+  ctx.fillRect(x + 1, y + 24, 18, 3);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(x + 2, y + 27, 3, 2);
+  ctx.fillRect(x + 15, y + 27, 3, 2);
+}
+
+function drawObstacle(ctx, ob) {
+  ctx.fillStyle = ob.color;
+  if (ob.type === "cone") {
+    ctx.fillRect(ob.x + 4, ob.y, 4, 4);
+    ctx.fillRect(ob.x + 2, ob.y + 4, 8, 4);
+    ctx.fillRect(ob.x, ob.y + 8, 12, 4);
+  } else if (ob.type === "trash") {
+    ctx.fillRect(ob.x, ob.y, 14, 20);
+    ctx.fillStyle = "#555";
+    ctx.fillRect(ob.x - 1, ob.y, 16, 3);
+  } else {
+    ctx.fillRect(ob.x + 2, ob.y, 8, 14);
+    ctx.fillRect(ob.x, ob.y + 3, 12, 4);
+    ctx.fillStyle = "#cc0000";
+    ctx.fillRect(ob.x + 3, ob.y - 2, 6, 3);
+  }
+}
+
+function skateJump() {
+  if (!skateRunning || !skaterOnGround) return;
+  skaterVY = SKATE_JUMP_FORCE;
+  skaterOnGround = false;
+}
+
+function startSkateRun() {
+  if (skateRunning) return;
+  skateRunning = true;
+  skateScore = 0;
+  skateSpeed = 2.5;
+  skateObstacles = [];
+  skateSpawnTimer = 0;
+  skaterY = SKATE_GROUND_Y - SKATER_H;
+  skaterVY = 0;
+  skaterOnGround = true;
+  skateGroundOffset = 0;
+  document.getElementById("skateStartBtn").disabled = true;
+  document.getElementById("skateVictory").classList.remove("active");
+  skateGameLoop();
+}
+
+function skateGameLoop() {
+  if (!skateRunning) return;
+  skateScore++;
+  skateGroundOffset += skateSpeed;
+  var el = document.getElementById("skateScoreVal");
+  if (el) el.textContent = skateScore;
+  if (skateScore % 100 === 0) skateSpeed += 0.4;
+  if (!skaterOnGround) {
+    skaterVY += SKATE_GRAVITY;
+    skaterY += skaterVY;
+    if (skaterY >= SKATE_GROUND_Y - SKATER_H) {
+      skaterY = SKATE_GROUND_Y - SKATER_H;
+      skaterVY = 0;
+      skaterOnGround = true;
+    }
+  }
+  skateSpawnTimer++;
+  var spawnInterval = Math.max(40, 90 - skateScore * 0.15);
+  if (skateSpawnTimer >= spawnInterval) {
+    skateSpawnTimer = 0;
+    spawnSkateObstacle();
+  }
+  for (var i = skateObstacles.length - 1; i >= 0; i--) {
+    var ob = skateObstacles[i];
+    ob.x -= skateSpeed;
+    if (ob.x + ob.w < 0) { skateObstacles.splice(i, 1); continue; }
+    if (SKATER_X + SKATER_W > ob.x + 2 && SKATER_X < ob.x + ob.w - 2 &&
+        skaterY + SKATER_H > ob.y + 2 && skaterY < ob.y + ob.h) {
+      skateGameOver(skateScore);
+      return;
+    }
+  }
+  drawSkateFrame();
+  skateAnimId = requestAnimationFrame(skateGameLoop);
+}
+
+function spawnSkateObstacle() {
+  var types = [
+    { type: "cone", w: 12, h: 12, color: "#ff8800" },
+    { type: "trash", w: 14, h: 20, color: "#777" },
+    { type: "hydrant", w: 12, h: 16, color: "#ff3333" }
+  ];
+  var t = types[Math.floor(Math.random() * types.length)];
+  skateObstacles.push({ x: 310, y: SKATE_GROUND_Y - t.h, w: t.w, h: t.h, type: t.type, color: t.color });
+}
+
+function skateGameOver(score) {
+  skateRunning = false;
+  cancelAnimationFrame(skateAnimId);
+  if (skateCtx) { skateCtx.fillStyle = "rgba(255,0,0,.3)"; skateCtx.fillRect(0, 0, 310, 160); }
+  var prize, coupon;
+  if (score <= 50) { prize = "5% OFF"; coupon = "SKATE5"; }
+  else if (score <= 100) { prize = "10% OFF"; coupon = "SKATE10"; }
+  else if (score <= 200) { prize = "15% OFF"; coupon = "SKATE15"; }
+  else if (score <= 400) { prize = "20% OFF"; coupon = "SKATE20"; }
+  else { prize = "FRETE GR\u00C1TIS"; coupon = "SKATEFREE"; }
+  setTimeout(function() { showSkateVictory(prize, coupon, score); }, 600);
+}
+
+function showSkateVictory(prize, coupon, score) {
+  document.getElementById("skateFinalScore").textContent = score;
+  document.getElementById("skatePrizeText").textContent = prize;
+  document.getElementById("skateCouponCode").textContent = coupon;
+  document.getElementById("skateVictory").classList.add("active");
+  document.getElementById("skateStartBtn").disabled = false;
+  document.getElementById("skateStartBtn").textContent = "\u25B6 JOGAR DE NOVO";
+}
+
+function skateCopyCoupon() {
+  var code = document.getElementById("skateCouponCode").textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    var btn = document.querySelector(".skate-victory .coupon-box button");
+    if (btn) { btn.textContent = "Copiado!"; setTimeout(function() { btn.textContent = "Copiar"; }, 1500); }
+  }).catch(function() {
+    var ta = document.createElement("textarea");
+    ta.value = code; ta.style.position = "fixed"; ta.style.left = "-9999px";
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    var btn = document.querySelector(".skate-victory .coupon-box button");
+    if (btn) { btn.textContent = "Copiado!"; setTimeout(function() { btn.textContent = "Copiar"; }, 1500); }
+  });
+}
+
+function unlockSkate() {
+  skateUnlocked = true;
+  var el = document.getElementById("skateLockOverlay");
+  if (el) el.style.display = "none";
+  var btn = document.getElementById("skateStartBtn");
+  if (btn) btn.disabled = false;
+  initSkateGame();
+}
+
+function relockSkate() {
+  skateUnlocked = false;
+  skateRunning = false;
+  cancelAnimationFrame(skateAnimId);
+  var el = document.getElementById("skateLockOverlay");
+  if (el) el.style.display = "flex";
+  var btn = document.getElementById("skateStartBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "\u25B6 INICIAR"; }
+  document.getElementById("skateVictory").classList.remove("active");
+  var sv = document.getElementById("skateScoreVal");
+  if (sv) sv.textContent = "0";
+  initSkateGame();
+}
+
+function resetSkateGame() {
+  document.getElementById("skateVictory").classList.remove("active");
+  var btn = document.getElementById("skateStartBtn");
+  if (btn) btn.textContent = "\u25B6 INICIAR";
+  initSkateGame();
+}
+
+document.addEventListener("keydown", function(e) {
+  if (e.code === "Space" && skateRunning) { e.preventDefault(); skateJump(); }
+});
 
 function copySlotCoupon() {
   var couponEl = document.getElementById('slot-coupon-code');
