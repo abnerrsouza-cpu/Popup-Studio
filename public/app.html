@@ -885,7 +885,20 @@
     .wheel-attempts { text-align: center; margin-top: 4px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); letter-spacing: .5px; display: none; }
     .wheel-attempts.visible { display: block; }
 
-    /* ─── SKATE GRIND ─────────────────────────────────── */
+        /* ─── WHEEL CONFIG ────────────────────────────────── */
+    .wheel-container.design-moderno .wheel-outer-ring { background: linear-gradient(135deg, #334155, #475569) !important; }
+    .wheel-container.design-moderno .wheel-bulbs { display: none !important; }
+    .wheel-container.design-moderno .wheel-pointer { border-top-color: #e2e8f0 !important; filter: none !important; }
+    .wheel-container.design-moderno .wheel-center-btn { border-color: #475569 !important; background: linear-gradient(180deg, #334155, #1e293b) !important; }
+    .wheel-container.design-neon .wheel-outer-ring { background: linear-gradient(135deg, #7c3aed, #a855f7, #7c3aed) !important; box-shadow: 0 0 20px #7c3aed, 0 0 40px rgba(124,92,252,.3) !important; }
+    .wheel-container.design-neon .wheel-bulbs { display: none !important; }
+    .wheel-container.design-neon .wheel-pointer { border-top-color: #a78bfa !important; filter: drop-shadow(0 0 8px #7c3aed) !important; }
+    .wheel-container.design-neon .wheel-center-btn { border-color: #7c3aed !important; background: linear-gradient(180deg, #7c3aed, #6d28d9) !important; box-shadow: 0 0 12px #7c3aed !important; }
+    .wheel-design-card { cursor: pointer; background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; width: 100px; transition: border-color .2s; }
+    .wheel-design-card.active { border-color: var(--accent) !important; }
+    .wheel-design-card:hover { border-color: var(--accent-light); }
+
+/* ─── SKATE GRIND ─────────────────────────────────── */
     .skate-popup {
       max-width: 340px; margin: 0 auto;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -1670,7 +1683,21 @@
                   <label class="form-label">Título da Máquina</label>
                   <input class="form-input" id="f-slot-machine-title" placeholder="SLOT MACHINE" value="SLOT MACHINE" oninput="updatePreview()">
                 </div>
+                            <!-- WHEEL CONFIG -->
+              <div id="wheel-config" style="display:none;">
+                <div style="height:1px;background:var(--border);margin:18px 0;"></div>
+                <div style="font-size:13px;font-weight:700;color:#9b7fff;margin-bottom:10px;">🎡 Segmentos da Roleta</div>
+                <div style="display:flex;gap:4px;margin-bottom:4px;padding:0 2px;"><span style="width:30px;font-size:9px;color:#6e6e90;">Cor</span><span style="flex:2;font-size:9px;color:#6e6e90;">Texto</span><span style="flex:2;font-size:9px;color:#6e6e90;">Cupom</span><span style="width:48px;font-size:9px;color:#6e6e90;">%</span></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-0" value="#22c55e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-0" value="15% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-0" value="DESC15" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-0" type="number" value="10" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-1" value="#7c3aed"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-1" value="Tente novamente" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-1" value="" placeholder="—"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-1" type="number" value="25" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-2" value="#1a1a2e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-2" value="5% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-2" value="DESC5" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-2" type="number" value="20" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-3" value="#22c55e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-3" value="20% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-3" value="DESC20" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-3" type="number" value="5" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-4" value="#7c3aed"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-4" value="Quase!" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-4" value="" placeholder="—"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-4" type="number" value="20" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-5" value="#1a1a2e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-5" value="10% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-5" value="DESC10" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-5" type="number" value="10" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-6" value="#22c55e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-6" value="Boa sorte!" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-6" value="" placeholder="—"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-6" type="number" value="5" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-7" value="#7c3aed"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-7" value="Frete Grátis" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-7" value="FRETE0" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-7" type="number" value="5" min="1" max="100" oninput="updateWheelFromConfig()"></div>
               </div>
+</div>
             </div>
             <!-- DESIGN TAB -->
             <div id="tab-design" style="display:none">
@@ -1742,7 +1769,31 @@
                   </div>
                 </div>
               </div>
-              <div class="form-group">
+                            <!-- WHEEL COLOR PRESETS -->
+              <div id="wheel-color-presets" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">🎨 Paleta de Cores da Roleta</label>
+                  <div class="preset-grid">
+                    <div class="preset-card active" onclick="applyWheelColorPreset(0)" style="background:linear-gradient(135deg,#22c55e,#7c3aed);"><div class="preset-mini-slot" style="background:#1a1a2e;">🎡</div><div class="preset-card-name">Clássico</div></div>
+                    <div class="preset-card" onclick="applyWheelColorPreset(1)" style="background:linear-gradient(135deg,#06b6d4,#d946ef);"><div class="preset-mini-slot" style="background:#0f172a;">🎡</div><div class="preset-card-name">Neon</div></div>
+                    <div class="preset-card" onclick="applyWheelColorPreset(2)" style="background:linear-gradient(135deg,#f97316,#14b8a6);"><div class="preset-mini-slot" style="background:#1c1917;">🎡</div><div class="preset-card-name">Tropical</div></div>
+                    <div class="preset-card" onclick="applyWheelColorPreset(3)" style="background:linear-gradient(135deg,#d4a017,#1e3a5f);"><div class="preset-mini-slot" style="background:#0c1524;">🎡</div><div class="preset-card-name">Elegante</div></div>
+                    <div class="preset-card" onclick="applyWheelColorPreset(4)" style="background:linear-gradient(135deg,#ec4899,#3b82f6);"><div class="preset-mini-slot" style="background:#1e1b2e;">🎡</div><div class="preset-card-name">Candy</div></div>
+                  </div>
+                </div>
+              </div>
+              <!-- WHEEL DESIGN TEMPLATES -->
+              <div id="wheel-design-section" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">🎯 Estilo da Roleta</label>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <div class="wheel-design-card active" onclick="setWheelDesign('cassino',this)"><div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:3px solid #d4a017;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);position:relative;"><div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #d4a017;"></div></div><div style="font-size:11px;color:#e8e8f0;margin-top:6px;font-weight:600;">Cassino</div><div style="font-size:9px;color:#6e6e90;">Anel dourado + luzes</div></div>
+                    <div class="wheel-design-card" onclick="setWheelDesign('moderno',this)"><div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:2px solid #475569;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);"></div><div style="font-size:11px;color:#e8e8f0;margin-top:6px;font-weight:600;">Moderno</div><div style="font-size:9px;color:#6e6e90;">Flat + minimalista</div></div>
+                    <div class="wheel-design-card" onclick="setWheelDesign('neon',this)"><div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:2px solid #7c3aed;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);box-shadow:0 0 10px #7c3aed,0 0 20px rgba(124,92,252,.3);"></div><div style="font-size:11px;color:#e8e8f0;margin-top:6px;font-weight:600;">Neon Glow</div><div style="font-size:9px;color:#6e6e90;">Brilho neon</div></div>
+                  </div>
+                </div>
+              </div>
+<div class="form-group">
                 <label class="form-label">Cor de Fundo</label>
                 <div class="color-row">
                   <input type="color" class="color-input" id="f-bg" value="#1a1a2e" oninput="updatePreview()">
@@ -1895,7 +1946,7 @@
                       <button class="wheel-center-btn" id="wheel-center-btn" onclick="spinWheel()" disabled>GIRAR</button>
                     </div>
                     <div class="wheel-attempts" id="wheel-attempts">Tentativa 1 de 1</div>
-                    <div class="wheel-coupon-banner" id="wheel-coupon-banner" style="color:#22c55e;">DESCONTO SURPRESA NO SITE</div>
+                    <!-- banner removed -->
                     <div class="wheel-lock-overlay" id="wheel-lock-overlay">
                       <div class="wheel-lock-form">
                         <div class="wheel-lock-input-wrap">
@@ -2535,17 +2586,20 @@ const SLOT_PRESETS = [
 ];
 
 function onGameTypeChange() {
-  const type = document.getElementById('f-type').value;
-  const isSlot = type === 'slot_machine';
-  const isWheel = type === 'spin_wheel';
-  const isSkate = type === 'skate_grind';
-  document.getElementById('slot-config').style.display = isSlot ? 'block' : 'none';
-  document.getElementById('slot-format-section').style.display = isSlot ? 'block' : 'none';
-  document.getElementById('preset-grid-slot').style.display = isSlot ? 'grid' : 'none';
-  document.getElementById('preset-grid-general').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'grid';
-  document.getElementById('emoji-deco-group').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'block';
+  const type = document.getElementById("f-type").value;
+  const isSlot = type === "slot_machine";
+  const isWheel = type === "spin_wheel";
+  const isSkate = type === "skate_grind";
+  document.getElementById("slot-config").style.display = isSlot ? "block" : "none";
+  document.getElementById("wheel-config").style.display = isWheel ? "block" : "none";
+  document.getElementById("slot-format-section").style.display = isSlot ? "block" : "none";
+  document.getElementById("preset-grid-slot").style.display = isSlot ? "grid" : "none";
+  document.getElementById("preset-grid-general").style.display = (isSlot || isWheel || isSkate) ? "none" : "grid";
+  document.getElementById("emoji-deco-group").style.display = (isSlot || isWheel || isSkate) ? "none" : "block";
+  document.getElementById("wheel-color-presets").style.display = isWheel ? "block" : "none";
+  document.getElementById("wheel-design-section").style.display = isWheel ? "block" : "none";
   resetSlotGame();
-  if (isWheel) { renderWheelSegments(); initWheelBulbs(); relockWheel(); }
+  if (isWheel) { updateWheelFromConfig(); initWheelBulbs(); relockWheel(); }
   if (isSkate) { relockSkate(); initSkateGame(); }
   updatePreview();
 }
@@ -2815,21 +2869,55 @@ function showSlotVictory() {
 
 var wheelSpinning = false;
 var wheelUnlocked = false;
-var WHEEL_SEGMENTS = [
-  { label: '15%\nOFF', color: '#22c55e' },
-  { label: '20%\nOFF', color: '#7c3aed' },
-  { label: 'FRETE\nGRÁTIS', color: '#1a1a2e' },
-  { label: '10%\nOFF', color: '#22c55e' },
-  { label: '15%\nOFF', color: '#7c3aed' },
-  { label: '12%\nOFF', color: '#1a1a2e' },
-  { label: '5%\nOFF', color: '#22c55e' },
-  { label: '10%\nOFF', color: '#7c3aed' }
+var wheelDesign = "cassino";
+var WHEEL_COLOR_PRESETS = [
+  ["#22c55e","#7c3aed","#1a1a2e"],
+  ["#06b6d4","#d946ef","#84cc16"],
+  ["#f97316","#eab308","#14b8a6"],
+  ["#d4a017","#1e3a5f","#7c1d3e"],
+  ["#ec4899","#3b82f6","#34d399"]
 ];
 
+function getWheelSegments() {
+  var segs = [];
+  for (var i = 0; i < 8; i++) {
+    var label = (document.getElementById("ws-label-" + i) || {}).value || "";
+    var color = (document.getElementById("ws-color-" + i) || {}).value || "#22c55e";
+    var coupon = (document.getElementById("ws-coupon-" + i) || {}).value || "";
+    var chance = parseInt((document.getElementById("ws-chance-" + i) || {}).value) || 10;
+    segs.push({ label: label, color: color, coupon: coupon, chance: chance });
+  }
+  return segs;
+}
+var WHEEL_SEGMENTS = getWheelSegments();
+
+function updateWheelFromConfig() {
+  WHEEL_SEGMENTS = getWheelSegments();
+  renderWheelSegments();
+}
+
+function applyWheelColorPreset(idx) {
+  var colors = WHEEL_COLOR_PRESETS[idx];
+  for (var i = 0; i < 8; i++) {
+    var el = document.getElementById("ws-color-" + i);
+    if (el) el.value = colors[i % colors.length];
+  }
+  document.querySelectorAll("#wheel-color-presets .preset-card").forEach(function(c,j) { c.classList.toggle("active", j === idx); });
+  updateWheelFromConfig();
+}
+
+function setWheelDesign(name, el) {
+  wheelDesign = name;
+  var container = document.getElementById("wheel-container");
+  if (container) { container.className = "wheel-container design-" + name; }
+  document.querySelectorAll(".wheel-design-card").forEach(function(c) { c.classList.remove("active"); });
+  if (el) el.classList.add("active");
+}
+
 function initWheelBulbs() {
-  var container = document.getElementById('wheel-bulbs');
+  var container = document.getElementById("wheel-bulbs");
   if (!container) return;
-  container.innerHTML = '';
+  container.innerHTML = "";
   var count = 24;
   var radius = container.offsetWidth / 2;
   if (radius < 10) radius = 138;
@@ -2838,47 +2926,40 @@ function initWheelBulbs() {
     var rad = angle * Math.PI / 180;
     var x = radius + (radius - 3) * Math.cos(rad) - 3;
     var y = radius + (radius - 3) * Math.sin(rad) - 3;
-    var bulb = document.createElement('div');
-    bulb.className = 'wheel-bulb';
-    bulb.style.left = x + 'px';
-    bulb.style.top = y + 'px';
+    var bulb = document.createElement("div");
+    bulb.className = "wheel-bulb";
+    bulb.style.left = x + "px";
+    bulb.style.top = y + "px";
     container.appendChild(bulb);
   }
 }
 
 function renderWheelSegments() {
-  var area = document.getElementById('wheel-spin-area');
+  var area = document.getElementById("wheel-spin-area");
   if (!area) return;
-  area.innerHTML = '';
+  area.innerHTML = "";
+  WHEEL_SEGMENTS = getWheelSegments();
   var segCount = WHEEL_SEGMENTS.length;
   var segAngle = 360 / segCount;
   for (var i = 0; i < segCount; i++) {
     var seg = WHEEL_SEGMENTS[i];
-    var el = document.createElement('div');
-    el.style.position = 'absolute';
-    el.style.width = '100%';
-    el.style.height = '100%';
-    el.style.clipPath = 'polygon(50% 50%, ' + getWedgePoint(i, segCount, 0) + ', ' + getWedgePoint(i, segCount, 1) + ')';
+    var el = document.createElement("div");
+    el.style.position = "absolute";
+    el.style.width = "100%";
+    el.style.height = "100%";
+    el.style.clipPath = "polygon(50% 50%, " + getWedgePoint(i, segCount, 0) + ", " + getWedgePoint(i, segCount, 1) + ")";
     el.style.background = seg.color;
-    el.style.borderRight = '1px solid rgba(255,255,255,.1)';
-    // Label
-    var lbl = document.createElement('div');
-    lbl.style.position = 'absolute';
-    lbl.style.left = '50%';
-    lbl.style.top = '50%';
-    var labelAngle = -90 + segAngle * i + segAngle / 2;
-    var labelRad = labelAngle * Math.PI / 180;
-    var dist = 32;
-    var lx = Math.cos(labelRad) * dist;
-    var ly = Math.sin(labelRad) * dist;
-    lbl.style.transform = 'translate(-50%, -50%) translate(' + lx + '%, ' + ly + '%) rotate(' + (labelAngle + 90) + 'deg)';
-    lbl.style.fontSize = '10px';
-    lbl.style.fontWeight = '800';
-    lbl.style.color = '#fff';
-    lbl.style.textShadow = '0 1px 3px rgba(0,0,0,.7)';
-    lbl.style.textAlign = 'center';
-    lbl.style.lineHeight = '1.1';
-    lbl.style.whiteSpace = 'pre';
+    el.style.borderRight = "1px solid rgba(255,255,255,.1)";
+    var lbl = document.createElement("div");
+    lbl.style.cssText = "position:absolute;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7);text-transform:uppercase;letter-spacing:.5px;white-space:pre;text-align:center;line-height:1.2;";
+    var angle = segAngle * i + segAngle / 2 - 90;
+    var rad = angle * Math.PI / 180;
+    var dist = 35;
+    var lx = 50 + dist * Math.cos(rad);
+    var ly = 50 + dist * Math.sin(rad);
+    lbl.style.left = lx + "%";
+    lbl.style.top = ly + "%";
+    lbl.style.transform = "translate(-50%,-50%) rotate(" + (angle + 90) + "deg)";
     lbl.textContent = seg.label;
     el.appendChild(lbl);
     area.appendChild(el);
@@ -2889,87 +2970,104 @@ function getWedgePoint(i, total, edge) {
   var angle = (-90 + (360 / total) * (i + edge)) * Math.PI / 180;
   var x = 50 + 50 * Math.cos(angle);
   var y = 50 + 50 * Math.sin(angle);
-  return x.toFixed(2) + '% ' + y.toFixed(2) + '%';
+  return x.toFixed(2) + "% " + y.toFixed(2) + "%";
 }
 
 function unlockWheel() {
-  var overlay = document.getElementById('wheel-lock-overlay');
-  var btn = document.getElementById('wheel-center-btn');
-  var attempts = document.getElementById('wheel-attempts');
-  if (overlay) overlay.classList.add('hidden');
+  var overlay = document.getElementById("wheel-lock-overlay");
+  var btn = document.getElementById("wheel-center-btn");
+  var attempts = document.getElementById("wheel-attempts");
+  if (overlay) overlay.classList.add("hidden");
   if (btn) btn.disabled = false;
-  if (attempts) { attempts.classList.add('visible'); }
+  if (attempts) { attempts.classList.add("visible"); }
   wheelUnlocked = true;
 }
 
 function relockWheel() {
-  var overlay = document.getElementById('wheel-lock-overlay');
-  var btn = document.getElementById('wheel-center-btn');
-  var attempts = document.getElementById('wheel-attempts');
-  var area = document.getElementById('wheel-spin-area');
-  var victory = document.querySelector('.wheel-victory');
-  if (overlay) overlay.classList.remove('hidden');
+  var overlay = document.getElementById("wheel-lock-overlay");
+  var btn = document.getElementById("wheel-center-btn");
+  var attempts = document.getElementById("wheel-attempts");
+  var area = document.getElementById("wheel-spin-area");
+  var victory = document.querySelector(".wheel-victory");
+  if (overlay) overlay.classList.remove("hidden");
   if (btn) btn.disabled = true;
-  if (attempts) { attempts.classList.remove('visible'); attempts.textContent = 'Tentativa 1 de 1'; }
-  if (area) area.style.transform = 'rotate(0deg)';
+  if (attempts) { attempts.classList.remove("visible"); attempts.textContent = "Tentativa 1 de 1"; }
+  if (area) area.style.transform = "rotate(0deg)";
   if (victory) victory.remove();
   wheelSpinning = false;
   wheelUnlocked = false;
-  document.getElementById('wheel-lock-name').value = '';
-  document.getElementById('wheel-lock-email').value = '';
-  document.getElementById('wheel-lock-phone').value = '';
+  var n = document.getElementById("wheel-lock-name"); if (n) n.value = "";
+  var e = document.getElementById("wheel-lock-email"); if (e) e.value = "";
+  var p = document.getElementById("wheel-lock-phone"); if (p) p.value = "";
+}
+
+function weightedWheelRandom() {
+  var segs = WHEEL_SEGMENTS;
+  var total = 0;
+  for (var i = 0; i < segs.length; i++) total += (segs[i].chance || 10);
+  var rand = Math.random() * total;
+  for (var i = 0; i < segs.length; i++) {
+    rand -= (segs[i].chance || 10);
+    if (rand <= 0) return i;
+  }
+  return segs.length - 1;
 }
 
 function spinWheel() {
   if (wheelSpinning || !wheelUnlocked) return;
   wheelSpinning = true;
-  var btn = document.getElementById('wheel-center-btn');
+  WHEEL_SEGMENTS = getWheelSegments();
+  var btn = document.getElementById("wheel-center-btn");
   btn.disabled = true;
-  btn.textContent = '...';
-  var area = document.getElementById('wheel-spin-area');
+  btn.textContent = "...";
+  var area = document.getElementById("wheel-spin-area");
   var segCount = WHEEL_SEGMENTS.length;
   var segAngle = 360 / segCount;
-  // Always land on a winning segment (random)
-  var winIdx = Math.floor(Math.random() * segCount);
-  // Calculate rotation: spin several full rotations + land at the winning segment
-  var extraSpins = 5 + Math.floor(Math.random() * 3); // 5-7 full spins
+  var winIdx = weightedWheelRandom();
+  var extraSpins = 5 + Math.floor(Math.random() * 3);
   var targetAngle = 360 * extraSpins + (360 - (segAngle * winIdx + segAngle / 2));
-  area.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-  area.style.transform = 'rotate(' + targetAngle + 'deg)';
+  area.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
+  area.style.transform = "rotate(" + targetAngle + "deg)";
   setTimeout(function() {
     wheelSpinning = false;
-    btn.textContent = 'GIRAR';
+    btn.textContent = "GIRAR";
     showWheelVictory(winIdx);
   }, 4200);
 }
 
 function showWheelVictory(winIdx) {
-  var popup = document.getElementById('wheel-popup-preview');
+  var popup = document.getElementById("wheel-popup-preview");
   if (!popup) return;
   var seg = WHEEL_SEGMENTS[winIdx];
-  var coupon = document.getElementById('f-prize').value || 'DESCONTO10';
-  // Confetti
+  var coupon = seg.coupon || document.getElementById("f-prize").value || "DESCONTO10";
+  var isLoss = !seg.coupon;
   for (var c = 0; c < 20; c++) {
-    var conf = document.createElement('div');
-    conf.className = 'slot-confetti';
-    conf.style.left = Math.random() * 100 + '%';
-    conf.style.top = '-10px';
-    conf.style.background = ['#f1c40f','#ef4444','#22c55e','#3b82f6','#ec4899','#a855f7'][Math.floor(Math.random()*6)];
-    conf.style.animationDelay = (Math.random() * .8) + 's';
-    conf.style.width = (4 + Math.random() * 6) + 'px';
-    conf.style.height = (4 + Math.random() * 6) + 'px';
+    var conf = document.createElement("div");
+    conf.className = "slot-confetti";
+    conf.style.left = Math.random() * 100 + "%";
+    conf.style.top = "-10px";
+    conf.style.background = ["#f1c40f","#ef4444","#22c55e","#3b82f6","#ec4899","#a855f7"][Math.floor(Math.random()*6)];
+    conf.style.animationDelay = (Math.random() * .8) + "s";
+    conf.style.width = (4 + Math.random() * 6) + "px";
+    conf.style.height = (4 + Math.random() * 6) + "px";
     popup.appendChild(conf);
   }
-  var victory = document.createElement('div');
-  victory.className = 'wheel-victory';
-  victory.innerHTML = '<div style="font-size:36px;animation:victoryBounce .6s ease infinite;">🎉</div>'
-    + '<div class="slot-victory-text">PARABÉNS!</div>'
-    + '<div class="slot-victory-sub">Você ganhou: <b>' + esc(seg.label.replace('\n',' ')) + '</b></div>'
-    + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
-    + '<div class="slot-coupon-box" id="wheel-coupon-code">' + esc(coupon) + '</div>'
-    + '<button class="slot-btn-main slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;flex:none;" onclick="copyWheelCoupon()">'
-    + '🎉 USAR MEU CUPOM AGORA</button>'
-    + '<div id="wheel-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
+  var victory = document.createElement("div");
+  victory.className = "wheel-victory";
+  if (isLoss) {
+    victory.innerHTML = '<div style="font-size:36px;">\uD83D\uDE14</div>'
+      + '<div class="slot-victory-text" style="color:#f59e0b;">QUE PENA!</div>'
+      + '<div class="slot-victory-sub">' + esc(seg.label) + '</div>'
+      + '<button class="slot-btn-main" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;background:linear-gradient(180deg,#7c3aed,#6d28d9);" onclick="relockWheel();renderWheelSegments();initWheelBulbs();unlockWheel();">\uD83D\uDD04 TENTAR NOVAMENTE</button>';
+  } else {
+    victory.innerHTML = '<div style="font-size:36px;animation:victoryBounce .6s ease infinite;">\uD83C\uDF89</div>'
+      + '<div class="slot-victory-text">PARAB\u00C9NS!</div>'
+      + '<div class="slot-victory-sub">Voc\u00EA ganhou: <b>' + esc(seg.label) + '</b></div>'
+      + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
+      + '<div class="slot-coupon-box" id="wheel-coupon-code">' + esc(coupon) + '</div>'
+      + '<button class="slot-btn-main slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;flex:none;" onclick="copyWheelCoupon()">\uD83C\uDF89 USAR MEU CUPOM AGORA</button>'
+      + '<div id="wheel-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">\u2705 Cupom copiado! Cole no checkout.</div>';
+  }
   popup.appendChild(victory);
 }
 
