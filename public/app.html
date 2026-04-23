@@ -903,34 +903,34 @@
 /* ─── SKATE GRIND ─────────────────────────────────── */
     .skate-popup {
       max-width: 340px; margin: 0 auto;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      border-radius: 12px; overflow: hidden;
-      font-family: 'Courier New', monospace; color: #e0e0e0;
-      position: relative; border: 2px solid #0f0;
-      box-shadow: 0 0 20px rgba(0,255,0,.15);
+      background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+      border-radius: 14px; overflow: hidden;
+      font-family: -apple-system, 'Segoe UI', sans-serif; color: #e0e0e0;
+      position: relative; border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 10px 40px rgba(0,0,0,.6);
     }
     .skate-popup-header {
       text-align: center; padding: 14px 12px 10px;
-      background: rgba(0,0,0,.3); border-bottom: 2px solid rgba(0,255,0,.2);
+      background: rgba(0,0,0,.3); border-bottom: 1px solid rgba(255,255,255,.06);
     }
     .skate-popup-header .skate-icon { font-size: 28px; display: block; margin-bottom: 4px; animation: skate-bounce .6s infinite; }
-    .skate-popup-header h3 { margin: 0; font-size: 16px; color: #0f0; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 6px #0f0; }
+    .skate-popup-header h3 { margin: 0; font-size: 16px; color: #fff; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; }
     .skate-popup-header p { margin: 4px 0 0; font-size: 11px; color: #888; }
     @keyframes skate-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
     .skate-canvas-wrap {
       position: relative; width: 310px; height: 160px;
-      margin: 10px auto; border: 1px solid rgba(0,255,0,.2);
-      border-radius: 6px; overflow: hidden; background: #0d0d1a; cursor: pointer;
+      margin: 10px auto; border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px; overflow: hidden; background: #0a0a0a; cursor: pointer;
     }
     .skate-canvas-wrap canvas { display: block; width: 310px; height: 160px; image-rendering: pixelated; }
-    .skate-score { text-align: center; font-size: 13px; color: #0f0; padding: 4px 0; letter-spacing: 1px; font-family: 'Courier New', monospace; }
+    .skate-score { text-align: center; font-size: 13px; color: #fff; padding: 4px 0; letter-spacing: 1px; font-family: 'Courier New', monospace; }
     .skate-start-btn {
       display: block; margin: 0 auto 10px; padding: 8px 28px;
-      background: #0f0; color: #1a1a2e; border: none; border-radius: 4px;
-      font-family: 'Courier New', monospace; font-weight: bold; font-size: 13px;
+      background: #fff; color: #111; border: none; border-radius: 8px;
+      font-weight: 800; font-size: 13px;
       cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
     }
-    .skate-start-btn:hover { background: #0c0; }
+    .skate-start-btn:hover { background: #e0e0e0; }
     .skate-start-btn:disabled { opacity: .4; cursor: default; }
     .skate-lock-overlay {
       position: absolute; inset: 0;
@@ -942,13 +942,13 @@
     .skate-lock-overlay p { font-size: 12px; color: #aaa; margin: 0 0 10px; text-align: center; }
     .skate-lock-overlay input {
       width: 85%; padding: 7px 10px; margin-bottom: 6px;
-      border: 1px solid rgba(0,255,0,.2); border-radius: 4px;
-      background: #111; color: #eee; font-family: 'Courier New', monospace; font-size: 12px;
+      border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
+      background: rgba(255,255,255,.06); color: #fff; font-size: 13px;
     }
     .skate-lock-overlay button.skate-unlock-btn {
-      margin-top: 6px; padding: 8px 24px; background: #0f0; color: #1a1a2e;
-      border: none; border-radius: 4px; font-weight: bold;
-      font-family: 'Courier New', monospace; cursor: pointer; text-transform: uppercase; font-size: 12px;
+      margin-top: 6px; padding: 8px 24px; background: #fff; color: #111;
+      border: none; border-radius: 8px; font-weight: 800;
+      cursor: pointer; text-transform: uppercase; font-size: 13px; letter-spacing: 1px;
     }
     .skate-victory {
       position: absolute; inset: 0;
@@ -958,14 +958,14 @@
     }
     .skate-victory.active { display: flex; }
     .skate-victory .trophy { font-size: 36px; }
-    .skate-victory h4 { color: #0f0; margin: 8px 0 4px; font-size: 15px; font-family: 'Courier New', monospace; }
+    .skate-victory h4 { color: #fff; margin: 8px 0 4px; font-size: 15px; font-family: 'Courier New', monospace; }
     .skate-victory .prize-text { font-size: 22px; color: #fff; font-weight: bold; margin: 4px 0; }
     .skate-victory .coupon-box {
       display: flex; align-items: center; gap: 6px;
-      background: #111; border: 1px dashed #0f0; border-radius: 4px;
+      background: rgba(255,255,255,.06); border: 1px dashed rgba(255,255,255,.3); border-radius: 4px;
       padding: 6px 12px; margin: 8px 0;
     }
-    .skate-victory .coupon-box code { color: #0f0; font-size: 14px; letter-spacing: 1px; }
+    .skate-victory .coupon-box code { color: #fff; font-size: 14px; letter-spacing: 1px; }
     .skate-victory .coupon-box button {
       background: none; border: 1px solid #0f0; color: #0f0; border-radius: 3px;
       padding: 3px 8px; cursor: pointer; font-size: 11px; font-family: 'Courier New', monospace;
@@ -1629,7 +1629,7 @@
                   <select class="form-select" id="f-type" onchange="onGameTypeChange()">
                     <option value="spin_wheel">🎡 Roleta da Sorte</option>
                     <option value="slot_machine">🎰 Slot Machine</option>
-                    <option value="skate_grind">\uD83D\uDEF9 Skate Grind</option>
+                    <option value="skate_grind">🛹 Skate Grind</option>
                     <option value="scratch_card">🃏 Raspadinha</option>
                   </select>
                 </div>
@@ -1978,20 +1978,20 @@
                     <div class="skate-popup-header">
                       <span class="skate-icon" id="skate-popup-icon">🛹</span>
                       <h3 id="skate-popup-title">SKATE GRIND</h3>
-                      <p id="skate-popup-subtitle">Desvie dos obstáculos e ganhe prêmios!</p>
+                      <p id="skate-popup-subtitle">Pule hidrantes, grinde corrimãos e faça 300 pontos!</p>
                     </div>
                     <div class="skate-canvas-wrap" id="skateCanvasWrap">
                       <canvas id="skateCanvas" width="310" height="160"></canvas>
                     </div>
-                    <div class="skate-score">PONTOS: <span id="skateScoreVal">0</span></div>
-                    <button class="skate-start-btn" id="skateStartBtn" onclick="startSkateRun()" disabled>▶ INICIAR</button>
+                    <div class="skate-score"><span id="skateScoreVal">0 / 300</span> PTS</div>
+                    <button class="skate-start-btn" id="skateStartBtn" onclick="startSkateRun()" disabled>INICIAR</button>
                     <div class="skate-lock-overlay" id="skateLockOverlay">
                       <div class="lock-icon">🔒</div>
                       <p>Cadastre-se para desbloquear o jogo e ganhar seu desconto!</p>
                       <input type="text" id="skate-name" placeholder="👤 Seu nome">
                       <input type="email" id="skate-email" placeholder="✉️ Seu e-mail">
                       <input type="tel" id="skate-phone" placeholder="📞 Seu telefone">
-                      <button class="skate-unlock-btn" onclick="unlockSkate()">DESBLOQUEAR 🛹</button>
+                      <button class="skate-unlock-btn" onclick="unlockSkate()">DESBLOQUEAR</button>
                     </div>
                     <div class="skate-victory" id="skateVictory">
                       <div class="trophy">🏆</div>
@@ -2038,7 +2038,7 @@ let slotPresetIdx = 0;
 const GAMES = [
   { id: 'spin_wheel', icon: '🎡', name: 'Roleta da Sorte', desc: 'Gire a roleta e ganhe prêmios', available: true },
   { id: 'slot_machine', icon: '🎰', name: 'Slot Machine', desc: 'Caça-níqueis com cupons', available: true },
-  { id: 'skate_grind', icon: '\uD83D\uDEF9', name: 'Skate Grind', desc: 'Pule obst\u00e1culos e ganhe descontos', available: true },
+  { id: 'skate_grind', icon: '🛹', name: 'Skate Grind', desc: 'Pule obst\u00e1culos e ganhe descontos', available: true },
   { id: 'scratch_card', icon: '🃏', name: 'Raspadinha', desc: 'Raspe e descubra seu prêmio', available: true },
   { id: 'quiz', icon: '🧠', name: 'Quiz Interativo', desc: 'Perguntas com recompensa', available: false },
   { id: 'memory_game', icon: '🧩', name: 'Jogo da Memória', desc: 'Encontre os pares e ganhe', available: false },
