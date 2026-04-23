@@ -933,17 +933,17 @@
     .skate-start-btn:hover { background: #e0e0e0; }
     .skate-start-btn:disabled { opacity: .4; cursor: default; }
     .skate-lock-overlay {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(0deg, rgba(0,0,0,.95) 60%, rgba(0,0,0,.7) 85%, transparent 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-      z-index: 10; padding: 14px 16px 16px; border-radius: 0 0 14px 14px;
+      position: relative; width: 100%;
+      background: linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.95) 20%);
+      display: flex; flex-direction: column; align-items: center;
+      z-index: 10; padding: 12px 16px 16px;
     }
-    .skate-lock-overlay .lock-icon { font-size: 20px; margin-bottom: 4px; }
-    .skate-lock-overlay p { font-size: 11px; color: #ccc; margin: 0 0 8px; text-align: center; }
+    .skate-lock-overlay .lock-icon { display: none; }
+    .skate-lock-overlay p { font-size: 11px; color: #aaa; margin: 0 0 6px; text-align: center; }
     .skate-lock-overlay input {
-      width: 85%; padding: 7px 10px; margin-bottom: 6px;
+      width: 100%; padding: 7px 12px; margin-bottom: 5px;
       border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
-      background: rgba(255,255,255,.06); color: #fff; font-size: 13px;
+      background: rgba(255,255,255,.06); color: #fff; font-size: 12px;
     }
     .skate-lock-overlay button.skate-unlock-btn {
       margin-top: 6px; padding: 8px 24px; background: #fff; color: #111;
@@ -1795,6 +1795,19 @@
                   </div>
                 </div>
               </div>
+              <!-- SKATE GRIND PRESETS -->
+              <div id="skate-presets-section" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">🛹 Temas do Skate Grind</label>
+                  <div class="preset-grid">
+                    <div class="preset-card active" onclick="applySkatePreset(0)" style="background:linear-gradient(135deg,#111,#000);"><div class="preset-mini-slot" style="background:#fff;color:#000;font-size:10px;">Sk</div><div class="preset-card-name">Minimal</div></div>
+                    <div class="preset-card" onclick="applySkatePreset(1)" style="background:linear-gradient(135deg,#1a1a2e,#0d0d1a);"><div class="preset-mini-slot" style="background:#7c5cfc;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Urbano</div></div>
+                    <div class="preset-card" onclick="applySkatePreset(2)" style="background:linear-gradient(135deg,#0f172a,#020617);"><div class="preset-mini-slot" style="background:#22c55e;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Neon</div></div>
+                    <div class="preset-card" onclick="applySkatePreset(3)" style="background:linear-gradient(135deg,#fef3c7,#fde68a);"><div class="preset-mini-slot" style="background:#d97706;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Gold</div></div>
+                    <div class="preset-card" onclick="applySkatePreset(4)" style="background:linear-gradient(135deg,#1c1917,#0c0a09);"><div class="preset-mini-slot" style="background:#ef4444;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Street</div></div>
+                  </div>
+                </div>
+              </div>
 <div class="form-group">
                 <label class="form-label">Cor de Fundo</label>
                 <div class="color-row">
@@ -2600,6 +2613,7 @@ function onGameTypeChange() {
   document.getElementById("emoji-deco-group").style.display = (isSlot || isWheel || isSkate) ? "none" : "block";
   document.getElementById("wheel-color-presets").style.display = isWheel ? "block" : "none";
   document.getElementById("wheel-design-section").style.display = isWheel ? "block" : "none";
+  document.getElementById("skate-presets-section").style.display = isSkate ? "block" : "none";
   resetSlotGame();
   if (isWheel) { updateWheelFromConfig(); initWheelBulbs(); relockWheel(); }
   if (isSkate) { relockSkate(); initSkateGame(); }
@@ -3292,6 +3306,23 @@ function resetSkateGame(){
 document.addEventListener("keydown",function(e){
   if(e.code==="Space"&&skateRunning){e.preventDefault();skateJump();}
 });
+
+var SKATE_PRESETS = [
+  {name:"Minimal",bg:"#111",text:"#fff",btn:"#fff"},
+  {name:"Urbano",bg:"#1a1a2e",text:"#fff",btn:"#7c5cfc"},
+  {name:"Neon",bg:"#0f172a",text:"#fff",btn:"#22c55e"},
+  {name:"Gold",bg:"#1c1917",text:"#fef3c7",btn:"#d97706"},
+  {name:"Street",bg:"#1c1917",text:"#fff",btn:"#ef4444"}
+];
+
+function applySkatePreset(idx){
+  var p=SKATE_PRESETS[idx];
+  document.getElementById("f-bg").value=p.bg;document.getElementById("f-bg-text").value=p.bg;
+  document.getElementById("f-text-color").value=p.text;document.getElementById("f-text-text").value=p.text;
+  document.getElementById("f-btn-color").value=p.btn;document.getElementById("f-btn-text").value=p.btn;
+  document.querySelectorAll("#skate-presets-section .preset-card").forEach(function(c,j){c.classList.toggle("active",j===idx);});
+  updatePreview();
+}
 
 function copySlotCoupon() {
   var couponEl = document.getElementById('slot-coupon-code');
