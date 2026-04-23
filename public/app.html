@@ -933,13 +933,13 @@
     .skate-start-btn:hover { background: #e0e0e0; }
     .skate-start-btn:disabled { opacity: .4; cursor: default; }
     .skate-lock-overlay {
-      position: absolute; inset: 0;
-      background: rgba(10,10,20,.92); display: flex;
-      flex-direction: column; align-items: center; justify-content: center;
-      z-index: 10; padding: 16px; border-radius: 12px;
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,.95) 60%, rgba(0,0,0,.7) 85%, transparent 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      z-index: 10; padding: 14px 16px 16px; border-radius: 0 0 14px 14px;
     }
-    .skate-lock-overlay .lock-icon { font-size: 32px; margin-bottom: 8px; }
-    .skate-lock-overlay p { font-size: 12px; color: #aaa; margin: 0 0 10px; text-align: center; }
+    .skate-lock-overlay .lock-icon { font-size: 20px; margin-bottom: 4px; }
+    .skate-lock-overlay p { font-size: 11px; color: #ccc; margin: 0 0 8px; text-align: center; }
     .skate-lock-overlay input {
       width: 85%; padding: 7px 10px; margin-bottom: 6px;
       border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
@@ -1983,7 +1983,7 @@
                     <div class="skate-canvas-wrap" id="skateCanvasWrap">
                       <canvas id="skateCanvas" width="310" height="160"></canvas>
                     </div>
-                    <div class="skate-score"><span id="skateScoreVal">0 / 300</span> PTS</div>
+                    <div class="skate-score"><span id="skateScoreVal">0 / 800</span> PTS</div>
                     <button class="skate-start-btn" id="skateStartBtn" onclick="startSkateRun()" disabled>INICIAR</button>
                     <div class="skate-lock-overlay" id="skateLockOverlay">
                       <div class="lock-icon">🔒</div>
@@ -3098,7 +3098,7 @@ function copyWheelCoupon() {
 }
 
 /* ─── SKATE GRIND GAME v2 ─ Hidrantes, Corrimões, Grind ────────────── */
-var skateRunning=false,skateUnlocked=false,skateScore=0,skateSpeed=3,SKATE_WIN_SCORE=300;
+var skateRunning=false,skateUnlocked=false,skateScore=0,skateSpeed=3,SKATE_WIN_SCORE=800;
 var skateAnimId=null,skaterY=0,skaterVY=0,skaterOnGround=true,skateGrinding=false;
 var SKATE_GRAVITY=0.5,SKATE_JUMP_FORCE=-9,SKATE_GROUND_Y=140,SKATER_W=20,SKATER_H=26,SKATER_X=40;
 var skateObstacles=[],skateSpawnTimer=0,skateCanvas,skateCtx,skateGroundOffset=0;
