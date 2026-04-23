@@ -1798,13 +1798,13 @@
                 <div id="preview-wheel" style="display:none;width:100%;max-width:360px;position:relative;">
                   <div style="display:flex;gap:8px;margin-bottom:10px;justify-content:center;">
                     <button onclick="unlockWheel()" style="background:#22c55e;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;">â¶ Simular Cadastro</button>
-                    <button onclick="relockWheel()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;">ð Resetar</button>
+                    <button onclick="relockWheel()" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;">🔒 Resetar</button>
                   </div>
                   <div class="wheel-popup" id="wheel-popup-preview">
                     <div class="wheel-popup-header">
-                      <button class="wheel-popup-close" onclick="return false;" title="Fechar">â</button>
-                      <div class="wheel-popup-icon" id="wheel-popup-icon">ðï¸</div>
-                      <div class="wheel-popup-stars" id="wheel-popup-stars" style="color:#22c55e;">â â â â</div>
+                      <button class="wheel-popup-close" onclick="return false;" title="Fechar">✕</button>
+                      <div class="wheel-popup-icon" id="wheel-popup-icon">🎟️</div>
+                      <div class="wheel-popup-stars" id="wheel-popup-stars" style="color:#22c55e;">★ ★ ★ ★</div>
                       <div class="wheel-popup-title" id="wheel-popup-title"><span>GIRE A ROLETA</span><span style="color:#22c55e;" id="wheel-title-accent">E GANHE!</span></div>
                       <div class="wheel-popup-subtitle" id="wheel-popup-subtitle">Cadastre-se para girar e receber um<br>cupom de <b>desconto exclusivo</b>.</div>
                     </div>
@@ -1822,15 +1822,15 @@
                     <div class="wheel-lock-overlay" id="wheel-lock-overlay">
                       <div class="wheel-lock-form">
                         <div class="wheel-lock-input-wrap">
-                          <span class="wheel-lock-input-icon">ð¤</span>
+                          <span class="wheel-lock-input-icon">👤</span>
                           <input class="wheel-lock-input" id="wheel-lock-name" placeholder="Seu nome" type="text">
                         </div>
                         <div class="wheel-lock-input-wrap">
-                          <span class="wheel-lock-input-icon">âï¸</span>
+                          <span class="wheel-lock-input-icon">✉️</span>
                           <input class="wheel-lock-input" id="wheel-lock-email" placeholder="Seu melhor e-mail" type="email">
                         </div>
                         <div class="wheel-lock-input-wrap">
-                          <span class="wheel-lock-input-icon">ð</span>
+                          <span class="wheel-lock-input-icon">📞</span>
                           <input class="wheel-lock-input" id="wheel-lock-phone" placeholder="Seu telefone" type="tel">
                         </div>
                         <div class="wheel-lock-subtitle">Preencha os dados para liberar sua jogada.</div>
@@ -2694,7 +2694,7 @@ var wheelUnlocked = false;
 var WHEEL_SEGMENTS = [
   { label: '15%\nOFF', color: '#22c55e' },
   { label: '20%\nOFF', color: '#7c3aed' },
-  { label: 'FRETE\nGRÃTIS', color: '#1a1a2e' },
+  { label: 'FRETE\nGRÁTIS', color: '#1a1a2e' },
   { label: '10%\nOFF', color: '#22c55e' },
   { label: '15%\nOFF', color: '#7c3aed' },
   { label: '12%\nOFF', color: '#1a1a2e' },
@@ -2838,14 +2838,14 @@ function showWheelVictory(winIdx) {
   }
   var victory = document.createElement('div');
   victory.className = 'wheel-victory';
-  victory.innerHTML = '<div style="font-size:36px;animation:victoryBounce .6s ease infinite;">ð</div>'
-    + '<div class="slot-victory-text">PARABÃNS!</div>'
-    + '<div class="slot-victory-sub">VocÃª ganhou: <b>' + esc(seg.label.replace('\n',' ')) + '</b></div>'
+  victory.innerHTML = '<div style="font-size:36px;animation:victoryBounce .6s ease infinite;">🎉</div>'
+    + '<div class="slot-victory-text">PARABÉNS!</div>'
+    + '<div class="slot-victory-sub">Você ganhou: <b>' + esc(seg.label.replace('\n',' ')) + '</b></div>'
     + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
     + '<div class="slot-coupon-box" id="wheel-coupon-code">' + esc(coupon) + '</div>'
     + '<button class="slot-btn-main slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;flex:none;" onclick="copyWheelCoupon()">'
-    + 'ð USAR MEU CUPOM AGORA</button>'
-    + '<div id="wheel-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">â Cupom copiado! Cole no checkout.</div>';
+    + '🎉 USAR MEU CUPOM AGORA</button>'
+    + '<div id="wheel-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
   popup.appendChild(victory);
 }
 
