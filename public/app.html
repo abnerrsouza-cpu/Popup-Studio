@@ -3097,248 +3097,200 @@ function copyWheelCoupon() {
   });
 }
 
-/* ─── SKATE GRIND GAME ────────────────────────────────────────────────────── */
-var skateRunning = false;
-var skateUnlocked = false;
-var skateScore = 0;
-var skateSpeed = 2.5;
-var skateAnimId = null;
-var skaterY = 0;
-var skaterVY = 0;
-var skaterOnGround = true;
-var SKATE_GRAVITY = 0.55;
-var SKATE_JUMP_FORCE = -8.5;
-var SKATE_GROUND_Y = 130;
-var SKATER_W = 20;
-var SKATER_H = 28;
-var SKATER_X = 40;
-var skateObstacles = [];
-var skateSpawnTimer = 0;
-var skateCanvas, skateCtx;
-var skateGroundOffset = 0;
+/* ─── SKATE GRIND GAME v2 ─ Hidrantes, Corrimões, Grind ────────────── */
+var skateRunning=false,skateUnlocked=false,skateScore=0,skateSpeed=3,SKATE_WIN_SCORE=300;
+var skateAnimId=null,skaterY=0,skaterVY=0,skaterOnGround=true,skateGrinding=false;
+var SKATE_GRAVITY=0.5,SKATE_JUMP_FORCE=-9,SKATE_GROUND_Y=140,SKATER_W=20,SKATER_H=26,SKATER_X=40;
+var skateObstacles=[],skateSpawnTimer=0,skateCanvas,skateCtx,skateGroundOffset=0;
+var skateFloatingTexts=[],skateFrameCount=0;
 
-function initSkateGame() {
-  skateCanvas = document.getElementById("skateCanvas");
-  if (!skateCanvas) return;
-  skateCtx = skateCanvas.getContext("2d");
-  if (!skateCanvas._jumpHandler) {
-    skateCanvas._jumpHandler = true;
-    skateCanvas.parentElement.addEventListener("click", skateJump);
-  }
-  skaterY = SKATE_GROUND_Y - SKATER_H;
-  skateObstacles = [];
-  skateScore = 0;
-  skateSpeed = 2.5;
-  skateSpawnTimer = 0;
-  skaterVY = 0;
-  skaterOnGround = true;
-  skateGroundOffset = 0;
-  var el = document.getElementById("skateScoreVal");
-  if (el) el.textContent = "0";
+function initSkateGame(){
+  skateCanvas=document.getElementById("skateCanvas");
+  if(!skateCanvas)return;
+  skateCtx=skateCanvas.getContext("2d");
+  if(!skateCanvas._jh){skateCanvas._jh=true;skateCanvas.parentElement.addEventListener("click",skateJump);}
+  skaterY=SKATE_GROUND_Y-SKATER_H;skateObstacles=[];skateScore=0;skateSpeed=3;
+  skateSpawnTimer=0;skaterVY=0;skaterOnGround=true;skateGrinding=false;
+  skateGroundOffset=0;skateFloatingTexts=[];skateFrameCount=0;
+  var el=document.getElementById("skateScoreVal");if(el)el.textContent="0 / "+SKATE_WIN_SCORE;
   drawSkateFrame();
 }
 
-function drawSkateFrame() {
-  var ctx = skateCtx;
-  if (!ctx) return;
-  var W = 310, H = 160;
-  ctx.fillStyle = "#0d0d1a";
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "rgba(255,255,255,.15)";
-  for (var i = 0; i < 15; i++) {
-    ctx.fillRect((i * 47 + 13) % W, (i * 23 + 7) % (SKATE_GROUND_Y - 30), 2, 2);
+function drawSkateFrame(){
+  var ctx=skateCtx;if(!ctx)return;
+  var W=310,H=170;
+  var grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,"#1a1a1a");grad.addColorStop(1,"#0a0a0a");
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#1a1a1a";
+  var blds=[25,40,30,55,35,45,28,42,32,60,25,38,22];
+  for(var i=0;i<blds.length;i++){
+    var bx=i*26-(skateGroundOffset*0.2)%26;
+    ctx.fillRect(bx,SKATE_GROUND_Y-blds[i],22,blds[i]);
+    ctx.fillStyle="#333";
+    for(var wy=SKATE_GROUND_Y-blds[i]+6;wy<SKATE_GROUND_Y-4;wy+=8){
+      ctx.fillRect(bx+4,wy,3,3);ctx.fillRect(bx+12,wy,3,3);}
+    ctx.fillStyle="#1a1a1a";
   }
-  ctx.fillStyle = "#111";
-  var buildings = [20,35,25,45,30,40,22,38,28,50,20,35];
-  for (var i = 0; i < buildings.length; i++) {
-    ctx.fillRect(i * 28 - (skateGroundOffset * 0.3) % 28, SKATE_GROUND_Y - buildings[i], 24, buildings[i]);
+  ctx.fillStyle="#fff";ctx.fillRect(0,SKATE_GROUND_Y,W,1);
+  ctx.fillStyle="#333";for(var x=-(skateGroundOffset%20);x<W;x+=20)ctx.fillRect(x,SKATE_GROUND_Y+3,10,1);
+  for(var i=0;i<skateObstacles.length;i++)drawObstacle(ctx,skateObstacles[i]);
+  drawSkater(ctx,SKATER_X,skaterY);
+  ctx.font="bold 12px sans-serif";
+  for(var i=skateFloatingTexts.length-1;i>=0;i--){
+    var ft=skateFloatingTexts[i];ft.y-=1.2;ft.life--;
+    ctx.fillStyle="rgba(255,255,255,"+(ft.life/40)+")";ctx.fillText(ft.text,ft.x,ft.y);
+    if(ft.life<=0)skateFloatingTexts.splice(i,1);
   }
-  ctx.fillStyle = "#0f0";
-  ctx.fillRect(0, SKATE_GROUND_Y, W, 2);
-  ctx.fillStyle = "#0a0";
-  for (var x = -(skateGroundOffset % 18); x < W; x += 18) {
-    ctx.fillRect(x, SKATE_GROUND_Y + 4, 8, 2);
-  }
-  drawSkater(ctx, SKATER_X, skaterY);
-  for (var i = 0; i < skateObstacles.length; i++) drawObstacle(ctx, skateObstacles[i]);
-  ctx.fillStyle = "#0f0";
-  ctx.font = "10px Courier New";
-  ctx.fillText("SCORE: " + skateScore, 240, 14);
+  ctx.fillStyle="#fff";ctx.font="bold 11px sans-serif";
+  ctx.fillText(skateScore+" / "+SKATE_WIN_SCORE+" PTS",210,14);
+  var prog=Math.min(skateScore/SKATE_WIN_SCORE,1);
+  ctx.fillStyle="#333";ctx.fillRect(210,18,90,4);
+  ctx.fillStyle="#fff";ctx.fillRect(210,18,90*prog,4);
 }
 
-function drawSkater(ctx, x, y) {
-  ctx.fillStyle = "#ffcc00";
-  ctx.fillRect(x + 6, y, 8, 8);
-  ctx.fillStyle = "#ff4444";
-  ctx.fillRect(x + 5, y - 2, 10, 4);
-  ctx.fillStyle = "#00ff41";
-  ctx.fillRect(x + 6, y + 8, 8, 10);
-  ctx.fillRect(x + 2, y + 10, 4, 3);
-  ctx.fillRect(x + 14, y + 10, 4, 3);
-  ctx.fillStyle = "#3388ff";
-  ctx.fillRect(x + 5, y + 18, 4, 6);
-  ctx.fillRect(x + 11, y + 18, 4, 6);
-  ctx.fillStyle = "#ff5555";
-  ctx.fillRect(x + 1, y + 24, 18, 3);
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(x + 2, y + 27, 3, 2);
-  ctx.fillRect(x + 15, y + 27, 3, 2);
+function drawSkater(ctx,x,y){
+  ctx.fillStyle="#fff";ctx.fillRect(x+6,y,8,8);
+  ctx.fillStyle="#888";ctx.fillRect(x+4,y-2,12,3);
+  ctx.fillStyle="#ddd";ctx.fillRect(x+6,y+8,8,10);
+  if(skateGrinding){ctx.fillRect(x+14,y+8,6,3);ctx.fillRect(x,y+6,6,3);}
+  else{ctx.fillRect(x+2,y+10,4,3);ctx.fillRect(x+14,y+10,4,3);}
+  ctx.fillStyle="#999";ctx.fillRect(x+5,y+18,4,5);ctx.fillRect(x+11,y+18,4,5);
+  ctx.fillStyle="#fff";ctx.fillRect(x,y+23,20,2);
+  ctx.fillStyle="#666";ctx.fillRect(x+1,y+25,3,2);ctx.fillRect(x+16,y+25,3,2);
+  if(skateGrinding){ctx.fillStyle="#fff";for(var s=0;s<3;s++){ctx.fillRect(x+5+Math.random()*10,y+24+Math.random()*3,2,1);}}
 }
 
-function drawObstacle(ctx, ob) {
-  ctx.fillStyle = ob.color;
-  if (ob.type === "cone") {
-    ctx.fillRect(ob.x + 4, ob.y, 4, 4);
-    ctx.fillRect(ob.x + 2, ob.y + 4, 8, 4);
-    ctx.fillRect(ob.x, ob.y + 8, 12, 4);
-  } else if (ob.type === "trash") {
-    ctx.fillRect(ob.x, ob.y, 14, 20);
-    ctx.fillStyle = "#555";
-    ctx.fillRect(ob.x - 1, ob.y, 16, 3);
-  } else {
-    ctx.fillRect(ob.x + 2, ob.y, 8, 14);
-    ctx.fillRect(ob.x, ob.y + 3, 12, 4);
-    ctx.fillStyle = "#cc0000";
-    ctx.fillRect(ob.x + 3, ob.y - 2, 6, 3);
+function drawObstacle(ctx,ob){
+  if(ob.type==="hydrant"){
+    ctx.fillStyle="#ccc";ctx.fillRect(ob.x+3,ob.y+2,8,14);
+    ctx.fillStyle="#999";ctx.fillRect(ob.x+1,ob.y+5,12,4);
+    ctx.fillStyle="#fff";ctx.fillRect(ob.x+4,ob.y,6,3);
+  }else if(ob.type==="rail"){
+    ctx.fillStyle="#888";ctx.fillRect(ob.x,ob.y,ob.w,3);
+    ctx.fillRect(ob.x+5,ob.y,2,SKATE_GROUND_Y-ob.y);ctx.fillRect(ob.x+ob.w-7,ob.y,2,SKATE_GROUND_Y-ob.y);
+    ctx.fillStyle="#aaa";ctx.fillRect(ob.x,ob.y,ob.w,1);
+  }else if(ob.type==="combo"){
+    ctx.fillStyle="#ccc";ctx.fillRect(ob.x+3,ob.hy+2,8,14);
+    ctx.fillStyle="#999";ctx.fillRect(ob.x+1,ob.hy+5,12,4);ctx.fillStyle="#fff";ctx.fillRect(ob.x+4,ob.hy,6,3);
+    var rx=ob.x+30;ctx.fillStyle="#888";ctx.fillRect(rx,ob.ry,ob.rw,3);
+    ctx.fillRect(rx+5,ob.ry,2,SKATE_GROUND_Y-ob.ry);ctx.fillRect(rx+ob.rw-7,ob.ry,2,SKATE_GROUND_Y-ob.ry);
+    ctx.fillStyle="#aaa";ctx.fillRect(rx,ob.ry,ob.rw,1);
   }
 }
 
-function skateJump() {
-  if (!skateRunning || !skaterOnGround) return;
-  skaterVY = SKATE_JUMP_FORCE;
-  skaterOnGround = false;
+function skateJump(){if(!skateRunning||!skaterOnGround)return;skaterVY=SKATE_JUMP_FORCE;skaterOnGround=false;skateGrinding=false;}
+
+function addSkatePoints(pts,x,y){
+  skateScore+=pts;skateFloatingTexts.push({text:"+"+pts,x:x,y:y,life:40});
+  var el=document.getElementById("skateScoreVal");if(el)el.textContent=skateScore+" / "+SKATE_WIN_SCORE;
+  if(skateScore>=SKATE_WIN_SCORE){
+    skateRunning=false;cancelAnimationFrame(skateAnimId);
+    var coupon=document.getElementById("f-prize").value||"SKATE20";
+    setTimeout(function(){showSkateVictory("CUPOM DESBLOQUEADO!",coupon,skateScore);},400);
+  }
 }
 
-function startSkateRun() {
-  if (skateRunning) return;
-  skateRunning = true;
-  skateScore = 0;
-  skateSpeed = 2.5;
-  skateObstacles = [];
-  skateSpawnTimer = 0;
-  skaterY = SKATE_GROUND_Y - SKATER_H;
-  skaterVY = 0;
-  skaterOnGround = true;
-  skateGroundOffset = 0;
-  document.getElementById("skateStartBtn").disabled = true;
+function startSkateRun(){
+  if(skateRunning)return;skateRunning=true;skateScore=0;skateSpeed=3;
+  skateObstacles=[];skateSpawnTimer=0;skateFloatingTexts=[];skateFrameCount=0;
+  skaterY=SKATE_GROUND_Y-SKATER_H;skaterVY=0;skaterOnGround=true;skateGrinding=false;skateGroundOffset=0;
+  document.getElementById("skateStartBtn").disabled=true;
   document.getElementById("skateVictory").classList.remove("active");
   skateGameLoop();
 }
 
-function skateGameLoop() {
-  if (!skateRunning) return;
-  skateScore++;
-  skateGroundOffset += skateSpeed;
-  var el = document.getElementById("skateScoreVal");
-  if (el) el.textContent = skateScore;
-  if (skateScore % 100 === 0) skateSpeed += 0.4;
-  if (!skaterOnGround) {
-    skaterVY += SKATE_GRAVITY;
-    skaterY += skaterVY;
-    if (skaterY >= SKATE_GROUND_Y - SKATER_H) {
-      skaterY = SKATE_GROUND_Y - SKATER_H;
-      skaterVY = 0;
-      skaterOnGround = true;
-    }
-  }
-  skateSpawnTimer++;
-  var spawnInterval = Math.max(40, 90 - skateScore * 0.15);
-  if (skateSpawnTimer >= spawnInterval) {
-    skateSpawnTimer = 0;
-    spawnSkateObstacle();
-  }
-  for (var i = skateObstacles.length - 1; i >= 0; i--) {
-    var ob = skateObstacles[i];
-    ob.x -= skateSpeed;
-    if (ob.x + ob.w < 0) { skateObstacles.splice(i, 1); continue; }
-    if (SKATER_X + SKATER_W > ob.x + 2 && SKATER_X < ob.x + ob.w - 2 &&
-        skaterY + SKATER_H > ob.y + 2 && skaterY < ob.y + ob.h) {
-      skateGameOver(skateScore);
-      return;
-    }
-  }
-  drawSkateFrame();
-  skateAnimId = requestAnimationFrame(skateGameLoop);
+function skateGameLoop(){
+  if(!skateRunning)return;skateFrameCount++;skateGroundOffset+=skateSpeed;
+  if(!skaterOnGround&&!skateGrinding){skaterVY+=SKATE_GRAVITY;skaterY+=skaterVY;
+    if(skaterY>=SKATE_GROUND_Y-SKATER_H){skaterY=SKATE_GROUND_Y-SKATER_H;skaterVY=0;skaterOnGround=true;}}
+  skateSpawnTimer++;if(skateSpawnTimer>=80){skateSpawnTimer=0;spawnSkateObstacle();}
+  for(var i=skateObstacles.length-1;i>=0;i--){
+    var ob=skateObstacles[i];ob.x-=skateSpeed;
+    if(ob.x+(ob.w||60)<-10){skateObstacles.splice(i,1);continue;}
+    if(ob.type==="hydrant"){
+      if(!ob.scored&&SKATER_X+SKATER_W>ob.x&&SKATER_X<ob.x+14){
+        if(skaterY+SKATER_H<=ob.y+4){ob.scored=true;addSkatePoints(50,ob.x,ob.y-10);}
+        else if(skaterY+SKATER_H>ob.y+2&&skaterOnGround){skateGameOver(skateScore);return;}}}
+    else if(ob.type==="rail"){
+      if(SKATER_X+SKATER_W>ob.x+5&&SKATER_X<ob.x+ob.w-5){
+        if(!skaterOnGround&&skaterVY>0&&skaterY+SKATER_H>=ob.y-2&&skaterY+SKATER_H<=ob.y+6){
+          skaterY=ob.y-SKATER_H;skaterVY=0;skateGrinding=true;skaterOnGround=false;
+          if(!ob.scored){ob.scored=true;addSkatePoints(100,ob.x+20,ob.y-15);}}
+        if(skateGrinding&&SKATER_X+SKATER_W>ob.x&&SKATER_X<ob.x+ob.w)skaterY=ob.y-SKATER_H;}
+      if(skateGrinding&&SKATER_X>ob.x+ob.w)skateGrinding=false;}
+    else if(ob.type==="combo"){
+      if(SKATER_X+SKATER_W>ob.x&&SKATER_X<ob.x+14){
+        if(skaterY+SKATER_H>ob.hy+2&&skaterOnGround){skateGameOver(skateScore);return;}}
+      var rx=ob.x+30;
+      if(SKATER_X+SKATER_W>rx+5&&SKATER_X<rx+ob.rw-5){
+        if(!skaterOnGround&&!skateGrinding&&skaterVY>0&&skaterY+SKATER_H>=ob.ry-2&&skaterY+SKATER_H<=ob.ry+6){
+          skaterY=ob.ry-SKATER_H;skaterVY=0;skateGrinding=true;skaterOnGround=false;
+          if(!ob.scored){ob.scored=true;addSkatePoints(150,rx+20,ob.ry-15);}}
+        if(skateGrinding)skaterY=ob.ry-SKATER_H;}
+      if(skateGrinding&&SKATER_X>rx+ob.rw)skateGrinding=false;}}
+  drawSkateFrame();skateAnimId=requestAnimationFrame(skateGameLoop);
 }
 
-function spawnSkateObstacle() {
-  var types = [
-    { type: "cone", w: 12, h: 12, color: "#ff8800" },
-    { type: "trash", w: 14, h: 20, color: "#777" },
-    { type: "hydrant", w: 12, h: 16, color: "#ff3333" }
-  ];
-  var t = types[Math.floor(Math.random() * types.length)];
-  skateObstacles.push({ x: 310, y: SKATE_GROUND_Y - t.h, w: t.w, h: t.h, type: t.type, color: t.color });
+function spawnSkateObstacle(){
+  var r=Math.random();
+  if(r<0.4){skateObstacles.push({type:"hydrant",x:320,y:SKATE_GROUND_Y-18,w:14,h:18,scored:false});}
+  else if(r<0.75){skateObstacles.push({type:"rail",x:320,y:SKATE_GROUND_Y-20,w:70,h:3,scored:false});}
+  else{skateObstacles.push({type:"combo",x:320,hy:SKATE_GROUND_Y-18,ry:SKATE_GROUND_Y-22,rw:60,w:90,scored:false});}
 }
 
-function skateGameOver(score) {
-  skateRunning = false;
-  cancelAnimationFrame(skateAnimId);
-  if (skateCtx) { skateCtx.fillStyle = "rgba(255,0,0,.3)"; skateCtx.fillRect(0, 0, 310, 160); }
-  var prize, coupon;
-  if (score <= 50) { prize = "5% OFF"; coupon = "SKATE5"; }
-  else if (score <= 100) { prize = "10% OFF"; coupon = "SKATE10"; }
-  else if (score <= 200) { prize = "15% OFF"; coupon = "SKATE15"; }
-  else if (score <= 400) { prize = "20% OFF"; coupon = "SKATE20"; }
-  else { prize = "FRETE GR\u00C1TIS"; coupon = "SKATEFREE"; }
-  setTimeout(function() { showSkateVictory(prize, coupon, score); }, 600);
+function skateGameOver(score){
+  skateRunning=false;cancelAnimationFrame(skateAnimId);
+  if(skateCtx){skateCtx.fillStyle="rgba(255,0,0,.2)";skateCtx.fillRect(0,0,310,170);}
+  document.getElementById("skateStartBtn").disabled=false;
+  document.getElementById("skateStartBtn").textContent="TENTAR DE NOVO";
 }
 
-function showSkateVictory(prize, coupon, score) {
-  document.getElementById("skateFinalScore").textContent = score;
-  document.getElementById("skatePrizeText").textContent = prize;
-  document.getElementById("skateCouponCode").textContent = coupon;
+function showSkateVictory(prize,coupon,score){
+  document.getElementById("skateFinalScore").textContent=score;
+  document.getElementById("skatePrizeText").textContent=prize;
+  document.getElementById("skateCouponCode").textContent=coupon;
   document.getElementById("skateVictory").classList.add("active");
-  document.getElementById("skateStartBtn").disabled = false;
-  document.getElementById("skateStartBtn").textContent = "\u25B6 JOGAR DE NOVO";
+  document.getElementById("skateStartBtn").disabled=false;
+  document.getElementById("skateStartBtn").textContent="JOGAR DE NOVO";
 }
 
-function skateCopyCoupon() {
-  var code = document.getElementById("skateCouponCode").textContent;
-  navigator.clipboard.writeText(code).then(function() {
-    var btn = document.querySelector(".skate-victory .coupon-box button");
-    if (btn) { btn.textContent = "Copiado!"; setTimeout(function() { btn.textContent = "Copiar"; }, 1500); }
-  }).catch(function() {
-    var ta = document.createElement("textarea");
-    ta.value = code; ta.style.position = "fixed"; ta.style.left = "-9999px";
-    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-    var btn = document.querySelector(".skate-victory .coupon-box button");
-    if (btn) { btn.textContent = "Copiado!"; setTimeout(function() { btn.textContent = "Copiar"; }, 1500); }
+function skateCopyCoupon(){
+  var code=document.getElementById("skateCouponCode").textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    var btn=document.querySelector(".skate-victory .coupon-box button");
+    if(btn){btn.textContent="Copiado!";setTimeout(function(){btn.textContent="Copiar";},1500);}
+  }).catch(function(){
+    var ta=document.createElement("textarea");ta.value=code;ta.style.position="fixed";ta.style.left="-9999px";
+    document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);
+    var btn=document.querySelector(".skate-victory .coupon-box button");
+    if(btn){btn.textContent="Copiado!";setTimeout(function(){btn.textContent="Copiar";},1500);}
   });
 }
 
-function unlockSkate() {
-  skateUnlocked = true;
-  var el = document.getElementById("skateLockOverlay");
-  if (el) el.style.display = "none";
-  var btn = document.getElementById("skateStartBtn");
-  if (btn) btn.disabled = false;
+function unlockSkate(){
+  skateUnlocked=true;
+  var el=document.getElementById("skateLockOverlay");if(el)el.style.display="none";
+  var btn=document.getElementById("skateStartBtn");if(btn)btn.disabled=false;
   initSkateGame();
 }
 
-function relockSkate() {
-  skateUnlocked = false;
-  skateRunning = false;
-  cancelAnimationFrame(skateAnimId);
-  var el = document.getElementById("skateLockOverlay");
-  if (el) el.style.display = "flex";
-  var btn = document.getElementById("skateStartBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "\u25B6 INICIAR"; }
+function relockSkate(){
+  skateUnlocked=false;skateRunning=false;cancelAnimationFrame(skateAnimId);
+  var el=document.getElementById("skateLockOverlay");if(el)el.style.display="flex";
+  var btn=document.getElementById("skateStartBtn");if(btn){btn.disabled=true;btn.textContent="INICIAR";}
   document.getElementById("skateVictory").classList.remove("active");
-  var sv = document.getElementById("skateScoreVal");
-  if (sv) sv.textContent = "0";
+  var sv=document.getElementById("skateScoreVal");if(sv)sv.textContent="0 / "+SKATE_WIN_SCORE;
   initSkateGame();
 }
 
-function resetSkateGame() {
+function resetSkateGame(){
   document.getElementById("skateVictory").classList.remove("active");
-  var btn = document.getElementById("skateStartBtn");
-  if (btn) btn.textContent = "\u25B6 INICIAR";
+  var btn=document.getElementById("skateStartBtn");if(btn)btn.textContent="INICIAR";
   initSkateGame();
 }
 
-document.addEventListener("keydown", function(e) {
-  if (e.code === "Space" && skateRunning) { e.preventDefault(); skateJump(); }
+document.addEventListener("keydown",function(e){
+  if(e.code==="Space"&&skateRunning){e.preventDefault();skateJump();}
 });
 
 function copySlotCoupon() {
