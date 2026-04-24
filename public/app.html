@@ -3317,11 +3317,21 @@ var SKATE_PRESETS = [
 
 function applySkatePreset(idx){
   var p=SKATE_PRESETS[idx];
-  document.getElementById("f-bg").value=p.bg;document.getElementById("f-bg-text").value=p.bg;
-  document.getElementById("f-text-color").value=p.text;document.getElementById("f-text-text").value=p.text;
-  document.getElementById("f-btn-color").value=p.btn;document.getElementById("f-btn-text").value=p.btn;
+  var popup=document.getElementById("skate-popup-preview");
+  if(popup){
+    popup.style.background="linear-gradient(180deg,"+p.bg+" 0%,#000 100%)";
+    popup.style.borderColor=p.btn+"33";
+    popup.style.boxShadow="0 10px 40px rgba(0,0,0,.6),0 0 20px "+p.btn+"22";
+  }
+  var h3=document.getElementById("skate-popup-title");
+  if(h3) h3.style.color=p.text;
+  var sub=document.getElementById("skate-popup-subtitle");
+  if(sub) sub.style.color=p.text+"99";
+  var btn=document.getElementById("skateStartBtn");
+  if(btn){btn.style.background=p.btn;btn.style.color=p.bg;}
+  var unlockBtn=document.querySelector(".skate-unlock-btn");
+  if(unlockBtn){unlockBtn.style.background=p.btn;unlockBtn.style.color=p.bg;}
   document.querySelectorAll("#skate-presets-section .preset-card").forEach(function(c,j){c.classList.toggle("active",j===idx);});
-  updatePreview();
 }
 
 function copySlotCoupon() {
