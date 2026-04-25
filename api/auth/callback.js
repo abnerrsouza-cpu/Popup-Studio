@@ -1,21 +1,25 @@
 // /api/auth/callback
-// Recebe ?code= da Nuvemshop apÃ³s o lojista autorizar.
-// 1) Troca code -> access_token
-// 2) Busca dados da loja
-// 3) Salva/atualiza a loja no Supabase (upsert trata reinstalaÃ§Ã£o)
-// 4) Cria cookie de sessÃ£o e redireciona para /app
+// Recebe ?code= da Nuvemshop após o lojista autorizar.
+// SEGURANÇA: rate limit, erro genérico, security headers.
 
 import { exchangeCodeForToken, getStoreInfo } from '../../lib/nuvemshop.js';
 import { upsertStore, getStore } from '../../lib/supabase.js';
 import { signSession, sessionCookie } from '../../lib/session.js';
+import { rateLimitStrict } from '../../lib/rateLimit.js';
+import { setSecurityHeaders, safeErrorMessage } from '../../lib/security.js';
 
 export default async function handler(req, res) {
+  setSecurityHeaders(res);
+
+  // Rate limit estrito: 10 tentativas/min
+  if (rateLimitStrict(req, res)) return;
+
   try {
     const url  = new URL(req.url, `http://${req.headers.host}`);
     const code = url.searchParams.get('code');
 
-    if (!code) {
-      res.status(400).send('Missing code parameter');
+    if (!code || typeof code !== 'string' || code.length > 500) {
+      res.status(400).send('Invalid request');
       return;
     }
 
@@ -23,12 +27,12 @@ export default async function handler(req, res) {
     const tokenData = await exchangeCodeForToken(code);
     const { access_token, token_type, scope, user_id: storeId } = tokenData;
     if (!access_token || !storeId) {
-      console.error('[callback] resposta inesperada da Nuvemshop:', tokenData);
-      res.status(500).send('Invalid token response');
+      console.error('[callback] resposta inesperada da Nuvemshop');
+      res.status(500).send('Authentication failed');
       return;
     }
 
-    // 2) Busca dados da loja (nome, idioma, paÃ­s etc.)
+    // 2) Busca dados da loja
     let info = {};
     try {
       info = await getStoreInfo(storeId, access_token);
@@ -36,7 +40,7 @@ export default async function handler(req, res) {
       console.warn('[callback] falha ao buscar /store:', e.message);
     }
 
-    // 3) Upsert -- lida com primeira instalaÃ§Ã£o E reinstalaÃ§Ã£o no mesmo fluxo
+    // 3) Upsert
     const existing = await getStore(storeId);
     const row = {
       store_id:           Number(storeId),
@@ -56,13 +60,14 @@ export default async function handler(req, res) {
 
     await upsertStore(row);
 
-    // 4) Cria sessÃ£o e redireciona para o painel
+    // 4) Cria sessão e redireciona
     const token  = signSession({ storeId: Number(storeId) });
     res.setHeader('Set-Cookie', sessionCookie(token));
     res.writeHead(302, { Location: '/app' });
     res.end();
   } catch (err) {
     console.error('[callback] erro:', err);
-    res.status(500).send('OAuth callback error: ' + err.message);
+    // SEGURANÇA: nunca expor err.message ao cliente
+    res.status(500).send('Authentication error. Please try again.');
   }
 }
