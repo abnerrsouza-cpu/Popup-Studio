@@ -1,14 +1,16 @@
 // /api/popups/publish
-// POST { id } -> marca o popup como publicado no Supabase.
-// O loader.js é auto-instalado via Roteiros do portal de parceiros (script_id 6043),
-// então não precisamos mais chamar a API de Scripts da Nuvemshop.
+// POST { id } -> injeta o loader.js na loja via API de Scripts da Nuvemshop
+// Se a loja já tem UM script nosso ativo (de outro pop-up), reusa (o loader decide qual pop-up exibir).
 
 import { supabase } from '../../lib/supabase.js';
-import { requireStore, readJson, handleOptions, setCors } from '../../lib/auth.js';
+import { requireStore, readJson, handleOptions, setCorsAuthenticated } from '../../lib/auth.js';
+import { createScript, listScripts } from '../../lib/nuvemshop.js';
+import { setSecurityHeaders } from '../../lib/security.js';
 
 export default async function handler(req, res) {
-  if (handleOptions(req, res)) return;
-  setCors(res);
+  setSecurityHeaders(res);
+  if (handleOptions(req, res, true)) return;
+  setCorsAuthenticated(res);
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
 
   const store = await requireStore(req, res);
@@ -26,12 +28,36 @@ export default async function handler(req, res) {
       .single();
     if (fetchErr || !popup) return res.status(404).json({ error: 'popup_not_found' });
 
-    // Marca pop-up como publicado
+    const appUrl = process.env.APP_URL || 'https://popup-studio.vercel.app';
+    const src    = `${appUrl}/loader.js?store_id=${store.store_id}`;
+
+    // Se já existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
+    let scriptId = null;
+    try {
+      const existing = await listScripts(store.store_id, store.access_token);
+      const arr = Array.isArray(existing) ? existing : (existing?.scripts || []);
+      const ours = arr.find(s => (s.src || '').startsWith(`${appUrl}/loader.js`));
+      if (ours) scriptId = ours.id;
+    } catch (e) {
+      console.warn('[publish] listScripts falhou:', e.message);
+    }
+
+    if (!scriptId) {
+      const created = await createScript(store.store_id, store.access_token, {
+        src,
+        event: 'onload',
+        where: 'store',
+        type:  'javascript',
+      });
+      scriptId = created?.id;
+    }
+
+    // Marca pop-up como publicado + guarda script_id
     const { data: updated, error: updErr } = await supabase
       .from('popups')
       .update({
-        status: 'published',
-        is_published: true,
+        status:       'published',
+        script_id:    scriptId || null,
         published_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -40,10 +66,9 @@ export default async function handler(req, res) {
       .single();
     if (updErr) return res.status(500).json({ error: updErr.message });
 
-    return res.status(200).json({ popup: updated });
+    return res.status(200).json({ popup: updated, script_id: scriptId });
   } catch (err) {
     console.error('[publish] erro:', err);
     return res.status(500).json({ error: 'publish_failed', message: err.message });
   }
 }
-
