@@ -1,16 +1,21 @@
 // /api/me
-// Retorna dados da loja logada (usado pelo painel para saber se o usuÃ¡rio estÃ¡ autenticado).
+// Retorna dados da loja logada (usado pelo painel para saber se o usuário está autenticado).
+// SEGURANÇA: CORS restrito, security headers. Não expõe access_token.
 
-import { requireStore, handleOptions, setCors } from '../lib/auth.js';
+import { requireStore, handleOptions, setCorsAuthenticated } from '../lib/auth.js';
+import { setSecurityHeaders } from '../lib/security.js';
 
 export default async function handler(req, res) {
-  if (handleOptions(req, res)) return;
-  setCors(res);
+  setSecurityHeaders(res);
+  if (handleOptions(req, res, true)) return;
+  setCorsAuthenticated(res);
+
+  if (req.method !== 'GET') return res.status(405).json({ error: 'method_not_allowed' });
 
   const store = await requireStore(req, res);
   if (!store) return;
 
-  // NÃ£o expÃµe access_token nem dados sensÃ­veis.
+  // Não expõe access_token nem dados sensíveis.
   res.status(200).json({
     store_id:   store.store_id,
     shop_name:  store.shop_name,
