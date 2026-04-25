@@ -1,13 +1,17 @@
 // /api/popups
 // GET  -> lista todos os pop-ups da loja logada
 // POST -> cria um novo pop-up (draft por default)
+// SEGURANÇA: CORS restrito, security headers, validação.
 
 import { supabase } from '../../lib/supabase.js';
-import { requireStore, readJson, handleOptions, setCors } from '../../lib/auth.js';
+import { requireStore, readJson, handleOptions, setCorsAuthenticated } from '../../lib/auth.js';
+import { setSecurityHeaders } from '../../lib/security.js';
+import { sanitize, isValidGameType, sanitizePayload } from '../../lib/validate.js';
 
 export default async function handler(req, res) {
-  if (handleOptions(req, res)) return;
-  setCors(res);
+  setSecurityHeaders(res);
+  if (handleOptions(req, res, true)) return;
+  setCorsAuthenticated(res);
 
   const store = await requireStore(req, res);
   if (!store) return;
@@ -18,7 +22,7 @@ export default async function handler(req, res) {
       .select('*')
       .eq('store_id', store.store_id)
       .order('created_at', { ascending: false });
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: 'database_error' });
     return res.status(200).json({ popups: data });
   }
 
@@ -26,24 +30,29 @@ export default async function handler(req, res) {
     try {
       const body = await readJson(req);
       const { name, game_type, config } = body;
-      if (!name || !game_type) {
-        return res.status(400).json({ error: 'name e game_type sÃ£o obrigatÃ³rios' });
+
+      if (!name || typeof name !== 'string' || name.trim().length < 1) {
+        return res.status(400).json({ error: 'name is required' });
       }
+      if (!game_type || !isValidGameType(game_type)) {
+        return res.status(400).json({ error: 'invalid game_type' });
+      }
+
       const { data, error } = await supabase
         .from('popups')
         .insert({
           store_id:  store.store_id,
-          name,
+          name:      sanitize(name, 200),
           game_type,
-          config:    config || {},
+          config:    sanitizePayload(config),
           status:    'draft',
         })
         .select()
         .single();
-      if (error) return res.status(500).json({ error: error.message });
+      if (error) return res.status(500).json({ error: 'database_error' });
       return res.status(201).json({ popup: data });
     } catch (e) {
-      return res.status(400).json({ error: 'invalid_json', message: e.message });
+      return res.status(400).json({ error: 'invalid_request' });
     }
   }
 
