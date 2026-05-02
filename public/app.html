@@ -258,70 +258,138 @@
     .dash-content { padding: 24px 32px; }
     .dash-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
     }
     .dash-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
+      border-radius: 12px;
+      padding: 18px 20px;
       position: relative;
       overflow: hidden;
-      transition: border-color .2s;
+      transition: all .25s ease;
     }
-    .dash-card:hover { border-color: rgba(124,92,252,.25); }
+    .dash-card:hover { border-color: rgba(124,92,252,.3); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+    .dash-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .dash-card-icon {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      margin-bottom: 14px;
+      font-size: 17px;
     }
     .dash-card-icon.purple { background: var(--accent-dim); color: var(--accent-light); }
     .dash-card-icon.green { background: var(--green-dim); color: var(--green); }
     .dash-card-icon.blue { background: rgba(59,130,246,.12); color: var(--blue); }
     .dash-card-icon.pink { background: rgba(236,72,153,.12); color: var(--pink); }
-    .dash-card-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
-    .dash-card-value { font-size: 30px; font-weight: 800; line-height: 1.1; }
+    .dash-card-icon.cyan { background: rgba(6,182,212,.12); color: var(--cyan); }
+    .dash-card-trend { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; display: flex; align-items: center; gap: 3px; }
+    .dash-card-trend.up { background: var(--green-dim); color: var(--green); }
+    .dash-card-trend.down { background: rgba(239,68,68,.1); color: var(--red); }
+    .dash-card-trend.neutral { background: rgba(120,120,160,.1); color: var(--muted); }
+    .dash-card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; font-weight: 600; margin-bottom: 4px; }
+    .dash-card-value { font-size: 28px; font-weight: 800; line-height: 1.1; }
     .dash-card-value.purple { color: var(--accent-light); }
     .dash-card-value.green { color: var(--green); }
     .dash-card-value.blue { color: var(--blue); }
     .dash-card-value.pink { color: var(--pink); }
-    .dash-card-sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    .dash-card-value.cyan { color: var(--cyan); }
+    .dash-card-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
     .dash-card-glow {
       position: absolute;
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      top: -30px;
-      right: -30px;
-      filter: blur(40px);
-      opacity: .12;
+      bottom: -20px;
+      right: -20px;
+      filter: blur(35px);
+      opacity: .1;
       pointer-events: none;
     }
+    .dash-card-sparkline { margin-top: 10px; height: 28px; display: flex; align-items: flex-end; gap: 2px; }
+    .dash-card-sparkline .spark { flex: 1; border-radius: 2px; background: rgba(124,92,252,.2); min-height: 3px; transition: height .3s; }
 
+    /* Chart section */
+    .dash-chart-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .dash-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .dash-chart-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .dash-chart-title svg { color: var(--accent-light); }
+    .dash-chart-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 3px; }
+    .dash-chart-tab { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 6px; cursor: pointer; color: var(--muted); transition: all .2s; border: none; background: none; }
+    .dash-chart-tab.active { background: var(--accent); color: white; }
+    .dash-chart-tab:hover:not(.active) { color: var(--text); }
+    .dash-chart-area { height: 180px; display: flex; align-items: flex-end; gap: 8px; padding-top: 10px; position: relative; }
+    .dash-chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .dash-chart-bar { width: 100%; border-radius: 6px 6px 2px 2px; background: linear-gradient(180deg, var(--accent) 0%, rgba(124,92,252,.3) 100%); transition: height .5s cubic-bezier(.4,0,.2,1); position: relative; min-height: 4px; cursor: pointer; }
+    .dash-chart-bar:hover { background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%); box-shadow: 0 0 12px var(--accent-glow); }
+    .dash-chart-bar-val { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; color: var(--accent-light); opacity: 0; transition: opacity .2s; }
+    .dash-chart-bar:hover .dash-chart-bar-val { opacity: 1; }
+    .dash-chart-day { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    .dash-chart-line { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(120,120,160,.15); }
+    .dash-chart-line-label { position: absolute; right: 0; top: -8px; font-size: 9px; color: rgba(120,120,160,.3); }
+
+    /* Bottom row */
     .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     .dash-panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
+      border-radius: 12px;
+      padding: 22px;
+      max-height: 380px;
+      display: flex;
+      flex-direction: column;
     }
-    .dash-panel-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .dash-panel-title svg { color: var(--muted); }
+    .dash-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .dash-panel-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
+    .dash-panel-title svg { color: var(--accent-light); }
+    .dash-panel-badge { font-size: 10px; font-weight: 700; background: var(--accent-dim); color: var(--accent-light); padding: 3px 8px; border-radius: 20px; }
+    .dash-panel-scroll { overflow-y: auto; flex: 1; }
+    .dash-panel-scroll::-webkit-scrollbar { width: 4px; }
+    .dash-panel-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-    /* Mini bar chart */
-    .mini-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
-    .mini-bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--accent-dim); transition: height .4s ease; position: relative; min-width: 0; }
-    .mini-bar:hover { background: var(--accent); }
-    .mini-bar-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--muted); white-space: nowrap; }
+    /* Ranking table */
+    .rank-item { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-radius: 8px; transition: background .15s; }
+    .rank-item:hover { background: var(--surface2); }
+    .rank-pos { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+    .rank-pos.gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+    .rank-pos.silver { background: linear-gradient(135deg, #94a3b8, #64748b); color: #000; }
+    .rank-pos.bronze { background: linear-gradient(135deg, #d97706, #92400e); color: #fff; }
+    .rank-pos.normal { background: var(--surface2); color: var(--muted); }
+    .rank-avatar { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rank-meta { font-size: 11px; color: var(--muted); }
+    .rank-stats { text-align: right; flex-shrink: 0; }
+    .rank-stat-val { font-size: 14px; font-weight: 700; color: var(--green); }
+    .rank-stat-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .rank-bar { height: 4px; border-radius: 2px; background: var(--surface3); margin-top: 4px; overflow: hidden; }
+    .rank-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width .5s ease; }
 
-    /* Recent list */
+    /* Activity feed */
+    .activity-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(42,42,61,.5); position: relative; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .activity-dot.lead { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,.3); }
+    .activity-dot.play { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .activity-dot.win { background: var(--yellow); box-shadow: 0 0 8px rgba(245,158,11,.3); }
+    .activity-dot.impression { background: var(--blue); box-shadow: 0 0 8px rgba(59,130,246,.3); }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-text { font-size: 13px; line-height: 1.4; }
+    .activity-text strong { color: var(--text); font-weight: 600; }
+    .activity-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .activity-empty { text-align: center; padding: 30px 16px; color: var(--muted); font-size: 13px; }
+
+    /* Recent popup list (legacy compat) */
     .recent-item {
       display: flex;
       align-items: center;
@@ -648,7 +716,7 @@
     .slot-lever-ball { width:24px; height:24px; background:radial-gradient(circle at 35% 35%,#ff6b6b,#c0392b,#8B0000); border-radius:50%; position:absolute; top:-8px; left:50%; transform:translateX(-50%); box-shadow:0 3px 10px rgba(0,0,0,.5), inset 0 -2px 4px rgba(0,0,0,.3), inset 0 2px 4px rgba(255,255,255,.2); transition:top .3s cubic-bezier(.68,-.55,.27,1.55); }
     .slot-lever-area.pulled .slot-lever-ball { top:44px; }
     .slot-lever-base { width:16px; height:8px; background:linear-gradient(180deg,#aaa,#666); border-radius:0 0 6px 6px; margin-top:-1px; }
-    /* ─── SLOT POPUP HEADER (title above machine) ────── */
+    /* ─── SLOT POPUP HEADER (title above machine) ──────── */
     .slot-popup-header {
       text-align: center; padding: 14px 14px 8px;
       background: linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 100%);
@@ -694,7 +762,6 @@
     }
     .slot-lock-overlay.hidden { opacity: 0; max-height: 0; padding: 0 16px; pointer-events: none; }
     .slot-lock-icon { display: none; }
-    @keyframes lockPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
     .slot-lock-title { display: none; }
     .slot-lock-subtitle {
       font-size: 10px; color: rgba(255,255,255,.6); text-align: center; margin-bottom: 10px;
@@ -714,7 +781,7 @@
       border-radius: 10px; padding: 10px 12px 10px 36px; color: #fff; font-size: 13px;
       outline: none; text-align: left; transition: border-color .2s, background .2s;
     }
-    .slot-lock-input::placeholder { color: rgba(255,255,255,.4); }
+    .slot-lock-input::placeholder { color: rgba(255,255,255,.35); }
     .slot-lock-input:focus { border-color: currentColor; background: rgba(255,255,255,.12); }
     .slot-lock-btn {
       background: linear-gradient(180deg, var(--slot-accent, #22c55e) 0%, var(--slot-accent-dark, #16a34a) 100%);
@@ -744,7 +811,7 @@
     .slot-confetti { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall 1.5s ease-out forwards; z-index: 11; pointer-events: none; }
     @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(200px) rotate(720deg);opacity:0} }
 
-        /* ─── ROLETA DA SORTE ────────────────────────────── */
+    /* ─── ROLETA DA SORTE ────────────────────────────── */
     .wheel-popup {
       background: linear-gradient(180deg, #141420 0%, #0a0a14 100%);
       border-radius: 16px; padding: 0; max-width: 340px; width: 100%;
@@ -841,7 +908,7 @@
       border-radius: 6px; background: rgba(34,197,94,.06);
       box-shadow: 0 0 10px rgba(34,197,94,.08);
     }
-        /* Lock overlay (form) */
+    /* Lock overlay (form) */
     .wheel-lock-overlay {
       padding: 12px 16px 16px; display: flex; flex-direction: column; align-items: center;
       background: linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.6) 100%);
@@ -870,12 +937,12 @@
       background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); color: #fff;
       border: 2px solid rgba(34,197,94,.5); border-radius: 10px;
       padding: 14px; font-size: 15px; font-weight: 900; cursor: pointer;
-      text-transform: uppercase; letter-spacing: 2px;
-      box-shadow: 0 4px 20px rgba(34,197,94,.3); transition: all .2s;
+      text-transform: uppercase; letter-spacing: 2.5px;
+      box-shadow: 0 4px 20px rgba(34,197,94,.35), 0 0 30px rgba(34,197,94,.15); transition: all .2s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .wheel-lock-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(34,197,94,.5), 0 0 40px rgba(34,197,94,.2); }
-    .wheel-lock-btn::after { content: '>'; font-size: 16px; font-weight: 700; }
+    .wheel-lock-btn::after { content: '>'; font-size: 18px; font-weight: 700; }
     /* Wheel victory */
     .wheel-victory {
       position: absolute; inset: 0; background: rgba(0,0,0,.9); display: flex; flex-direction: column;
@@ -887,20 +954,30 @@
     .wheel-attempts { text-align: center; margin-top: 4px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,.5); letter-spacing: .5px; display: none; }
     .wheel-attempts.visible { display: block; }
 
-        /* ─── WHEEL CONFIG ────────────────────────────────── */
+    /* ─── WHEEL CONFIG ────────────────────────────────── */
+    .wheel-seg-row { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
+    .wheel-seg-row .ws-color { width: 30px; height: 26px; border: none; padding: 0; cursor: pointer; background: none; border-radius: 4px; }
+    .wheel-seg-row .ws-label { flex: 2; padding: 4px 6px; font-size: 11px; }
+    .wheel-seg-row .ws-coupon { flex: 2; padding: 4px 6px; font-size: 11px; }
+    .wheel-seg-row .ws-chance { width: 48px; padding: 4px 4px; font-size: 11px; text-align: center; }
+    .wheel-seg-row:hover { background: rgba(124,92,252,.05); border-radius: 4px; }
+
+    /* Wheel Design Variants */
     .wheel-container.design-moderno .wheel-outer-ring { background: linear-gradient(135deg, #334155, #475569) !important; }
     .wheel-container.design-moderno .wheel-bulbs { display: none !important; }
     .wheel-container.design-moderno .wheel-pointer { border-top-color: #e2e8f0 !important; filter: none !important; }
     .wheel-container.design-moderno .wheel-center-btn { border-color: #475569 !important; background: linear-gradient(180deg, #334155, #1e293b) !important; }
+
     .wheel-container.design-neon .wheel-outer-ring { background: linear-gradient(135deg, #7c3aed, #a855f7, #7c3aed) !important; box-shadow: 0 0 20px #7c3aed, 0 0 40px rgba(124,92,252,.3) !important; }
     .wheel-container.design-neon .wheel-bulbs { display: none !important; }
     .wheel-container.design-neon .wheel-pointer { border-top-color: #a78bfa !important; filter: drop-shadow(0 0 8px #7c3aed) !important; }
     .wheel-container.design-neon .wheel-center-btn { border-color: #7c3aed !important; background: linear-gradient(180deg, #7c3aed, #6d28d9) !important; box-shadow: 0 0 12px #7c3aed !important; }
+
     .wheel-design-card { cursor: pointer; background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; width: 100px; transition: border-color .2s; }
     .wheel-design-card.active { border-color: var(--accent) !important; }
     .wheel-design-card:hover { border-color: var(--accent-light); }
 
-/* ─── SKATE GRIND ─────────────────────────────────── */
+    /* ─── SKATE GRIND ─────────────────────────────────── */
     .skate-popup {
       max-width: 340px; margin: 0 auto;
       background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
@@ -910,70 +987,72 @@
       box-shadow: 0 10px 40px rgba(0,0,0,.6);
     }
     .skate-popup-header {
-      text-align: center; padding: 14px 12px 10px;
-      background: rgba(0,0,0,.3); border-bottom: 1px solid rgba(255,255,255,.06);
+      text-align: center; padding: 16px 16px 10px;
+      background: rgba(0,0,0,.4); border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .skate-popup-header .skate-icon { font-size: 28px; display: block; margin-bottom: 4px; animation: skate-bounce .6s infinite; }
-    .skate-popup-header h3 { margin: 0; font-size: 16px; color: #fff; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; }
+    .skate-popup-header .skate-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .skate-popup-header h3 { margin: 0; font-size: 18px; color: #fff; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; }
     .skate-popup-header p { margin: 4px 0 0; font-size: 11px; color: #888; }
-    @keyframes skate-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
     .skate-canvas-wrap {
-      position: relative; width: 310px; height: 160px;
-      margin: 10px auto; border: 1px solid rgba(255,255,255,.08);
+      position: relative; width: 310px; height: 170px;
+      margin: 8px auto; border: 1px solid rgba(255,255,255,.08);
       border-radius: 8px; overflow: hidden; background: #0a0a0a; cursor: pointer;
     }
-    .skate-canvas-wrap canvas { display: block; width: 310px; height: 160px; image-rendering: pixelated; }
-    .skate-score { text-align: center; font-size: 13px; color: #fff; padding: 4px 0; letter-spacing: 1px; font-family: 'Courier New', monospace; }
+    .skate-canvas-wrap canvas { display: block; width: 310px; height: 170px; image-rendering: pixelated; }
+    .skate-score { text-align: center; font-size: 14px; color: #fff; padding: 4px 0; letter-spacing: 1px; font-weight: 700; }
+    .skate-score span { color: #fff; font-weight: 900; }
     .skate-start-btn {
-      display: block; margin: 0 auto 10px; padding: 8px 28px;
+      display: block; margin: 0 auto 12px; padding: 10px 32px;
       background: #fff; color: #111; border: none; border-radius: 8px;
       font-weight: 800; font-size: 13px;
-      cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px;
+      box-shadow: 0 2px 10px rgba(255,255,255,.1);
     }
     .skate-start-btn:hover { background: #e0e0e0; }
-    .skate-start-btn:disabled { opacity: .4; cursor: default; }
+    .skate-start-btn:disabled { opacity: .3; cursor: default; }
     .skate-lock-overlay {
-      position: relative; width: 100%;
-      background: linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.95) 20%);
-      display: flex; flex-direction: column; align-items: center;
-      z-index: 10; padding: 12px 16px 16px;
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.92); display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      z-index: 10; padding: 16px; border-radius: 14px;
     }
-    .skate-lock-overlay .lock-icon { display: none; }
-    .skate-lock-overlay p { font-size: 11px; color: #aaa; margin: 0 0 6px; text-align: center; }
+    .skate-lock-overlay .lock-icon { font-size: 32px; margin-bottom: 8px; }
+    .skate-lock-overlay p { font-size: 12px; color: #999; margin: 0 0 10px; text-align: center; }
     .skate-lock-overlay input {
-      width: 100%; padding: 7px 12px; margin-bottom: 5px;
+      width: 85%; padding: 8px 12px; margin-bottom: 6px;
       border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
-      background: rgba(255,255,255,.06); color: #fff; font-size: 12px;
+      background: rgba(255,255,255,.06); color: #fff; font-size: 13px;
     }
+    .skate-lock-overlay input::placeholder { color: rgba(255,255,255,.35); }
     .skate-lock-overlay button.skate-unlock-btn {
-      margin-top: 6px; padding: 8px 24px; background: #fff; color: #111;
+      margin-top: 8px; padding: 10px 28px; background: #fff; color: #111;
       border: none; border-radius: 8px; font-weight: 800;
       cursor: pointer; text-transform: uppercase; font-size: 13px; letter-spacing: 1px;
     }
     .skate-victory {
       position: absolute; inset: 0;
-      background: rgba(10,10,20,.95); display: none;
+      background: rgba(0,0,0,.95); display: none;
       flex-direction: column; align-items: center; justify-content: center;
-      z-index: 15; padding: 18px; border-radius: 12px; text-align: center;
+      z-index: 15; padding: 18px; border-radius: 14px; text-align: center;
     }
     .skate-victory.active { display: flex; }
-    .skate-victory .trophy { font-size: 36px; }
-    .skate-victory h4 { color: #fff; margin: 8px 0 4px; font-size: 15px; font-family: 'Courier New', monospace; }
-    .skate-victory .prize-text { font-size: 22px; color: #fff; font-weight: bold; margin: 4px 0; }
+    .skate-victory .trophy { font-size: 40px; }
+    .skate-victory h4 { color: #fff; margin: 8px 0 4px; font-size: 16px; font-weight: 900; letter-spacing: 2px; }
+    .skate-victory .prize-text { font-size: 24px; color: #fff; font-weight: 900; margin: 4px 0; }
     .skate-victory .coupon-box {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.06); border: 1px dashed rgba(255,255,255,.3); border-radius: 4px;
-      padding: 6px 12px; margin: 8px 0;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.06); border: 1px dashed rgba(255,255,255,.3); border-radius: 8px;
+      padding: 8px 16px; margin: 10px 0;
     }
-    .skate-victory .coupon-box code { color: #fff; font-size: 14px; letter-spacing: 1px; }
+    .skate-victory .coupon-box code { color: #fff; font-size: 16px; font-weight: 800; letter-spacing: 2px; }
     .skate-victory .coupon-box button {
-      background: none; border: 1px solid #0f0; color: #0f0; border-radius: 3px;
-      padding: 3px 8px; cursor: pointer; font-size: 11px; font-family: 'Courier New', monospace;
+      background: #fff; border: none; color: #111; border-radius: 4px;
+      padding: 4px 10px; cursor: pointer; font-size: 11px; font-weight: 700;
     }
     .skate-victory .skate-play-again {
-      margin-top: 8px; padding: 6px 18px; background: transparent;
-      border: 1px solid #0f0; color: #0f0; border-radius: 4px;
-      cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px;
+      margin-top: 10px; padding: 8px 20px; background: transparent;
+      border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 8px;
+      cursor: pointer; font-size: 12px; font-weight: 600;
     }
 
     /* Color presets in design tab */
@@ -1105,30 +1184,43 @@
     .login-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
     .login-sub { color: var(--muted); margin-bottom: 24px; font-size: 15px; }
 
-    /* ─── RESPONSIVE ──────────────────────────────────── */
-    
-    /* ─── MOBILE HEADER ──────────────────────────── */
+    /* ─── MOBILE HAMBURGER ─────────────────────────────── */
     .mobile-header {
       display: none;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      align-items: center;
+      justify-content: space-between;
     }
     .mobile-header-left { display: flex; align-items: center; gap: 10px; }
-    .mobile-header-logo { width: 32px; height: 32px; background: linear-gradient(135deg, #7c5cfc 0%, #a855f7 50%, #ec4899 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .mobile-header-logo {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #7c5cfc 0%, #a855f7 50%, #ec4899 100%);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px;
+      box-shadow: 0 3px 10px rgba(124,92,252,.3);
+    }
     .mobile-header-title { font-weight: 800; font-size: 15px; background: linear-gradient(135deg, #e8e8f0 0%, #9b7fff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hamburger-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
-    .hamburger-btn span { display: block; width: 18px; height: 2px; background: var(--text); border-radius: 1px; transition: all .3s; }
-    .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 55; opacity: 0; transition: opacity .3s; }
+    .hamburger-btn {
+      background: none; border: none; color: var(--text); cursor: pointer; padding: 6px;
+      display: flex; flex-direction: column; gap: 5px; width: 32px;
+    }
+    .hamburger-btn span { display: block; height: 2px; width: 100%; background: var(--text); border-radius: 2px; transition: all .3s; }
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 55;
+      backdrop-filter: blur(2px); opacity: 0; transition: opacity .3s;
+    }
     .mobile-overlay.active { display: block; opacity: 1; }
 
+    /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 768px) {
+      /* Mobile header visible */
       .mobile-header { display: flex; }
+
+      /* Sidebar becomes slide-out drawer */
       #sidebar {
         position: fixed;
         left: 0; top: 0; bottom: 0;
@@ -1139,39 +1231,66 @@
         overflow-y: auto;
       }
       #sidebar.open { transform: translateX(0); }
+
+      /* Main fills width */
       #app { flex-direction: column; }
       #main { width: 100%; }
+
+      /* Page header */
       .page-header { padding: 16px 16px 0; flex-wrap: wrap; gap: 10px; }
       .page-title { font-size: 18px; }
       .page-sub { font-size: 12px; }
+
+      /* Dashboard */
       .dash-content { padding: 16px; }
       .dash-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
       .dash-card { padding: 14px; }
-      .dash-card-value { font-size: 22px; }
-      .dash-card-icon { width: 32px; height: 32px; font-size: 15px; margin-bottom: 10px; }
+      .dash-card-value { font-size: 20px; }
+      .dash-card-icon { width: 30px; height: 30px; font-size: 14px; }
+      .dash-card-top { margin-bottom: 8px; }
+      .dash-card-sparkline { height: 22px; }
+      .dash-card-trend { font-size: 10px; padding: 2px 6px; }
       .dash-row { grid-template-columns: 1fr; gap: 12px; }
-      .dash-panel { padding: 16px; }
-      .mini-chart { height: 60px; }
+      .dash-panel { padding: 16px; max-height: 320px; }
+      .dash-chart-section { padding: 16px; }
+      .dash-chart-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+      .dash-chart-area { height: 140px; gap: 4px; }
+      .dash-chart-bar-val { font-size: 9px; }
+      .dash-chart-day { font-size: 8px; }
+
+      /* Stats */
       .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
       .stat-card { padding: 14px; }
       .stat-value { font-size: 22px; }
+
+      /* Studio tabs & content */
       div[style*="padding: 24px 32px 0"] { padding: 16px 16px 0 !important; }
       div[id="studio-meus-popups"] { padding: 0 16px 16px !important; }
       .studio-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 0; flex-wrap: nowrap; }
       .studio-tab { padding: 10px 14px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+
+      /* Popup grid */
       .popup-grid { grid-template-columns: 1fr; gap: 12px; }
       .popup-card { padding: 16px; }
       .popup-card-actions { flex-wrap: wrap; }
+
+      /* Games & Integration grids */
       .games-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .game-card { padding: 14px; }
       .game-card-icon { font-size: 28px; }
       .game-card-name { font-size: 12px; }
       .integration-grid { grid-template-columns: 1fr; }
       .integration-card { padding: 16px; gap: 12px; }
+
+      /* Account */
       .account-grid { grid-template-columns: 1fr; gap: 12px; }
       .account-card { padding: 16px; }
+
+      /* Form */
       .form-row { grid-template-columns: 1fr; }
       .form-group { margin-bottom: 14px; }
+
+      /* Modal – fullscreen on mobile */
       .modal-overlay { padding: 0; align-items: stretch; }
       .modal { max-width: 100%; max-height: 100vh; border-radius: 0; height: 100vh; }
       .modal-header { padding: 14px 16px; }
@@ -1181,24 +1300,38 @@
       .modal-preview-side { position: static; }
       .modal-footer { padding: 12px 16px; flex-wrap: wrap; }
       .modal-footer .btn { flex: 1; justify-content: center; min-width: 0; }
+
+      /* Design tab inside modal */
       .tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .tab { white-space: nowrap; flex-shrink: 0; padding: 7px 12px; font-size: 12px; }
       .preset-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
       .format-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
       .format-card { padding: 10px 6px; }
       .format-card-icon { font-size: 22px; }
+
+      /* Table – horizontally scrollable */
       .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       table { min-width: 500px; }
       th, td { padding: 10px 12px; font-size: 12px; }
+
+      /* Leads header */
       .leads-header { flex-wrap: wrap; gap: 8px; }
+
+      /* Buttons */
       .btn { padding: 8px 12px; font-size: 12px; }
       .section-header { flex-wrap: wrap; gap: 8px; }
+
+      /* Toast */
       #toast { bottom: 16px; right: 16px; left: 16px; }
       .toast-item { font-size: 12px; padding: 10px 14px; }
+
+      /* Empty state */
       .empty { padding: 40px 16px; }
       .empty-icon { font-size: 36px; }
       .empty-title { font-size: 16px; }
       .empty-sub { font-size: 13px; }
+
+      /* Slot machine */
       .slot-machine { max-width: 280px; border-width: 3px; }
       .slot-jackpot { padding: 6px 10px 5px; }
       .slot-jackpot-text { font-size: 18px; letter-spacing: 3px; }
@@ -1230,13 +1363,18 @@
       .slot-lock-btn { padding: 10px; font-size: 11px; letter-spacing: 1px; }
       .slot-lock-overlay { padding: 10px 10px 14px; }
       .slot-lock-subtitle { font-size: 8px; }
+
+      /* Preview in modal */
       .popup-preview-box { max-width: 260px; padding: 20px 16px; }
       .popup-preview-title { font-size: 17px; }
       .popup-preview-desc { font-size: 12px; }
+
+      /* Color inputs */
       .color-row { flex-wrap: wrap; }
       .color-input { width: 40px; height: 32px; }
     }
 
+    /* Extra small screens (< 400px) */
     @media (max-width: 400px) {
       .dash-grid { grid-template-columns: 1fr; }
       .stats-row { grid-template-columns: 1fr; }
@@ -1263,7 +1401,7 @@
   <!-- MAIN APP -->
   <div id="app" style="display:none">
 
-    <!-- ─── SIDEBAR ─────────────────────────────────── -->
+    <!-- ─── MOBILE HEADER ───────────────────────────── -->
     <div class="mobile-header">
       <div class="mobile-header-left">
         <div class="mobile-header-logo">🎯</div>
@@ -1275,6 +1413,7 @@
     </div>
     <div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
+    <!-- ─── SIDEBAR ─────────────────────────────────── -->
     <nav id="sidebar">
 
       <!-- Logo -->
@@ -1360,75 +1499,143 @@
             <h1 class="page-title">Dashboard</h1>
             <p class="page-sub">Visão geral do desempenho dos seus popups</p>
           </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="dash-last-update" style="font-size:11px;color:var(--muted);"></span>
+            <button class="btn btn-outline" onclick="loadDashboard()" style="font-size:12px;padding:6px 14px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Atualizar
+            </button>
+          </div>
         </div>
         <div class="dash-content">
-          <!-- KPI Cards -->
+
+          <!-- ── KPI Cards (5 columns) ── -->
           <div class="dash-grid">
+            <!-- 1. Popups Ativos -->
             <div class="dash-card">
               <div class="dash-card-glow" style="background:var(--accent)"></div>
-              <div class="dash-card-icon purple">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <div class="dash-card-top">
+                <div class="dash-card-icon purple">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="dash-card-trend neutral" id="dash-active-trend">—</div>
               </div>
               <div class="dash-card-label">Popups Ativos</div>
               <div class="dash-card-value purple" id="dash-active">—</div>
               <div class="dash-card-sub" id="dash-active-sub">de 0 criados</div>
+              <div class="dash-card-sparkline" id="dash-active-spark"></div>
             </div>
+
+            <!-- 2. Leads Capturados -->
             <div class="dash-card">
               <div class="dash-card-glow" style="background:var(--green)"></div>
-              <div class="dash-card-icon green">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <div class="dash-card-top">
+                <div class="dash-card-icon green">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                </div>
+                <div class="dash-card-trend neutral" id="dash-leads-trend">—</div>
               </div>
               <div class="dash-card-label">Leads Capturados</div>
               <div class="dash-card-value green" id="dash-leads">—</div>
               <div class="dash-card-sub" id="dash-leads-sub">total acumulado</div>
+              <div class="dash-card-sparkline" id="dash-leads-spark"></div>
             </div>
+
+            <!-- 3. Impressões -->
             <div class="dash-card">
               <div class="dash-card-glow" style="background:var(--blue)"></div>
-              <div class="dash-card-icon blue">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <div class="dash-card-top">
+                <div class="dash-card-icon blue">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+                <div class="dash-card-trend neutral" id="dash-views-trend">—</div>
               </div>
               <div class="dash-card-label">Impressões</div>
               <div class="dash-card-value blue" id="dash-views">—</div>
-              <div class="dash-card-sub">visualizações dos popups</div>
+              <div class="dash-card-sub">visualizações totais</div>
+              <div class="dash-card-sparkline" id="dash-views-spark"></div>
             </div>
+
+            <!-- 4. Taxa de Conversão -->
             <div class="dash-card">
               <div class="dash-card-glow" style="background:var(--pink)"></div>
-              <div class="dash-card-icon pink">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <div class="dash-card-top">
+                <div class="dash-card-icon pink">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <div class="dash-card-trend neutral" id="dash-conv-trend">—</div>
               </div>
               <div class="dash-card-label">Taxa de Conversão</div>
               <div class="dash-card-value pink" id="dash-conversion">—</div>
               <div class="dash-card-sub">leads / impressões</div>
+              <div class="dash-card-sparkline" id="dash-conv-spark"></div>
+            </div>
+
+            <!-- 5. Jogadas (Plays) -->
+            <div class="dash-card">
+              <div class="dash-card-glow" style="background:var(--cyan,#06b6d4)"></div>
+              <div class="dash-card-top">
+                <div class="dash-card-icon cyan">
+                  🎮
+                </div>
+                <div class="dash-card-trend neutral" id="dash-plays-trend">—</div>
+              </div>
+              <div class="dash-card-label">Jogadas</div>
+              <div class="dash-card-value cyan" id="dash-plays">—</div>
+              <div class="dash-card-sub">interações com jogos</div>
+              <div class="dash-card-sparkline" id="dash-plays-spark"></div>
             </div>
           </div>
 
-          <!-- Charts row -->
-          <div class="dash-row">
-            <div class="dash-panel">
-              <div class="dash-panel-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                Leads nos últimos 7 dias
+          <!-- ── Chart Section ── -->
+          <div class="dash-chart-section">
+            <div class="dash-chart-header">
+              <div class="dash-chart-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Leads Capturados
               </div>
-              <div class="mini-chart" id="dash-chart">
-                <div class="mini-bar" style="height:20%"><span class="mini-bar-label">Seg</span></div>
-                <div class="mini-bar" style="height:40%"><span class="mini-bar-label">Ter</span></div>
-                <div class="mini-bar" style="height:30%"><span class="mini-bar-label">Qua</span></div>
-                <div class="mini-bar" style="height:60%"><span class="mini-bar-label">Qui</span></div>
-                <div class="mini-bar" style="height:45%"><span class="mini-bar-label">Sex</span></div>
-                <div class="mini-bar" style="height:80%"><span class="mini-bar-label">Sáb</span></div>
-                <div class="mini-bar" style="height:55%"><span class="mini-bar-label">Dom</span></div>
+              <div class="dash-chart-tabs">
+                <button class="dash-chart-tab active" onclick="switchChartPeriod('7d', this)">7 dias</button>
+                <button class="dash-chart-tab" onclick="switchChartPeriod('14d', this)">14 dias</button>
+                <button class="dash-chart-tab" onclick="switchChartPeriod('30d', this)">30 dias</button>
               </div>
             </div>
+            <div class="dash-chart-area" id="dash-chart-area">
+              <div style="text-align:center;width:100%;padding:40px 0;color:var(--muted);font-size:13px;">Carregando dados...</div>
+            </div>
+          </div>
+
+          <!-- ── Bottom row: Ranking + Activity ── -->
+          <div class="dash-row">
+            <!-- Ranking de Popups -->
             <div class="dash-panel">
-              <div class="dash-panel-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-                Popups Recentes
+              <div class="dash-panel-header">
+                <div class="dash-panel-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  Ranking de Popups
+                </div>
+                <div class="dash-panel-badge" id="dash-rank-count">0 popups</div>
               </div>
-              <div id="dash-recent">
-                <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum popup criado ainda</div>
+              <div class="dash-panel-scroll" id="dash-ranking">
+                <div class="activity-empty">Nenhum popup com dados ainda</div>
+              </div>
+            </div>
+
+            <!-- Últimas Atividades -->
+            <div class="dash-panel">
+              <div class="dash-panel-header">
+                <div class="dash-panel-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Últimas Atividades
+                </div>
+                <div class="dash-panel-badge" id="dash-activity-count">0 eventos</div>
+              </div>
+              <div class="dash-panel-scroll" id="dash-activity">
+                <div class="activity-empty">Nenhuma atividade registrada</div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -1685,21 +1892,26 @@
                   <label class="form-label">Título da Máquina</label>
                   <input class="form-input" id="f-slot-machine-title" placeholder="SLOT MACHINE" value="SLOT MACHINE" oninput="updatePreview()">
                 </div>
-                            <!-- WHEEL CONFIG -->
+              </div>
+              <!-- WHEEL CONFIG (only for spin_wheel) -->
               <div id="wheel-config" style="display:none;">
                 <div style="height:1px;background:var(--border);margin:18px 0;"></div>
-                <div style="font-size:13px;font-weight:700;color:#9b7fff;margin-bottom:10px;">🎡 Segmentos da Roleta</div>
-                <div style="display:flex;gap:4px;margin-bottom:4px;padding:0 2px;"><span style="width:30px;font-size:9px;color:#6e6e90;">Cor</span><span style="flex:2;font-size:9px;color:#6e6e90;">Texto</span><span style="flex:2;font-size:9px;color:#6e6e90;">Cupom</span><span style="width:48px;font-size:9px;color:#6e6e90;">%</span></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-0" value="#22c55e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-0" value="15% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-0" value="DESC15" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-0" type="number" value="10" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-1" value="#7c3aed"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-1" value="Tente novamente" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-1" value="" placeholder="—"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-1" type="number" value="25" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-2" value="#1a1a2e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-2" value="5% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-2" value="DESC5" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-2" type="number" value="20" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-3" value="#22c55e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-3" value="20% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-3" value="DESC20" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-3" type="number" value="5" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-4" value="#7c3aed"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-4" value="Quase!" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-4" value="" placeholder="—"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-4" type="number" value="20" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-5" value="#1a1a2e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-5" value="10% OFF" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-5" value="DESC10" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-5" type="number" value="10" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-6" value="#22c55e"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-6" value="Boa sorte!" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-6" value="" placeholder="—"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-6" type="number" value="5" min="1" max="100" oninput="updateWheelFromConfig()"></div>
-                <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="color" style="width:30px;height:26px;border:none;padding:0;cursor:pointer;background:none;border-radius:4px;" onchange="updateWheelFromConfig()" id="ws-color-7" value="#7c3aed"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-label-7" value="Frete Grátis" oninput="updateWheelFromConfig()"><input class="form-input" style="flex:2;padding:4px 6px;font-size:11px;" id="ws-coupon-7" value="FRETE0" placeholder="Cupom"><input class="form-input" style="width:48px;padding:4px 4px;font-size:11px;text-align:center;" id="ws-chance-7" type="number" value="5" min="1" max="100" oninput="updateWheelFromConfig()"></div>
+                <div style="font-size:13px;font-weight:700;color:var(--accent-light);margin-bottom:10px;">🎡 Segmentos da Roleta</div>
+                <div style="display:flex;gap:4px;margin-bottom:4px;padding:0 2px;">
+                  <span style="width:30px;font-size:9px;color:var(--muted);">Cor</span>
+                  <span style="flex:2;font-size:9px;color:var(--muted);">Texto na Roleta</span>
+                  <span style="flex:2;font-size:9px;color:var(--muted);">Código Cupom</span>
+                  <span style="width:48px;font-size:9px;color:var(--muted);">%</span>
+                </div>
+                <div id="wheel-seg-row-0" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-0" value="#22c55e"><input class="form-input ws-label" id="ws-label-0" value="15% OFF" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-0" value="DESC15" placeholder="Cupom"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-0" type="number" value="10" min="1" max="100"></div>
+                <div id="wheel-seg-row-1" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-1" value="#7c3aed"><input class="form-input ws-label" id="ws-label-1" value="Tente novamente" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-1" value="" placeholder="—"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-1" type="number" value="25" min="1" max="100"></div>
+                <div id="wheel-seg-row-2" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-2" value="#1a1a2e"><input class="form-input ws-label" id="ws-label-2" value="5% OFF" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-2" value="DESC5" placeholder="Cupom"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-2" type="number" value="20" min="1" max="100"></div>
+                <div id="wheel-seg-row-3" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-3" value="#22c55e"><input class="form-input ws-label" id="ws-label-3" value="20% OFF" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-3" value="DESC20" placeholder="Cupom"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-3" type="number" value="5" min="1" max="100"></div>
+                <div id="wheel-seg-row-4" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-4" value="#7c3aed"><input class="form-input ws-label" id="ws-label-4" value="Quase!" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-4" value="" placeholder="—"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-4" type="number" value="20" min="1" max="100"></div>
+                <div id="wheel-seg-row-5" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-5" value="#1a1a2e"><input class="form-input ws-label" id="ws-label-5" value="10% OFF" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-5" value="DESC10" placeholder="Cupom"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-5" type="number" value="10" min="1" max="100"></div>
+                <div id="wheel-seg-row-6" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-6" value="#22c55e"><input class="form-input ws-label" id="ws-label-6" value="Boa sorte!" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-6" value="" placeholder="—"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-6" type="number" value="5" min="1" max="100"></div>
+                <div id="wheel-seg-row-7" class="wheel-seg-row"><input type="color" class="ws-color" onchange="updateWheelFromConfig()" id="ws-color-7" value="#7c3aed"><input class="form-input ws-label" id="ws-label-7" value="Frete Grátis" oninput="updateWheelFromConfig()"><input class="form-input ws-coupon" id="ws-coupon-7" value="FRETE0" placeholder="Cupom"><input class="form-input ws-chance" oninput="updateWheelFromConfig()" id="ws-chance-7" type="number" value="5" min="1" max="100"></div>
               </div>
-</div>
             </div>
             <!-- DESIGN TAB -->
             <div id="tab-design" style="display:none">
@@ -1771,7 +1983,7 @@
                   </div>
                 </div>
               </div>
-                            <!-- WHEEL COLOR PRESETS -->
+              <!-- WHEEL COLOR PRESETS -->
               <div id="wheel-color-presets" style="display:none;">
                 <div class="form-group">
                   <label class="form-label">🎨 Paleta de Cores da Roleta</label>
@@ -1789,26 +2001,25 @@
                 <div class="form-group">
                   <label class="form-label">🎯 Estilo da Roleta</label>
                   <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <div class="wheel-design-card active" onclick="setWheelDesign('cassino',this)"><div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:3px solid #d4a017;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);position:relative;"><div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #d4a017;"></div></div><div style="font-size:11px;color:#e8e8f0;margin-top:6px;font-weight:600;">Cassino</div><div style="font-size:9px;color:#6e6e90;">Anel dourado + luzes</div></div>
-                    <div class="wheel-design-card" onclick="setWheelDesign('moderno',this)"><div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:2px solid #475569;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);"></div><div style="font-size:11px;color:#e8e8f0;margin-top:6px;font-weight:600;">Moderno</div><div style="font-size:9px;color:#6e6e90;">Flat + minimalista</div></div>
-                    <div class="wheel-design-card" onclick="setWheelDesign('neon',this)"><div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:2px solid #7c3aed;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);box-shadow:0 0 10px #7c3aed,0 0 20px rgba(124,92,252,.3);"></div><div style="font-size:11px;color:#e8e8f0;margin-top:6px;font-weight:600;">Neon Glow</div><div style="font-size:9px;color:#6e6e90;">Brilho neon</div></div>
+                    <div class="wheel-design-card active" onclick="setWheelDesign('cassino',this)">
+                      <div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:3px solid #d4a017;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);position:relative;"><div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #d4a017;"></div></div>
+                      <div style="font-size:11px;color:var(--text);margin-top:6px;font-weight:600;">Cassino</div>
+                      <div style="font-size:9px;color:var(--muted);">Anel dourado + luzes</div>
+                    </div>
+                    <div class="wheel-design-card" onclick="setWheelDesign('moderno',this)">
+                      <div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:2px solid #475569;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);"></div>
+                      <div style="font-size:11px;color:var(--text);margin-top:6px;font-weight:600;">Moderno</div>
+                      <div style="font-size:9px;color:var(--muted);">Flat + minimalista</div>
+                    </div>
+                    <div class="wheel-design-card" onclick="setWheelDesign('neon',this)">
+                      <div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:2px solid #7c3aed;background:conic-gradient(#22c55e 0 120deg,#7c3aed 120deg 240deg,#1a1a2e 240deg);box-shadow:0 0 10px #7c3aed,0 0 20px rgba(124,92,252,.3);"></div>
+                      <div style="font-size:11px;color:var(--text);margin-top:6px;font-weight:600;">Neon Glow</div>
+                      <div style="font-size:9px;color:var(--muted);">Brilho neon</div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <!-- SKATE GRIND PRESETS -->
-              <div id="skate-presets-section" style="display:none;">
-                <div class="form-group">
-                  <label class="form-label">🛹 Temas do Skate Grind</label>
-                  <div class="preset-grid">
-                    <div class="preset-card active" onclick="applySkatePreset(0)" style="background:linear-gradient(135deg,#111,#000);"><div class="preset-mini-slot" style="background:#fff;color:#000;font-size:10px;">Sk</div><div class="preset-card-name">Minimal</div></div>
-                    <div class="preset-card" onclick="applySkatePreset(1)" style="background:linear-gradient(135deg,#1a1a2e,#0d0d1a);"><div class="preset-mini-slot" style="background:#7c5cfc;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Urbano</div></div>
-                    <div class="preset-card" onclick="applySkatePreset(2)" style="background:linear-gradient(135deg,#0f172a,#020617);"><div class="preset-mini-slot" style="background:#22c55e;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Neon</div></div>
-                    <div class="preset-card" onclick="applySkatePreset(3)" style="background:linear-gradient(135deg,#fef3c7,#fde68a);"><div class="preset-mini-slot" style="background:#d97706;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Gold</div></div>
-                    <div class="preset-card" onclick="applySkatePreset(4)" style="background:linear-gradient(135deg,#1c1917,#0c0a09);"><div class="preset-mini-slot" style="background:#ef4444;color:#fff;font-size:10px;">Sk</div><div class="preset-card-name">Street</div></div>
-                  </div>
-                </div>
-              </div>
-<div class="form-group">
+              <div class="form-group">
                 <label class="form-label">Cor de Fundo</label>
                 <div class="color-row">
                   <input type="color" class="color-input" id="f-bg" value="#1a1a2e" oninput="updatePreview()">
@@ -1876,6 +2087,7 @@
                         <div class="slot-popup-title" id="slot-popup-title" style="color:#f1c40f;">GIRE E GANHE!</div>
                         <div class="slot-popup-subtitle" id="slot-popup-subtitle">Cadastre-se para jogar e ganhar um cupom de desconto.</div>
                       </div>
+                      <!-- Hidden elements for JS compatibility -->
                       <div id="slot-jackpot" style="display:none;"><div class="slot-jackpot-text" id="slot-preview-title">JACKPOT!</div><div class="slot-bulbs" id="slot-bulbs"></div></div>
                       <div class="slot-body-vegas">
                         <div class="slot-screen" id="slot-screen">
@@ -1899,6 +2111,7 @@
                             </div>
                           </div>
                         </div>
+                        <!-- Hidden elements for JS compatibility -->
                         <div style="display:none;">
                           <span id="slot-credits">1250</span>
                           <span id="slot-message">BOA SORTE!</span>
@@ -1909,7 +2122,9 @@
                           <button class="slot-btn-main" id="slot-pull-btn" onclick="pullSlotLever()">🎰 JOGAR</button>
                         </div>
                       </div>
+                      <!-- Coupon Banner -->
                       <div class="slot-coupon-banner" id="slot-coupon-banner" style="color:#f1c40f;">🎁 CUPOM SURPRESA DE DESCONTO</div>
+                      <!-- Lock Overlay (registration form below the machine) -->
                       <div class="slot-lock-overlay" id="slot-lock-overlay">
                         <div class="slot-lock-icon">🔒</div>
                         <div class="slot-lock-title" id="slot-lock-title">Cadastre-se para jogar!</div>
@@ -1991,12 +2206,12 @@
                     <div class="skate-popup-header">
                       <span class="skate-icon" id="skate-popup-icon">🛹</span>
                       <h3 id="skate-popup-title">SKATE GRIND</h3>
-                      <p id="skate-popup-subtitle">Pule hidrantes, grinde corrimãos e faça 300 pontos!</p>
+                      <p id="skate-popup-subtitle">Pule hidrantes, grinde corrimões e faça 300 pontos!</p>
                     </div>
                     <div class="skate-canvas-wrap" id="skateCanvasWrap">
                       <canvas id="skateCanvas" width="310" height="160"></canvas>
                     </div>
-                    <div class="skate-score"><span id="skateScoreVal">0 / 800</span> PTS</div>
+                    <div class="skate-score"><span id="skateScoreVal">0 / 300</span> PTS</div>
                     <button class="skate-start-btn" id="skateStartBtn" onclick="startSkateRun()" disabled>INICIAR</button>
                     <div class="skate-lock-overlay" id="skateLockOverlay">
                       <div class="lock-icon">🔒</div>
@@ -2019,7 +2234,6 @@
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -2051,12 +2265,12 @@ let slotPresetIdx = 0;
 const GAMES = [
   { id: 'spin_wheel', icon: '🎡', name: 'Roleta da Sorte', desc: 'Gire a roleta e ganhe prêmios', available: true },
   { id: 'slot_machine', icon: '🎰', name: 'Slot Machine', desc: 'Caça-níqueis com cupons', available: true },
-  { id: 'skate_grind', icon: '🛹', name: 'Skate Grind', desc: 'Pule obst\u00e1culos e ganhe descontos', available: true },
+  { id: 'skate_grind', icon: '🛹', name: 'Skate Grind', desc: 'Pule obstáculos e ganhe descontos', available: true },
   { id: 'scratch_card', icon: '🃏', name: 'Raspadinha', desc: 'Raspe e descubra seu prêmio', available: true },
   { id: 'quiz', icon: '🧠', name: 'Quiz Interativo', desc: 'Perguntas com recompensa', available: false },
   { id: 'memory_game', icon: '🧩', name: 'Jogo da Memória', desc: 'Encontre os pares e ganhe', available: false },
   { id: 'gift_box', icon: '🎁', name: 'Caixa Surpresa', desc: 'Escolha uma caixa e ganhe', available: false },
-  { id: 'balloon_pop', icon: '🎈', name: 'Estoura Balão', desc: 'Estoure o balão premiado', available: false },
+  { id: 'balloon_pop', icon: '🎈', name: 'Estoura Balão', desc: 'Estoure o balão premiado', available: false }
 ];
 
 // ─── INTEGRATIONS CATALOG ───────────────────────────────────────────────────
@@ -2117,43 +2331,263 @@ function showView(name, el) {
 }
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
+let dashChartPeriod = '7d';
+
+function switchChartPeriod(period, btn) {
+  dashChartPeriod = period;
+  document.querySelectorAll('.dash-chart-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  loadDashboard();
+}
+
+function formatNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+function renderSparkline(containerId, data, color) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const max = Math.max(...data, 1);
+  el.innerHTML = data.map(v => {
+    const h = Math.max(3, (v / max) * 28);
+    return '<div class="spark" style="height:' + h + 'px;background:' + color + '"></div>';
+  }).join('');
+}
+
+function trendBadge(current, previous) {
+  if (previous === 0 && current === 0) return { cls: 'neutral', text: '—' };
+  if (previous === 0) return { cls: 'up', text: '↑ Novo' };
+  const pct = ((current - previous) / previous * 100).toFixed(0);
+  if (pct > 0) return { cls: 'up', text: '↑ ' + pct + '%' };
+  if (pct < 0) return { cls: 'down', text: '↓ ' + Math.abs(pct) + '%' };
+  return { cls: 'neutral', text: '→ 0%' };
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'agora';
+  if (mins < 60) return mins + 'min atrás';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h atrás';
+  const days = Math.floor(hrs / 24);
+  return days + 'd atrás';
+}
+
+function getDaysArray(n) {
+  const arr = [];
+  const dayNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    arr.push({ date: d.toISOString().split('T')[0], label: dayNames[d.getDay()], dayNum: d.getDate() });
+  }
+  return arr;
+}
+
 async function loadDashboard() {
   const total = popups.length;
   const pub = popups.filter(p => p.is_published).length;
   document.getElementById('dash-active').textContent = pub;
   document.getElementById('dash-active-sub').textContent = 'de ' + total + ' criados';
 
+  // Update timestamp
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('dash-last-update').textContent = 'Atualizado às ' + hh + ':' + mm;
+
+  // Fetch aggregated data
+  let leads = 0, views = 0, plays = 0, wins = 0;
+  let recentEvents = [];
+  let leadsPerPopup = {};
+  let dailyLeads = {};
+  let dailyViews = {};
+  let dailyPlays = {};
+
+  const days = dashChartPeriod === '30d' ? 30 : dashChartPeriod === '14d' ? 14 : 7;
+  const daysArr = getDaysArray(days);
+  const sinceDate = daysArr[0].date;
+
   try {
-    const [l, e] = await Promise.all([
+    const [leadRes, eventRes] = await Promise.all([
       api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
       api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
     ]);
-    const leads = l.count || 0;
-    const views = e.count || 0;
-    document.getElementById('dash-leads').textContent = leads;
-    document.getElementById('dash-views').textContent = views;
-    const rate = views > 0 ? ((leads / views) * 100).toFixed(1) + '%' : '0%';
-    document.getElementById('dash-conversion').textContent = rate;
+    leads = leadRes.count || 0;
+    const totalEvents = eventRes.count || 0;
+
+    // Try to get detailed events for chart + activity
+    try {
+      const evtDetail = await api('GET', '/api/public/event?since=' + sinceDate + '&limit=200').catch(() => ({ events: [] }));
+      const events = evtDetail.events || evtDetail.data || [];
+      if (Array.isArray(events)) {
+        recentEvents = events.slice(0, 20);
+        events.forEach(ev => {
+          const day = (ev.created_at || '').split('T')[0];
+          if (ev.event_type === 'impression') { views++; dailyViews[day] = (dailyViews[day] || 0) + 1; }
+          if (ev.event_type === 'play') { plays++; dailyPlays[day] = (dailyPlays[day] || 0) + 1; }
+          if (ev.event_type === 'win') wins++;
+        });
+      }
+      // If we got event counts from summary, prefer those
+      if (totalEvents > views) views = totalEvents;
+    } catch {}
+
+    // Try to get detailed leads for chart
+    try {
+      const leadDetail = await api('GET', '/api/public/lead?since=' + sinceDate + '&limit=200').catch(() => ({ leads: [] }));
+      const ldArr = leadDetail.leads || leadDetail.data || [];
+      if (Array.isArray(ldArr)) {
+        ldArr.forEach(ld => {
+          const day = (ld.created_at || '').split('T')[0];
+          dailyLeads[day] = (dailyLeads[day] || 0) + 1;
+          const pid = ld.popup_id || 'unknown';
+          leadsPerPopup[pid] = (leadsPerPopup[pid] || 0) + 1;
+        });
+        // Merge into recent events for activity feed
+        ldArr.slice(0, 10).forEach(ld => {
+          recentEvents.push({ event_type: 'lead', created_at: ld.created_at, email: ld.email, popup_id: ld.popup_id, name: ld.name });
+        });
+      }
+    } catch {}
+
   } catch {
-    document.getElementById('dash-leads').textContent = '0';
-    document.getElementById('dash-views').textContent = '0';
-    document.getElementById('dash-conversion').textContent = '0%';
+    // Fallback: all zeros
   }
 
-  // Recent popups
-  const recentEl = document.getElementById('dash-recent');
+  // ── Populate KPI values ──
+  document.getElementById('dash-leads').textContent = formatNum(leads);
+  document.getElementById('dash-views').textContent = formatNum(views);
+  document.getElementById('dash-conversion').textContent = views > 0 ? ((leads / views) * 100).toFixed(1) + '%' : '0%';
+  document.getElementById('dash-plays').textContent = formatNum(plays);
+
+  // ── Sparklines (last 7 days always) ──
+  const spark7 = getDaysArray(7);
+  const sparkLeads = spark7.map(d => dailyLeads[d.date] || 0);
+  const sparkViews = spark7.map(d => dailyViews[d.date] || 0);
+  const sparkPlays = spark7.map(d => dailyPlays[d.date] || 0);
+  renderSparkline('dash-leads-spark', sparkLeads, 'rgba(34,197,94,.3)');
+  renderSparkline('dash-views-spark', sparkViews, 'rgba(59,130,246,.3)');
+  renderSparkline('dash-plays-spark', sparkPlays, 'rgba(6,182,212,.3)');
+  renderSparkline('dash-active-spark', [0,0,0,0,0,0,pub], 'rgba(124,92,252,.25)');
+  renderSparkline('dash-conv-spark', sparkLeads.map((l,i) => sparkViews[i] > 0 ? Math.round((l/sparkViews[i])*100) : 0), 'rgba(236,72,153,.25)');
+
+  // ── Trends (compare first half vs second half of period) ──
+  const mid = Math.floor(daysArr.length / 2);
+  const firstLeads = daysArr.slice(0, mid).reduce((s, d) => s + (dailyLeads[d.date]||0), 0);
+  const secondLeads = daysArr.slice(mid).reduce((s, d) => s + (dailyLeads[d.date]||0), 0);
+  const lt = trendBadge(secondLeads, firstLeads);
+  const ltEl = document.getElementById('dash-leads-trend');
+  ltEl.className = 'dash-card-trend ' + lt.cls;
+  ltEl.textContent = lt.text;
+
+  const firstViews = daysArr.slice(0, mid).reduce((s, d) => s + (dailyViews[d.date]||0), 0);
+  const secondViews = daysArr.slice(mid).reduce((s, d) => s + (dailyViews[d.date]||0), 0);
+  const vt = trendBadge(secondViews, firstViews);
+  const vtEl = document.getElementById('dash-views-trend');
+  vtEl.className = 'dash-card-trend ' + vt.cls;
+  vtEl.textContent = vt.text;
+
+  const firstPlays = daysArr.slice(0, mid).reduce((s, d) => s + (dailyPlays[d.date]||0), 0);
+  const secondPlays = daysArr.slice(mid).reduce((s, d) => s + (dailyPlays[d.date]||0), 0);
+  const pt = trendBadge(secondPlays, firstPlays);
+  const ptEl = document.getElementById('dash-plays-trend');
+  ptEl.className = 'dash-card-trend ' + pt.cls;
+  ptEl.textContent = pt.text;
+
+  // ── Bar Chart ──
+  const chartArea = document.getElementById('dash-chart-area');
+  const chartData = daysArr.map(d => ({ label: days <= 7 ? d.label : d.dayNum + '/' + (new Date(d.date).getMonth()+1), val: dailyLeads[d.date] || 0 }));
+  const maxVal = Math.max(...chartData.map(d => d.val), 1);
+
+  // Grid lines
+  let gridHtml = '';
+  for (let i = 0; i <= 3; i++) {
+    const pct = (i / 3) * 100;
+    const lineVal = Math.round((maxVal / 3) * (3 - i));
+    gridHtml += '<div class="dash-chart-line" style="bottom:' + pct + '%"><span class="dash-chart-line-label">' + lineVal + '</span></div>';
+  }
+
+  chartArea.innerHTML = gridHtml + chartData.map(d => {
+    const h = Math.max(4, (d.val / maxVal) * 160);
+    return '<div class="dash-chart-bar-wrap">'
+      + '<div class="dash-chart-bar" style="height:' + h + 'px">'
+      + '<span class="dash-chart-bar-val">' + d.val + '</span>'
+      + '</div>'
+      + '<span class="dash-chart-day">' + d.label + '</span>'
+      + '</div>';
+  }).join('');
+
+  // ── Ranking Panel ──
+  const rankEl = document.getElementById('dash-ranking');
+  const rankCountEl = document.getElementById('dash-rank-count');
   if (popups.length === 0) {
-    recentEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum popup criado ainda</div>';
+    rankEl.innerHTML = '<div class="activity-empty">Crie seu primeiro popup para ver o ranking</div>';
+    rankCountEl.textContent = '0 popups';
   } else {
-    recentEl.innerHTML = popups.slice(0, 4).map(p => {
-      const pub = p.is_published;
-      return '<div class="recent-item">'
-        + '<div class="recent-avatar">' + (p.config?.emoji || '🎯') + '</div>'
-        + '<div class="recent-info"><div class="recent-name">' + esc(p.name) + '</div>'
-        + '<div class="recent-meta">' + gameLabel(p.game_type) + '</div></div>'
-        + '<span class="recent-badge" style="background:' + (pub ? 'var(--green-dim);color:var(--green)' : 'rgba(120,120,160,.12);color:var(--muted)') + '">'
-        + (pub ? '● Ativo' : '○ Rascunho') + '</span>'
+    const ranked = popups.map(p => ({
+      ...p,
+      leadCount: leadsPerPopup[p.id] || 0
+    })).sort((a, b) => b.leadCount - a.leadCount);
+    const maxLeadsRank = Math.max(...ranked.map(r => r.leadCount), 1);
+    rankCountEl.textContent = ranked.length + ' popup' + (ranked.length !== 1 ? 's' : '');
+
+    rankEl.innerHTML = ranked.slice(0, 8).map((p, i) => {
+      const posClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
+      const barW = Math.max(4, (p.leadCount / maxLeadsRank) * 100);
+      const emoji = p.config?.emoji || '🎯';
+      return '<div class="rank-item">'
+        + '<div class="rank-pos ' + posClass + '">' + (i+1) + '</div>'
+        + '<div class="rank-avatar">' + emoji + '</div>'
+        + '<div class="rank-info">'
+        + '<div class="rank-name">' + esc(p.name) + '</div>'
+        + '<div class="rank-meta">' + gameLabel(p.game_type) + ' · ' + (p.is_published ? '● Ativo' : '○ Rascunho') + '</div>'
+        + '<div class="rank-bar"><div class="rank-bar-fill" style="width:' + barW + '%"></div></div>'
+        + '</div>'
+        + '<div class="rank-stats">'
+        + '<div class="rank-stat-val">' + p.leadCount + '</div>'
+        + '<div class="rank-stat-label">leads</div>'
+        + '</div>'
         + '</div>';
+    }).join('');
+  }
+
+  // ── Activity Feed ──
+  const actEl = document.getElementById('dash-activity');
+  const actCountEl = document.getElementById('dash-activity-count');
+  // Sort by created_at desc
+  recentEvents.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  const actEvents = recentEvents.slice(0, 15);
+  actCountEl.textContent = actEvents.length + ' evento' + (actEvents.length !== 1 ? 's' : '');
+
+  if (actEvents.length === 0) {
+    actEl.innerHTML = '<div class="activity-empty">Nenhuma atividade registrada ainda.<br><span style="font-size:11px;margin-top:4px;display:inline-block;">Publique um popup para começar a receber dados.</span></div>';
+  } else {
+    actEl.innerHTML = actEvents.map(ev => {
+      const type = ev.event_type || 'impression';
+      const dotClass = type === 'lead' ? 'lead' : type === 'play' ? 'play' : type === 'win' ? 'win' : 'impression';
+      const popup = popups.find(p => p.id === ev.popup_id);
+      const popupName = popup ? esc(popup.name) : 'Popup';
+      let text = '';
+      if (type === 'lead') {
+        const who = ev.email || ev.name || 'Visitante';
+        text = '<strong>' + esc(who) + '</strong> se cadastrou via <strong>' + popupName + '</strong>';
+      } else if (type === 'play') {
+        text = 'Alguém jogou <strong>' + popupName + '</strong>';
+      } else if (type === 'win') {
+        text = 'Alguém ganhou um prêmio em <strong>' + popupName + '</strong>';
+      } else {
+        text = '<strong>' + popupName + '</strong> foi visualizado';
+      }
+      return '<div class="activity-item">'
+        + '<div class="activity-dot ' + dotClass + '"></div>'
+        + '<div class="activity-body">'
+        + '<div class="activity-text">' + text + '</div>'
+        + '<div class="activity-time">' + timeAgo(ev.created_at) + '</div>'
+        + '</div></div>';
     }).join('');
   }
 }
@@ -2441,7 +2875,7 @@ function updatePreview() {
   const isSkate = gameType === 'skate_grind';
 
   // Toggle which preview is visible
-    document.getElementById('preview-box').style.display = (!isSlot && !isWheel && !isSkate) ? 'block' : 'none';
+  document.getElementById('preview-box').style.display = (!isSlot && !isWheel && !isSkate) ? 'block' : 'none';
   document.getElementById('preview-slot').style.display = isSlot ? 'block' : 'none';
   document.getElementById('preview-wheel').style.display = isWheel ? 'block' : 'none';
   document.getElementById('preview-skate').style.display = isSkate ? 'block' : 'none';
@@ -2480,13 +2914,13 @@ function updatePreview() {
     if (wBtn && btnText) wBtn.childNodes[0].textContent = btnText;
     renderWheelSegments();
     initWheelBulbs();
-    } else if (isSkate) {
+  } else if (isSkate) {
     var sTitle = document.getElementById('skate-popup-title');
     var sSub = document.getElementById('skate-popup-subtitle');
     if (sTitle) sTitle.textContent = document.getElementById('f-title').value || 'SKATE GRIND';
-    if (sSub) sSub.textContent = document.getElementById('f-desc').value || 'Desvie dos obst\u00e1culos e ganhe pr\u00eamios!';
+    if (sSub) sSub.textContent = document.getElementById('f-desc').value || 'Desvie dos obstáculos e ganhe prêmios!';
     initSkateGame();
-} else {
+  } else {
     // Standard preview
     const box = document.getElementById('preview-box');
     if (!box) return;
@@ -2501,6 +2935,7 @@ function updatePreview() {
     pbtn.style.color = '#fff';
   }
 }
+
 function syncColor(field) {
   const map = { bg: ['f-bg', 'f-bg-text'], text: ['f-text-color', 'f-text-text'], btn: ['f-btn-color', 'f-btn-text'] };
   const [picker, input] = map[field];
@@ -2601,25 +3036,23 @@ const SLOT_PRESETS = [
 ];
 
 function onGameTypeChange() {
-  const type = document.getElementById("f-type").value;
-  const isSlot = type === "slot_machine";
-  const isWheel = type === "spin_wheel";
-  const isSkate = type === "skate_grind";
-  document.getElementById("slot-config").style.display = isSlot ? "block" : "none";
-  document.getElementById("wheel-config").style.display = isWheel ? "block" : "none";
-  document.getElementById("slot-format-section").style.display = isSlot ? "block" : "none";
-  document.getElementById("preset-grid-slot").style.display = isSlot ? "grid" : "none";
-  document.getElementById("preset-grid-general").style.display = (isSlot || isWheel || isSkate) ? "none" : "grid";
-  document.getElementById("emoji-deco-group").style.display = (isSlot || isWheel || isSkate) ? "none" : "block";
-  document.getElementById("wheel-color-presets").style.display = isWheel ? "block" : "none";
-  document.getElementById("wheel-design-section").style.display = isWheel ? "block" : "none";
-  document.getElementById("skate-presets-section").style.display = isSkate ? "block" : "none";
+  const type = document.getElementById('f-type').value;
+  const isSlot = type === 'slot_machine';
+  const isWheel = type === 'spin_wheel';
+  const isSkate = type === 'skate_grind';
+  document.getElementById('slot-config').style.display = isSlot ? 'block' : 'none';
+  document.getElementById('wheel-config').style.display = isWheel ? 'block' : 'none';
+  document.getElementById('slot-format-section').style.display = isSlot ? 'block' : 'none';
+  document.getElementById('preset-grid-slot').style.display = isSlot ? 'grid' : 'none';
+  document.getElementById('preset-grid-general').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'grid';
+  document.getElementById('emoji-deco-group').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'block';
+  document.getElementById('wheel-color-presets').style.display = isWheel ? 'block' : 'none';
+  document.getElementById('wheel-design-section').style.display = isWheel ? 'block' : 'none';
   resetSlotGame();
   if (isWheel) { updateWheelFromConfig(); initWheelBulbs(); relockWheel(); }
   if (isSkate) { relockSkate(); initSkateGame(); }
   updatePreview();
 }
-
 
 const GENERAL_PRESETS = [
   { name: 'Escuro', bg: '#1a1a2e', text: '#ffffff', btn: '#7c5cfc' },
@@ -2883,24 +3316,25 @@ function showSlotVictory() {
   machine.appendChild(victory);
 }
 
+// ─── SPIN WHEEL (ROLETA DA SORTE) ────────────────────────────────────────
 var wheelSpinning = false;
 var wheelUnlocked = false;
-var wheelDesign = "cassino";
+var wheelDesign = 'cassino';
 var WHEEL_COLOR_PRESETS = [
-  ["#22c55e","#7c3aed","#1a1a2e"],
-  ["#06b6d4","#d946ef","#84cc16"],
-  ["#f97316","#eab308","#14b8a6"],
-  ["#d4a017","#1e3a5f","#7c1d3e"],
-  ["#ec4899","#3b82f6","#34d399"]
+  ['#22c55e','#7c3aed','#1a1a2e'],
+  ['#06b6d4','#d946ef','#84cc16'],
+  ['#f97316','#eab308','#14b8a6'],
+  ['#d4a017','#1e3a5f','#7c1d3e'],
+  ['#ec4899','#3b82f6','#34d399']
 ];
 
 function getWheelSegments() {
   var segs = [];
   for (var i = 0; i < 8; i++) {
-    var label = (document.getElementById("ws-label-" + i) || {}).value || "";
-    var color = (document.getElementById("ws-color-" + i) || {}).value || "#22c55e";
-    var coupon = (document.getElementById("ws-coupon-" + i) || {}).value || "";
-    var chance = parseInt((document.getElementById("ws-chance-" + i) || {}).value) || 10;
+    var label = (document.getElementById('ws-label-' + i) || {}).value || '';
+    var color = (document.getElementById('ws-color-' + i) || {}).value || '#22c55e';
+    var coupon = (document.getElementById('ws-coupon-' + i) || {}).value || '';
+    var chance = parseInt((document.getElementById('ws-chance-' + i) || {}).value) || 10;
     segs.push({ label: label, color: color, coupon: coupon, chance: chance });
   }
   return segs;
@@ -2915,25 +3349,27 @@ function updateWheelFromConfig() {
 function applyWheelColorPreset(idx) {
   var colors = WHEEL_COLOR_PRESETS[idx];
   for (var i = 0; i < 8; i++) {
-    var el = document.getElementById("ws-color-" + i);
+    var el = document.getElementById('ws-color-' + i);
     if (el) el.value = colors[i % colors.length];
   }
-  document.querySelectorAll("#wheel-color-presets .preset-card").forEach(function(c,j) { c.classList.toggle("active", j === idx); });
+  document.querySelectorAll('#wheel-color-presets .preset-card').forEach(function(c,j) { c.classList.toggle('active', j === idx); });
   updateWheelFromConfig();
 }
 
 function setWheelDesign(name, el) {
   wheelDesign = name;
-  var container = document.getElementById("wheel-container");
-  if (container) { container.className = "wheel-container design-" + name; }
-  document.querySelectorAll(".wheel-design-card").forEach(function(c) { c.classList.remove("active"); });
-  if (el) el.classList.add("active");
+  var container = document.getElementById('wheel-container');
+  if (container) {
+    container.className = 'wheel-container design-' + name;
+  }
+  document.querySelectorAll('.wheel-design-card').forEach(function(c) { c.classList.remove('active'); });
+  if (el) el.classList.add('active');
 }
 
 function initWheelBulbs() {
-  var container = document.getElementById("wheel-bulbs");
+  var container = document.getElementById('wheel-bulbs');
   if (!container) return;
-  container.innerHTML = "";
+  container.innerHTML = '';
   var count = 24;
   var radius = container.offsetWidth / 2;
   if (radius < 10) radius = 138;
@@ -2942,38 +3378,44 @@ function initWheelBulbs() {
     var rad = angle * Math.PI / 180;
     var x = radius + (radius - 3) * Math.cos(rad) - 3;
     var y = radius + (radius - 3) * Math.sin(rad) - 3;
-    var bulb = document.createElement("div");
-    bulb.className = "wheel-bulb";
-    bulb.style.left = x + "px";
-    bulb.style.top = y + "px";
+    var bulb = document.createElement('div');
+    bulb.className = 'wheel-bulb';
+    bulb.style.left = x + 'px';
+    bulb.style.top = y + 'px';
     container.appendChild(bulb);
   }
 }
 
 function renderWheelSegments() {
-  var area = document.getElementById("wheel-spin-area");
+  var area = document.getElementById('wheel-spin-area');
   if (!area) return;
-  area.innerHTML = "";
+  area.innerHTML = '';
   WHEEL_SEGMENTS = getWheelSegments();
   var segCount = WHEEL_SEGMENTS.length;
   var segAngle = 360 / segCount;
-  var areaSize = area.offsetWidth || 258;
+  var areaSize = area.offsetWidth || 248;
   var center = areaSize / 2;
   for (var i = 0; i < segCount; i++) {
     var seg = WHEEL_SEGMENTS[i];
-    var el = document.createElement("div");
-    el.style.position = "absolute";
-    el.style.width = "100%";
-    el.style.height = "100%";
-    el.style.clipPath = "polygon(50% 50%, " + getWedgePoint(i, segCount, 0) + ", " + getWedgePoint(i, segCount, 1) + ")";
+    // Segment background
+    var el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.width = '100%';
+    el.style.height = '100%';
+    el.style.clipPath = 'polygon(50% 50%, ' + getWedgePoint(i, segCount, 0) + ', ' + getWedgePoint(i, segCount, 1) + ')';
     el.style.background = seg.color;
-    var lbl = document.createElement("div");
+    // Segment border line
+    var border = document.createElement('div');
+    border.style.cssText = 'position:absolute;width:100%;height:100%;clip-path:polygon(50% 50%, ' + getWedgePoint(i, segCount, 1) + ', ' + getWedgePoint(i, segCount, 1) + ');border-right:1px solid rgba(255,255,255,.15);';
+    el.appendChild(border);
+    // Label: positioned radially, text reads from outer edge toward center
+    var lbl = document.createElement('div');
     var midAngle = -90 + segAngle * i + segAngle / 2;
     var midRad = midAngle * Math.PI / 180;
     var textDist = center * 0.62;
     var tx = center + Math.cos(midRad) * textDist;
     var ty = center + Math.sin(midRad) * textDist;
-    lbl.style.cssText = "position:absolute;left:" + tx + "px;top:" + ty + "px;transform:translate(-50%,-50%) rotate(" + (midAngle + 90) + "deg);font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8),0 0 8px rgba(0,0,0,.4);text-align:center;line-height:1.15;white-space:pre;text-transform:uppercase;letter-spacing:.3px;pointer-events:none;";
+    lbl.style.cssText = 'position:absolute;left:' + tx + 'px;top:' + ty + 'px;transform:translate(-50%,-50%) rotate(' + (midAngle + 90) + 'deg);font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.8),0 0 8px rgba(0,0,0,.4);text-align:center;line-height:1.15;white-space:pre;text-transform:uppercase;letter-spacing:.3px;pointer-events:none;';
     lbl.textContent = seg.label;
     el.appendChild(lbl);
     area.appendChild(el);
@@ -2984,35 +3426,35 @@ function getWedgePoint(i, total, edge) {
   var angle = (-90 + (360 / total) * (i + edge)) * Math.PI / 180;
   var x = 50 + 50 * Math.cos(angle);
   var y = 50 + 50 * Math.sin(angle);
-  return x.toFixed(2) + "% " + y.toFixed(2) + "%";
+  return x.toFixed(2) + '% ' + y.toFixed(2) + '%';
 }
 
 function unlockWheel() {
-  var overlay = document.getElementById("wheel-lock-overlay");
-  var btn = document.getElementById("wheel-center-btn");
-  var attempts = document.getElementById("wheel-attempts");
-  if (overlay) overlay.classList.add("hidden");
+  var overlay = document.getElementById('wheel-lock-overlay');
+  var btn = document.getElementById('wheel-center-btn');
+  var attempts = document.getElementById('wheel-attempts');
+  if (overlay) overlay.classList.add('hidden');
   if (btn) btn.disabled = false;
-  if (attempts) { attempts.classList.add("visible"); }
+  if (attempts) { attempts.classList.add('visible'); }
   wheelUnlocked = true;
 }
 
 function relockWheel() {
-  var overlay = document.getElementById("wheel-lock-overlay");
-  var btn = document.getElementById("wheel-center-btn");
-  var attempts = document.getElementById("wheel-attempts");
-  var area = document.getElementById("wheel-spin-area");
-  var victory = document.querySelector(".wheel-victory");
-  if (overlay) overlay.classList.remove("hidden");
+  var overlay = document.getElementById('wheel-lock-overlay');
+  var btn = document.getElementById('wheel-center-btn');
+  var attempts = document.getElementById('wheel-attempts');
+  var area = document.getElementById('wheel-spin-area');
+  var victory = document.querySelector('.wheel-victory');
+  if (overlay) overlay.classList.remove('hidden');
   if (btn) btn.disabled = true;
-  if (attempts) { attempts.classList.remove("visible"); attempts.textContent = "Tentativa 1 de 1"; }
-  if (area) area.style.transform = "rotate(0deg)";
+  if (attempts) { attempts.classList.remove('visible'); attempts.textContent = 'Tentativa 1 de 1'; }
+  if (area) area.style.transform = 'rotate(0deg)';
   if (victory) victory.remove();
   wheelSpinning = false;
   wheelUnlocked = false;
-  var n = document.getElementById("wheel-lock-name"); if (n) n.value = "";
-  var e = document.getElementById("wheel-lock-email"); if (e) e.value = "";
-  var p = document.getElementById("wheel-lock-phone"); if (p) p.value = "";
+  document.getElementById('wheel-lock-name').value = '';
+  document.getElementById('wheel-lock-email').value = '';
+  document.getElementById('wheel-lock-phone').value = '';
 }
 
 function weightedWheelRandom() {
@@ -3031,56 +3473,59 @@ function spinWheel() {
   if (wheelSpinning || !wheelUnlocked) return;
   wheelSpinning = true;
   WHEEL_SEGMENTS = getWheelSegments();
-  var btn = document.getElementById("wheel-center-btn");
+  var btn = document.getElementById('wheel-center-btn');
   btn.disabled = true;
-  btn.textContent = "...";
-  var area = document.getElementById("wheel-spin-area");
+  btn.textContent = '...';
+  var area = document.getElementById('wheel-spin-area');
   var segCount = WHEEL_SEGMENTS.length;
   var segAngle = 360 / segCount;
   var winIdx = weightedWheelRandom();
   var extraSpins = 5 + Math.floor(Math.random() * 3);
   var targetAngle = 360 * extraSpins + (360 - (segAngle * winIdx + segAngle / 2));
-  area.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)";
-  area.style.transform = "rotate(" + targetAngle + "deg)";
+  area.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+  area.style.transform = 'rotate(' + targetAngle + 'deg)';
   setTimeout(function() {
     wheelSpinning = false;
-    btn.textContent = "GIRAR";
+    btn.textContent = 'GIRAR';
     showWheelVictory(winIdx);
   }, 4200);
 }
 
 function showWheelVictory(winIdx) {
-  var popup = document.getElementById("wheel-popup-preview");
+  var popup = document.getElementById('wheel-popup-preview');
   if (!popup) return;
   var seg = WHEEL_SEGMENTS[winIdx];
-  var coupon = seg.coupon || document.getElementById("f-prize").value || "DESCONTO10";
+  var coupon = seg.coupon || document.getElementById('f-prize').value || 'DESCONTO10';
   var isLoss = !seg.coupon;
+  // Confetti
   for (var c = 0; c < 20; c++) {
-    var conf = document.createElement("div");
-    conf.className = "slot-confetti";
-    conf.style.left = Math.random() * 100 + "%";
-    conf.style.top = "-10px";
-    conf.style.background = ["#f1c40f","#ef4444","#22c55e","#3b82f6","#ec4899","#a855f7"][Math.floor(Math.random()*6)];
-    conf.style.animationDelay = (Math.random() * .8) + "s";
-    conf.style.width = (4 + Math.random() * 6) + "px";
-    conf.style.height = (4 + Math.random() * 6) + "px";
+    var conf = document.createElement('div');
+    conf.className = 'slot-confetti';
+    conf.style.left = Math.random() * 100 + '%';
+    conf.style.top = '-10px';
+    conf.style.background = ['#f1c40f','#ef4444','#22c55e','#3b82f6','#ec4899','#a855f7'][Math.floor(Math.random()*6)];
+    conf.style.animationDelay = (Math.random() * .8) + 's';
+    conf.style.width = (4 + Math.random() * 6) + 'px';
+    conf.style.height = (4 + Math.random() * 6) + 'px';
     popup.appendChild(conf);
   }
-  var victory = document.createElement("div");
-  victory.className = "wheel-victory";
+  var victory = document.createElement('div');
+  victory.className = 'wheel-victory';
   if (isLoss) {
-    victory.innerHTML = '<div style="font-size:36px;">\uD83D\uDE14</div>'
+    victory.innerHTML = '<div style="font-size:36px;">😔</div>'
       + '<div class="slot-victory-text" style="color:#f59e0b;">QUE PENA!</div>'
-      + '<div class="slot-victory-sub">' + esc(seg.label) + '</div>'
-      + '<button class="slot-btn-main" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;background:linear-gradient(180deg,#7c3aed,#6d28d9);" onclick="relockWheel();renderWheelSegments();initWheelBulbs();unlockWheel();">\uD83D\uDD04 TENTAR NOVAMENTE</button>';
+      + '<div class="slot-victory-sub">' + esc(seg.label.replace('\n',' ')) + '</div>'
+      + '<button class="slot-btn-main" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;background:linear-gradient(180deg,#7c3aed,#6d28d9);" onclick="relockWheel();renderWheelSegments();initWheelBulbs();unlockWheel();">'
+      + '🔄 TENTAR NOVAMENTE</button>';
   } else {
-    victory.innerHTML = '<div style="font-size:36px;animation:victoryBounce .6s ease infinite;">\uD83C\uDF89</div>'
-      + '<div class="slot-victory-text">PARAB\u00C9NS!</div>'
-      + '<div class="slot-victory-sub">Voc\u00EA ganhou: <b>' + esc(seg.label) + '</b></div>'
+    victory.innerHTML = '<div style="font-size:36px;animation:victoryBounce .6s ease infinite;">🎉</div>'
+      + '<div class="slot-victory-text">PARABÉNS!</div>'
+      + '<div class="slot-victory-sub">Você ganhou: <b>' + esc(seg.label.replace('\n',' ')) + '</b></div>'
       + '<div class="slot-victory-sub">Seu cupom de desconto:</div>'
       + '<div class="slot-coupon-box" id="wheel-coupon-code">' + esc(coupon) + '</div>'
-      + '<button class="slot-btn-main slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;flex:none;" onclick="copyWheelCoupon()">\uD83C\uDF89 USAR MEU CUPOM AGORA</button>'
-      + '<div id="wheel-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">\u2705 Cupom copiado! Cole no checkout.</div>';
+      + '<button class="slot-btn-main slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;flex:none;" onclick="copyWheelCoupon()">'
+      + '🎉 USAR MEU CUPOM AGORA</button>'
+      + '<div id="wheel-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
   }
   popup.appendChild(victory);
 }
@@ -3111,228 +3556,303 @@ function copyWheelCoupon() {
   });
 }
 
-/* ─── SKATE GRIND GAME v2 ─ Hidrantes, Corrimões, Grind ────────────── */
-var skateRunning=false,skateUnlocked=false,skateScore=0,skateSpeed=3,SKATE_WIN_SCORE=800;
-var skateAnimId=null,skaterY=0,skaterVY=0,skaterOnGround=true,skateGrinding=false;
-var SKATE_GRAVITY=0.5,SKATE_JUMP_FORCE=-9,SKATE_GROUND_Y=140,SKATER_W=20,SKATER_H=26,SKATER_X=40;
-var skateObstacles=[],skateSpawnTimer=0,skateCanvas,skateCtx,skateGroundOffset=0;
-var skateFloatingTexts=[],skateFrameCount=0;
+/* ─── SKATE GRIND GAME v2 ─ Hidrantes, Corrimões, Grind ──────────────────── */
+var skateRunning = false;
+var skateUnlocked = false;
+var skateScore = 0;
+var skateSpeed = 3;
+var SKATE_WIN_SCORE = 300;
+var skateAnimId = null;
+var skaterY = 0, skaterVY = 0, skaterOnGround = true, skateGrinding = false;
+var SKATE_GRAVITY = 0.5, SKATE_JUMP_FORCE = -9;
+var SKATE_GROUND_Y = 140, SKATER_W = 20, SKATER_H = 26, SKATER_X = 40;
+var skateObstacles = [], skateSpawnTimer = 0, skateCanvas, skateCtx, skateGroundOffset = 0;
+var skateFloatingTexts = [], skateFrameCount = 0;
 
-function initSkateGame(){
-  skateCanvas=document.getElementById("skateCanvas");
-  if(!skateCanvas)return;
-  skateCtx=skateCanvas.getContext("2d");
-  if(!skateCanvas._jh){skateCanvas._jh=true;skateCanvas.parentElement.addEventListener("click",skateJump);}
-  skaterY=SKATE_GROUND_Y-SKATER_H;skateObstacles=[];skateScore=0;skateSpeed=3;
-  skateSpawnTimer=0;skaterVY=0;skaterOnGround=true;skateGrinding=false;
-  skateGroundOffset=0;skateFloatingTexts=[];skateFrameCount=0;
-  var el=document.getElementById("skateScoreVal");if(el)el.textContent="0 / "+SKATE_WIN_SCORE;
+function initSkateGame() {
+  skateCanvas = document.getElementById('skateCanvas');
+  if (!skateCanvas) return;
+  skateCtx = skateCanvas.getContext('2d');
+  if (!skateCanvas._jumpHandler) {
+    skateCanvas._jumpHandler = true;
+    skateCanvas.parentElement.addEventListener('click', skateJump);
+  }
+  skaterY = SKATE_GROUND_Y - SKATER_H;
+  skateObstacles = []; skateScore = 0; skateSpeed = 3; skateSpawnTimer = 0;
+  skaterVY = 0; skaterOnGround = true; skateGrinding = false;
+  skateGroundOffset = 0; skateFloatingTexts = []; skateFrameCount = 0;
+  var el = document.getElementById('skateScoreVal');
+  if (el) el.textContent = '0 / ' + SKATE_WIN_SCORE;
   drawSkateFrame();
 }
 
-function drawSkateFrame(){
-  var ctx=skateCtx;if(!ctx)return;
-  var W=310,H=170;
-  var grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,"#1a1a1a");grad.addColorStop(1,"#0a0a0a");
-  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle="#1a1a1a";
-  var blds=[25,40,30,55,35,45,28,42,32,60,25,38,22];
-  for(var i=0;i<blds.length;i++){
-    var bx=i*26-(skateGroundOffset*0.2)%26;
-    ctx.fillRect(bx,SKATE_GROUND_Y-blds[i],22,blds[i]);
-    ctx.fillStyle="#333";
-    for(var wy=SKATE_GROUND_Y-blds[i]+6;wy<SKATE_GROUND_Y-4;wy+=8){
-      ctx.fillRect(bx+4,wy,3,3);ctx.fillRect(bx+12,wy,3,3);}
-    ctx.fillStyle="#1a1a1a";
+function drawSkateFrame() {
+  var ctx = skateCtx; if (!ctx) return;
+  var W = 310, H = 170;
+  // Sky gradient
+  var grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1a1a1a'); grad.addColorStop(1, '#0a0a0a');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+  // City silhouette (parallax)
+  ctx.fillStyle = '#1a1a1a';
+  var blds = [25,40,30,55,35,45,28,42,32,60,25,38,22];
+  for (var i = 0; i < blds.length; i++) {
+    var bx = i * 26 - (skateGroundOffset * 0.2) % 26;
+    ctx.fillRect(bx, SKATE_GROUND_Y - blds[i], 22, blds[i]);
+    // Windows
+    ctx.fillStyle = '#333';
+    for (var wy = SKATE_GROUND_Y - blds[i] + 6; wy < SKATE_GROUND_Y - 4; wy += 8) {
+      ctx.fillRect(bx + 4, wy, 3, 3); ctx.fillRect(bx + 12, wy, 3, 3);
+    }
+    ctx.fillStyle = '#1a1a1a';
   }
-  ctx.fillStyle="#fff";ctx.fillRect(0,SKATE_GROUND_Y,W,1);
-  ctx.fillStyle="#333";for(var x=-(skateGroundOffset%20);x<W;x+=20)ctx.fillRect(x,SKATE_GROUND_Y+3,10,1);
-  for(var i=0;i<skateObstacles.length;i++)drawObstacle(ctx,skateObstacles[i]);
-  drawSkater(ctx,SKATER_X,skaterY);
-  ctx.font="bold 12px sans-serif";
-  for(var i=skateFloatingTexts.length-1;i>=0;i--){
-    var ft=skateFloatingTexts[i];ft.y-=1.2;ft.life--;
-    ctx.fillStyle="rgba(255,255,255,"+(ft.life/40)+")";ctx.fillText(ft.text,ft.x,ft.y);
-    if(ft.life<=0)skateFloatingTexts.splice(i,1);
+  // Ground line
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, SKATE_GROUND_Y, W, 1);
+  ctx.fillStyle = '#333';
+  for (var x = -(skateGroundOffset % 20); x < W; x += 20) ctx.fillRect(x, SKATE_GROUND_Y + 3, 10, 1);
+  // Obstacles
+  for (var i = 0; i < skateObstacles.length; i++) drawObstacle(ctx, skateObstacles[i]);
+  // Skater
+  drawSkater(ctx, SKATER_X, skaterY);
+  // Floating score texts
+  ctx.font = 'bold 12px sans-serif';
+  for (var i = skateFloatingTexts.length - 1; i >= 0; i--) {
+    var ft = skateFloatingTexts[i];
+    ft.y -= 1.2; ft.life--;
+    ctx.fillStyle = 'rgba(255,255,255,' + (ft.life / 40) + ')';
+    ctx.fillText(ft.text, ft.x, ft.y);
+    if (ft.life <= 0) skateFloatingTexts.splice(i, 1);
   }
-  ctx.fillStyle="#fff";ctx.font="bold 11px sans-serif";
-  ctx.fillText(skateScore+" / "+SKATE_WIN_SCORE+" PTS",210,14);
-  var prog=Math.min(skateScore/SKATE_WIN_SCORE,1);
-  ctx.fillStyle="#333";ctx.fillRect(210,18,90,4);
-  ctx.fillStyle="#fff";ctx.fillRect(210,18,90*prog,4);
+  // HUD
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif';
+  ctx.fillText(skateScore + ' / ' + SKATE_WIN_SCORE + ' PTS', 210, 14);
+  // Progress bar
+  var prog = Math.min(skateScore / SKATE_WIN_SCORE, 1);
+  ctx.fillStyle = '#333'; ctx.fillRect(210, 18, 90, 4);
+  ctx.fillStyle = '#fff'; ctx.fillRect(210, 18, 90 * prog, 4);
 }
 
-function drawSkater(ctx,x,y){
-  ctx.fillStyle="#fff";ctx.fillRect(x+6,y,8,8);
-  ctx.fillStyle="#888";ctx.fillRect(x+4,y-2,12,3);
-  ctx.fillStyle="#ddd";ctx.fillRect(x+6,y+8,8,10);
-  if(skateGrinding){ctx.fillRect(x+14,y+8,6,3);ctx.fillRect(x,y+6,6,3);}
-  else{ctx.fillRect(x+2,y+10,4,3);ctx.fillRect(x+14,y+10,4,3);}
-  ctx.fillStyle="#999";ctx.fillRect(x+5,y+18,4,5);ctx.fillRect(x+11,y+18,4,5);
-  ctx.fillStyle="#fff";ctx.fillRect(x,y+23,20,2);
-  ctx.fillStyle="#666";ctx.fillRect(x+1,y+25,3,2);ctx.fillRect(x+16,y+25,3,2);
-  if(skateGrinding){ctx.fillStyle="#fff";for(var s=0;s<3;s++){ctx.fillRect(x+5+Math.random()*10,y+24+Math.random()*3,2,1);}}
-}
-
-function drawObstacle(ctx,ob){
-  if(ob.type==="hydrant"){
-    ctx.fillStyle="#ccc";ctx.fillRect(ob.x+3,ob.y+2,8,14);
-    ctx.fillStyle="#999";ctx.fillRect(ob.x+1,ob.y+5,12,4);
-    ctx.fillStyle="#fff";ctx.fillRect(ob.x+4,ob.y,6,3);
-  }else if(ob.type==="rail"){
-    ctx.fillStyle="#888";ctx.fillRect(ob.x,ob.y,ob.w,3);
-    ctx.fillRect(ob.x+5,ob.y,2,SKATE_GROUND_Y-ob.y);ctx.fillRect(ob.x+ob.w-7,ob.y,2,SKATE_GROUND_Y-ob.y);
-    ctx.fillStyle="#aaa";ctx.fillRect(ob.x,ob.y,ob.w,1);
-  }else if(ob.type==="combo"){
-    ctx.fillStyle="#ccc";ctx.fillRect(ob.x+3,ob.hy+2,8,14);
-    ctx.fillStyle="#999";ctx.fillRect(ob.x+1,ob.hy+5,12,4);ctx.fillStyle="#fff";ctx.fillRect(ob.x+4,ob.hy,6,3);
-    var rx=ob.x+30;ctx.fillStyle="#888";ctx.fillRect(rx,ob.ry,ob.rw,3);
-    ctx.fillRect(rx+5,ob.ry,2,SKATE_GROUND_Y-ob.ry);ctx.fillRect(rx+ob.rw-7,ob.ry,2,SKATE_GROUND_Y-ob.ry);
-    ctx.fillStyle="#aaa";ctx.fillRect(rx,ob.ry,ob.rw,1);
-  }
-}
-
-function skateJump(){if(!skateRunning||!skaterOnGround)return;skaterVY=SKATE_JUMP_FORCE;skaterOnGround=false;skateGrinding=false;}
-
-function addSkatePoints(pts,x,y){
-  skateScore+=pts;skateFloatingTexts.push({text:"+"+pts,x:x,y:y,life:40});
-  var el=document.getElementById("skateScoreVal");if(el)el.textContent=skateScore+" / "+SKATE_WIN_SCORE;
-  if(skateScore>=SKATE_WIN_SCORE){
-    skateRunning=false;cancelAnimationFrame(skateAnimId);
-    var coupon=document.getElementById("f-prize").value||"SKATE20";
-    setTimeout(function(){showSkateVictory("CUPOM DESBLOQUEADO!",coupon,skateScore);},400);
+function drawSkater(ctx, x, y) {
+  // Head
+  ctx.fillStyle = '#fff'; ctx.fillRect(x + 6, y, 8, 8);
+  // Cap
+  ctx.fillStyle = '#888'; ctx.fillRect(x + 4, y - 2, 12, 3);
+  // Body
+  ctx.fillStyle = '#ddd'; ctx.fillRect(x + 6, y + 8, 8, 10);
+  // Arms
+  if (skateGrinding) { ctx.fillRect(x + 14, y + 8, 6, 3); ctx.fillRect(x, y + 6, 6, 3); }
+  else { ctx.fillRect(x + 2, y + 10, 4, 3); ctx.fillRect(x + 14, y + 10, 4, 3); }
+  // Legs
+  ctx.fillStyle = '#999'; ctx.fillRect(x + 5, y + 18, 4, 5); ctx.fillRect(x + 11, y + 18, 4, 5);
+  // Skateboard
+  ctx.fillStyle = '#fff'; ctx.fillRect(x, y + 23, 20, 2);
+  // Wheels
+  ctx.fillStyle = '#666'; ctx.fillRect(x + 1, y + 25, 3, 2); ctx.fillRect(x + 16, y + 25, 3, 2);
+  // Grind sparks
+  if (skateGrinding) {
+    ctx.fillStyle = '#fff';
+    for (var s = 0; s < 3; s++) {
+      var sx = x + 5 + Math.random() * 10, sy = y + 24 + Math.random() * 3;
+      ctx.fillRect(sx, sy, 2, 1);
+    }
   }
 }
 
-function startSkateRun(){
-  if(skateRunning)return;skateRunning=true;skateScore=0;skateSpeed=3;
-  skateObstacles=[];skateSpawnTimer=0;skateFloatingTexts=[];skateFrameCount=0;
-  skaterY=SKATE_GROUND_Y-SKATER_H;skaterVY=0;skaterOnGround=true;skateGrinding=false;skateGroundOffset=0;
-  document.getElementById("skateStartBtn").disabled=true;
-  document.getElementById("skateVictory").classList.remove("active");
+function drawObstacle(ctx, ob) {
+  if (ob.type === 'hydrant') {
+    // Fire hydrant - white/gray
+    ctx.fillStyle = '#ccc'; ctx.fillRect(ob.x + 3, ob.y + 2, 8, 14);
+    ctx.fillStyle = '#999'; ctx.fillRect(ob.x + 1, ob.y + 5, 12, 4);
+    ctx.fillStyle = '#fff'; ctx.fillRect(ob.x + 4, ob.y, 6, 3);
+  } else if (ob.type === 'rail') {
+    // Corrimão - horizontal rail on posts
+    ctx.fillStyle = '#888';
+    ctx.fillRect(ob.x, ob.y, ob.w, 3); // rail bar
+    ctx.fillRect(ob.x + 5, ob.y, 2, SKATE_GROUND_Y - ob.y); // left post
+    ctx.fillRect(ob.x + ob.w - 7, ob.y, 2, SKATE_GROUND_Y - ob.y); // right post
+    ctx.fillStyle = '#aaa'; ctx.fillRect(ob.x, ob.y, ob.w, 1); // highlight
+  } else if (ob.type === 'combo') {
+    // Hydrant then rail
+    // Hydrant part
+    ctx.fillStyle = '#ccc'; ctx.fillRect(ob.x + 3, ob.hy + 2, 8, 14);
+    ctx.fillStyle = '#999'; ctx.fillRect(ob.x + 1, ob.hy + 5, 12, 4);
+    ctx.fillStyle = '#fff'; ctx.fillRect(ob.x + 4, ob.hy, 6, 3);
+    // Rail part (after hydrant)
+    ctx.fillStyle = '#888';
+    var rx = ob.x + 30;
+    ctx.fillRect(rx, ob.ry, ob.rw, 3);
+    ctx.fillRect(rx + 5, ob.ry, 2, SKATE_GROUND_Y - ob.ry);
+    ctx.fillRect(rx + ob.rw - 7, ob.ry, 2, SKATE_GROUND_Y - ob.ry);
+    ctx.fillStyle = '#aaa'; ctx.fillRect(rx, ob.ry, ob.rw, 1);
+  }
+}
+
+function skateJump() {
+  if (!skateRunning || !skaterOnGround) return;
+  skaterVY = SKATE_JUMP_FORCE;
+  skaterOnGround = false;
+  skateGrinding = false;
+}
+
+function addSkatePoints(pts, x, y) {
+  skateScore += pts;
+  skateFloatingTexts.push({ text: '+' + pts, x: x, y: y, life: 40 });
+  var el = document.getElementById('skateScoreVal');
+  if (el) el.textContent = skateScore + ' / ' + SKATE_WIN_SCORE;
+  // Check win
+  if (skateScore >= SKATE_WIN_SCORE) {
+    skateRunning = false;
+    cancelAnimationFrame(skateAnimId);
+    var coupon = document.getElementById('f-prize').value || 'SKATE20';
+    setTimeout(function() { showSkateVictory('CUPOM DESBLOQUEADO!', coupon, skateScore); }, 400);
+  }
+}
+
+function startSkateRun() {
+  if (skateRunning) return;
+  skateRunning = true; skateScore = 0; skateSpeed = 3;
+  skateObstacles = []; skateSpawnTimer = 0; skateFloatingTexts = []; skateFrameCount = 0;
+  skaterY = SKATE_GROUND_Y - SKATER_H; skaterVY = 0; skaterOnGround = true; skateGrinding = false;
+  skateGroundOffset = 0;
+  document.getElementById('skateStartBtn').disabled = true;
+  document.getElementById('skateVictory').classList.remove('active');
   skateGameLoop();
 }
 
-function skateGameLoop(){
-  if(!skateRunning)return;skateFrameCount++;skateGroundOffset+=skateSpeed;
-  if(!skaterOnGround&&!skateGrinding){skaterVY+=SKATE_GRAVITY;skaterY+=skaterVY;
-    if(skaterY>=SKATE_GROUND_Y-SKATER_H){skaterY=SKATE_GROUND_Y-SKATER_H;skaterVY=0;skaterOnGround=true;}}
-  skateSpawnTimer++;if(skateSpawnTimer>=80){skateSpawnTimer=0;spawnSkateObstacle();}
-  for(var i=skateObstacles.length-1;i>=0;i--){
-    var ob=skateObstacles[i];ob.x-=skateSpeed;
-    if(ob.x+(ob.w||60)<-10){skateObstacles.splice(i,1);continue;}
-    if(ob.type==="hydrant"){
-      if(!ob.scored&&SKATER_X+SKATER_W>ob.x&&SKATER_X<ob.x+14){
-        if(skaterY+SKATER_H<=ob.y+4){ob.scored=true;addSkatePoints(50,ob.x,ob.y-10);}
-        else if(skaterY+SKATER_H>ob.y+2&&skaterOnGround){skateGameOver(skateScore);return;}}}
-    else if(ob.type==="rail"){
-      if(SKATER_X+SKATER_W>ob.x+5&&SKATER_X<ob.x+ob.w-5){
-        if(!skaterOnGround&&skaterVY>0&&skaterY+SKATER_H>=ob.y-2&&skaterY+SKATER_H<=ob.y+6){
-          skaterY=ob.y-SKATER_H;skaterVY=0;skateGrinding=true;skaterOnGround=false;
-          if(!ob.scored){ob.scored=true;addSkatePoints(100,ob.x+20,ob.y-15);}}
-        if(skateGrinding&&SKATER_X+SKATER_W>ob.x&&SKATER_X<ob.x+ob.w)skaterY=ob.y-SKATER_H;}
-      if(skateGrinding&&SKATER_X>ob.x+ob.w)skateGrinding=false;}
-    else if(ob.type==="combo"){
-      if(SKATER_X+SKATER_W>ob.x&&SKATER_X<ob.x+14){
-        if(skaterY+SKATER_H>ob.hy+2&&skaterOnGround){skateGameOver(skateScore);return;}}
-      var rx=ob.x+30;
-      if(SKATER_X+SKATER_W>rx+5&&SKATER_X<rx+ob.rw-5){
-        if(!skaterOnGround&&!skateGrinding&&skaterVY>0&&skaterY+SKATER_H>=ob.ry-2&&skaterY+SKATER_H<=ob.ry+6){
-          skaterY=ob.ry-SKATER_H;skaterVY=0;skateGrinding=true;skaterOnGround=false;
-          if(!ob.scored){ob.scored=true;addSkatePoints(150,rx+20,ob.ry-15);}}
-        if(skateGrinding)skaterY=ob.ry-SKATER_H;}
-      if(skateGrinding&&SKATER_X>rx+ob.rw)skateGrinding=false;}}
-  drawSkateFrame();skateAnimId=requestAnimationFrame(skateGameLoop);
+function skateGameLoop() {
+  if (!skateRunning) return;
+  skateFrameCount++;
+  skateGroundOffset += skateSpeed;
+  // Gravity
+  if (!skaterOnGround && !skateGrinding) {
+    skaterVY += SKATE_GRAVITY; skaterY += skaterVY;
+    if (skaterY >= SKATE_GROUND_Y - SKATER_H) {
+      skaterY = SKATE_GROUND_Y - SKATER_H; skaterVY = 0; skaterOnGround = true;
+    }
+  }
+  // Spawn obstacles
+  skateSpawnTimer++;
+  if (skateSpawnTimer >= 80) {
+    skateSpawnTimer = 0;
+    spawnSkateObstacle();
+  }
+  // Move obstacles & check interactions
+  for (var i = skateObstacles.length - 1; i >= 0; i--) {
+    var ob = skateObstacles[i];
+    ob.x -= skateSpeed;
+    if (ob.x + (ob.w || 60) < -10) { skateObstacles.splice(i, 1); continue; }
+    if (ob.type === 'hydrant') {
+      // Jump over = 50 pts
+      if (!ob.scored && SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + 14) {
+        if (skaterY + SKATER_H <= ob.y + 4) { ob.scored = true; addSkatePoints(50, ob.x, ob.y - 10); }
+        else if (skaterY + SKATER_H > ob.y + 2 && skaterOnGround) { skateGameOver(skateScore); return; }
+      }
+    } else if (ob.type === 'rail') {
+      var railTop = ob.y;
+      // Land on rail = grind = 100 pts
+      if (SKATER_X + SKATER_W > ob.x + 5 && SKATER_X < ob.x + ob.w - 5) {
+        if (!skaterOnGround && skaterVY > 0 && skaterY + SKATER_H >= railTop - 2 && skaterY + SKATER_H <= railTop + 6) {
+          skaterY = railTop - SKATER_H; skaterVY = 0; skateGrinding = true; skaterOnGround = false;
+          if (!ob.scored) { ob.scored = true; addSkatePoints(100, ob.x + 20, ob.y - 15); }
+        }
+        // Still grinding
+        if (skateGrinding && SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + ob.w) {
+          skaterY = railTop - SKATER_H;
+        }
+      }
+      // End of rail
+      if (skateGrinding && SKATER_X > ob.x + ob.w) { skateGrinding = false; }
+    } else if (ob.type === 'combo') {
+      // Hydrant part collision
+      if (SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + 14) {
+        if (skaterY + SKATER_H > ob.hy + 2 && skaterOnGround) { skateGameOver(skateScore); return; }
+      }
+      // Rail part
+      var rx = ob.x + 30;
+      if (SKATER_X + SKATER_W > rx + 5 && SKATER_X < rx + ob.rw - 5) {
+        if (!skaterOnGround && !skateGrinding && skaterVY > 0 && skaterY + SKATER_H >= ob.ry - 2 && skaterY + SKATER_H <= ob.ry + 6) {
+          skaterY = ob.ry - SKATER_H; skaterVY = 0; skateGrinding = true; skaterOnGround = false;
+          if (!ob.scored) { ob.scored = true; addSkatePoints(150, rx + 20, ob.ry - 15); }
+        }
+        if (skateGrinding) skaterY = ob.ry - SKATER_H;
+      }
+      if (skateGrinding && SKATER_X > rx + ob.rw) { skateGrinding = false; }
+    }
+  }
+  drawSkateFrame();
+  skateAnimId = requestAnimationFrame(skateGameLoop);
 }
 
-function spawnSkateObstacle(){
-  var r=Math.random();
-  if(r<0.4){skateObstacles.push({type:"hydrant",x:320,y:SKATE_GROUND_Y-18,w:14,h:18,scored:false});}
-  else if(r<0.75){skateObstacles.push({type:"rail",x:320,y:SKATE_GROUND_Y-20,w:70,h:3,scored:false});}
-  else{skateObstacles.push({type:"combo",x:320,hy:SKATE_GROUND_Y-18,ry:SKATE_GROUND_Y-22,rw:60,w:90,scored:false});}
+function spawnSkateObstacle() {
+  var r = Math.random();
+  if (r < 0.4) {
+    // Hydrant (50 pts for jumping over)
+    skateObstacles.push({ type: 'hydrant', x: 320, y: SKATE_GROUND_Y - 18, w: 14, h: 18, scored: false });
+  } else if (r < 0.75) {
+    // Rail / Corrimão (100 pts for grinding)
+    var railH = SKATE_GROUND_Y - 20;
+    skateObstacles.push({ type: 'rail', x: 320, y: railH, w: 70, h: 3, scored: false });
+  } else {
+    // Combo: Hydrant + Rail (150 pts)
+    skateObstacles.push({ type: 'combo', x: 320, hy: SKATE_GROUND_Y - 18, ry: SKATE_GROUND_Y - 22, rw: 60, w: 90, scored: false });
+  }
 }
 
-function skateGameOver(score){
-  skateRunning=false;cancelAnimationFrame(skateAnimId);
-  if(skateCtx){skateCtx.fillStyle="rgba(255,0,0,.2)";skateCtx.fillRect(0,0,310,170);}
-  document.getElementById("skateStartBtn").disabled=false;
-  document.getElementById("skateStartBtn").textContent="TENTAR DE NOVO";
+function skateGameOver(score) {
+  skateRunning = false; cancelAnimationFrame(skateAnimId);
+  if (skateCtx) { skateCtx.fillStyle = 'rgba(255,0,0,.2)'; skateCtx.fillRect(0, 0, 310, 170); }
+  document.getElementById('skateStartBtn').disabled = false;
+  document.getElementById('skateStartBtn').textContent = 'TENTAR DE NOVO';
 }
 
-function showSkateVictory(prize,coupon,score){
-  document.getElementById("skateFinalScore").textContent=score;
-  document.getElementById("skatePrizeText").textContent=prize;
-  document.getElementById("skateCouponCode").textContent=coupon;
-  document.getElementById("skateVictory").classList.add("active");
-  document.getElementById("skateStartBtn").disabled=false;
-  document.getElementById("skateStartBtn").textContent="JOGAR DE NOVO";
+function showSkateVictory(prize, coupon, score) {
+  document.getElementById('skateFinalScore').textContent = score;
+  document.getElementById('skatePrizeText').textContent = prize;
+  document.getElementById('skateCouponCode').textContent = coupon;
+  document.getElementById('skateVictory').classList.add('active');
+  document.getElementById('skateStartBtn').disabled = false;
+  document.getElementById('skateStartBtn').textContent = 'JOGAR DE NOVO';
 }
 
-function skateCopyCoupon(){
-  var code=document.getElementById("skateCouponCode").textContent;
-  navigator.clipboard.writeText(code).then(function(){
-    var btn=document.querySelector(".skate-victory .coupon-box button");
-    if(btn){btn.textContent="Copiado!";setTimeout(function(){btn.textContent="Copiar";},1500);}
-  }).catch(function(){
-    var ta=document.createElement("textarea");ta.value=code;ta.style.position="fixed";ta.style.left="-9999px";
-    document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);
-    var btn=document.querySelector(".skate-victory .coupon-box button");
-    if(btn){btn.textContent="Copiado!";setTimeout(function(){btn.textContent="Copiar";},1500);}
+function skateCopyCoupon() {
+  var code = document.getElementById('skateCouponCode').textContent;
+  navigator.clipboard.writeText(code).then(function() {
+    var btn = document.querySelector('.skate-victory .coupon-box button');
+    if (btn) { btn.textContent = 'Copiado!'; setTimeout(function() { btn.textContent = 'Copiar'; }, 1500); }
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = code; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    var btn = document.querySelector('.skate-victory .coupon-box button');
+    if (btn) { btn.textContent = 'Copiado!'; setTimeout(function() { btn.textContent = 'Copiar'; }, 1500); }
   });
 }
 
-function unlockSkate(){
-  skateUnlocked=true;
-  var el=document.getElementById("skateLockOverlay");if(el)el.style.display="none";
-  var btn=document.getElementById("skateStartBtn");if(btn)btn.disabled=false;
+function unlockSkate() {
+  skateUnlocked = true;
+  var el = document.getElementById('skateLockOverlay'); if (el) el.style.display = 'none';
+  var btn = document.getElementById('skateStartBtn'); if (btn) btn.disabled = false;
   initSkateGame();
 }
 
-function relockSkate(){
-  skateUnlocked=false;skateRunning=false;cancelAnimationFrame(skateAnimId);
-  var el=document.getElementById("skateLockOverlay");if(el)el.style.display="flex";
-  var btn=document.getElementById("skateStartBtn");if(btn){btn.disabled=true;btn.textContent="INICIAR";}
-  document.getElementById("skateVictory").classList.remove("active");
-  var sv=document.getElementById("skateScoreVal");if(sv)sv.textContent="0 / "+SKATE_WIN_SCORE;
+function relockSkate() {
+  skateUnlocked = false; skateRunning = false; cancelAnimationFrame(skateAnimId);
+  var el = document.getElementById('skateLockOverlay'); if (el) el.style.display = 'flex';
+  var btn = document.getElementById('skateStartBtn'); if (btn) { btn.disabled = true; btn.textContent = 'INICIAR'; }
+  document.getElementById('skateVictory').classList.remove('active');
+  var sv = document.getElementById('skateScoreVal'); if (sv) sv.textContent = '0 / ' + SKATE_WIN_SCORE;
   initSkateGame();
 }
 
-function resetSkateGame(){
-  document.getElementById("skateVictory").classList.remove("active");
-  var btn=document.getElementById("skateStartBtn");if(btn)btn.textContent="INICIAR";
+function resetSkateGame() {
+  document.getElementById('skateVictory').classList.remove('active');
+  var btn = document.getElementById('skateStartBtn'); if (btn) btn.textContent = 'INICIAR';
   initSkateGame();
 }
 
-document.addEventListener("keydown",function(e){
-  if(e.code==="Space"&&skateRunning){e.preventDefault();skateJump();}
+document.addEventListener('keydown', function(e) {
+  if (e.code === 'Space' && skateRunning) { e.preventDefault(); skateJump(); }
 });
-
-var SKATE_PRESETS = [
-  {name:"Minimal",bg:"#111",text:"#fff",btn:"#fff"},
-  {name:"Urbano",bg:"#1a1a2e",text:"#fff",btn:"#7c5cfc"},
-  {name:"Neon",bg:"#0f172a",text:"#fff",btn:"#22c55e"},
-  {name:"Gold",bg:"#1c1917",text:"#fef3c7",btn:"#d97706"},
-  {name:"Street",bg:"#1c1917",text:"#fff",btn:"#ef4444"}
-];
-
-function applySkatePreset(idx){
-  var p=SKATE_PRESETS[idx];
-  var popup=document.getElementById("skate-popup-preview");
-  if(popup){
-    popup.style.background="linear-gradient(180deg,"+p.bg+" 0%,#000 100%)";
-    popup.style.borderColor=p.btn+"33";
-    popup.style.boxShadow="0 10px 40px rgba(0,0,0,.6),0 0 20px "+p.btn+"22";
-  }
-  var h3=document.getElementById("skate-popup-title");
-  if(h3) h3.style.color=p.text;
-  var sub=document.getElementById("skate-popup-subtitle");
-  if(sub) sub.style.color=p.text+"99";
-  var btn=document.getElementById("skateStartBtn");
-  if(btn){btn.style.background=p.btn;btn.style.color=p.bg;}
-  var unlockBtn=document.querySelector(".skate-unlock-btn");
-  if(unlockBtn){unlockBtn.style.background=p.btn;unlockBtn.style.color=p.bg;}
-  document.querySelectorAll("#skate-presets-section .preset-card").forEach(function(c,j){c.classList.toggle("active",j===idx);});
-}
 
 function copySlotCoupon() {
   var couponEl = document.getElementById('slot-coupon-code');
@@ -3348,6 +3868,7 @@ function copySlotCoupon() {
       if (feedbackEl) { feedbackEl.style.opacity = '0'; }
     }, 3000);
   }).catch(function() {
+    // Fallback for older browsers
     var ta = document.createElement('textarea');
     ta.value = couponText;
     ta.style.position = 'fixed';
@@ -3397,11 +3918,7 @@ function initSlotBulbs() {
   });
 }
 
-// ─── UPDATED PREVIEW ───────────────────────────────────────────────────────
-// Close modal on backdrop click
-document.getElementById('popup-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-// Start
+// ─── MOBILE MENU ──────────────────────────────────────────────────────────
 function toggleMobileMenu() {
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('mobile-overlay');
@@ -3414,6 +3931,7 @@ function toggleMobileMenu() {
     overlay.classList.add('active');
   }
 }
+// Close mobile menu when nav item clicked
 document.querySelectorAll('.nav-item').forEach(function(item) {
   item.addEventListener('click', function() {
     if (window.innerWidth <= 768) {
@@ -3422,6 +3940,11 @@ document.querySelectorAll('.nav-item').forEach(function(item) {
   });
 });
 
+// ─── UPDATED PREVIEW ──────────────────────────────────────────────────────
+// Close modal on backdrop click
+document.getElementById('popup-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+// Start
 init();
 </script>
 </body>
