@@ -1011,12 +1011,14 @@
     .skate-start-btn:hover { background: #e0e0e0; }
     .skate-start-btn:disabled { opacity: .3; cursor: default; }
     .skate-lock-overlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,.92); display: flex;
-      flex-direction: column; align-items: center; justify-content: center;
-      z-index: 10; padding: 16px; border-radius: 14px;
+      display: flex;
+      flex-direction: column; align-items: center;
+      padding: 16px 16px 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.4);
     }
-    .skate-lock-overlay .lock-icon { font-size: 32px; margin-bottom: 8px; }
+    .skate-lock-overlay.hidden { display: none; }
+    .skate-lock-overlay .lock-icon { font-size: 24px; margin-bottom: 4px; }
     .skate-lock-overlay p { font-size: 12px; color: #999; margin: 0 0 10px; text-align: center; }
     .skate-lock-overlay input {
       width: 85%; padding: 8px 12px; margin-bottom: 6px;
@@ -3830,14 +3832,14 @@ function skateCopyCoupon() {
 
 function unlockSkate() {
   skateUnlocked = true;
-  var el = document.getElementById('skateLockOverlay'); if (el) el.style.display = 'none';
+  var el = document.getElementById('skateLockOverlay'); if (el) el.classList.add('hidden');
   var btn = document.getElementById('skateStartBtn'); if (btn) btn.disabled = false;
   initSkateGame();
 }
 
 function relockSkate() {
   skateUnlocked = false; skateRunning = false; cancelAnimationFrame(skateAnimId);
-  var el = document.getElementById('skateLockOverlay'); if (el) el.style.display = 'flex';
+  var el = document.getElementById('skateLockOverlay'); if (el) el.classList.remove('hidden');
   var btn = document.getElementById('skateStartBtn'); if (btn) { btn.disabled = true; btn.textContent = 'INICIAR'; }
   document.getElementById('skateVictory').classList.remove('active');
   var sv = document.getElementById('skateScoreVal'); if (sv) sv.textContent = '0 / ' + SKATE_WIN_SCORE;
