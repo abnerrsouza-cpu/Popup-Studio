@@ -2208,12 +2208,13 @@
                     <div class="skate-popup-header">
                       <span class="skate-icon" id="skate-popup-icon">🛹</span>
                       <h3 id="skate-popup-title">SKATE GRIND</h3>
-                      <p id="skate-popup-subtitle">Pule hidrantes, grinde corrimões e faça 300 pontos!</p>
+                      <p id="skate-popup-subtitle">Pule hidrantes, grinde corrimões e faça 800 pontos!</p>
                     </div>
                     <div class="skate-canvas-wrap" id="skateCanvasWrap">
                       <canvas id="skateCanvas" width="310" height="160"></canvas>
                     </div>
-                    <div class="skate-score"><span id="skateScoreVal">0 / 300</span> PTS</div>
+                    <div class="skate-score"><span id="skateScoreVal">0 / 800</span> PTS</div>
+                    <p class="skate-instruction" id="skateInstruction" style="text-align:center;font-size:11px;color:#888;margin:2px 0 6px;font-weight:600;"></p>
                     <button class="skate-start-btn" id="skateStartBtn" onclick="startSkateRun()" disabled>INICIAR</button>
                     <div class="skate-lock-overlay" id="skateLockOverlay">
                       <div class="lock-icon">🔒</div>
@@ -3563,7 +3564,7 @@ var skateRunning = false;
 var skateUnlocked = false;
 var skateScore = 0;
 var skateSpeed = 3;
-var SKATE_WIN_SCORE = 300;
+var SKATE_WIN_SCORE = 800;
 var skateAnimId = null;
 var skaterY = 0, skaterVY = 0, skaterOnGround = true, skateGrinding = false;
 var SKATE_GRAVITY = 0.5, SKATE_JUMP_FORCE = -9;
@@ -3585,6 +3586,12 @@ function initSkateGame() {
   skateGroundOffset = 0; skateFloatingTexts = []; skateFrameCount = 0;
   var el = document.getElementById('skateScoreVal');
   if (el) el.textContent = '0 / ' + SKATE_WIN_SCORE;
+  // Set instruction text based on device
+  var instrEl = document.getElementById('skateInstruction');
+  if (instrEl) {
+    var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    instrEl.textContent = isMobile ? '👆 Clique na tela para pular' : '⌨️ Aperte Espaço para pular';
+  }
   drawSkateFrame();
 }
 
