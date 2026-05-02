@@ -2419,7 +2419,7 @@ async function loadDashboard() {
 
   try {
     const [leadRes, eventRes] = await Promise.all([
-      api('GET', '/api/leads?count=1').catch(() => ({ count: 0 })),
+      api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
       api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
     ]);
     leads = leadRes.count || 0;
@@ -2444,7 +2444,7 @@ async function loadDashboard() {
 
     // Try to get detailed leads for chart
     try {
-      const leadDetail = await api('GET', '/api/leads?since=' + sinceDate + '&limit=200').catch(() => ({ leads: [] }));
+      const leadDetail = await api('GET', '/api/public/lead?since=' + sinceDate + '&limit=200').catch(() => ({ leads: [] }));
       const ldArr = leadDetail.leads || leadDetail.data || [];
       if (Array.isArray(ldArr)) {
         ldArr.forEach(ld => {
@@ -2695,7 +2695,7 @@ async function updateStats() {
   document.getElementById('nav-badge-popups').textContent = total;
   try {
     const [l, e] = await Promise.all([
-      api('GET', '/api/leads?count=1').catch(() => ({ count: 0 })),
+      api('GET', '/api/public/lead?count=1').catch(() => ({ count: 0 })),
       api('GET', '/api/public/event?count=1').catch(() => ({ count: 0 }))
     ]);
     document.getElementById('stat-leads').textContent = l.count ?? '—';
@@ -2954,7 +2954,7 @@ async function loadLeads() {
   var el = document.getElementById('leads-list');
   el.innerHTML = '<div class="loading-center"><div class="spinner"></div> Carregando...</div>';
   try {
-    const result = await api('GET', '/api/leads');
+    const result = await api('GET', '/api/public/lead');
     leadsData = Array.isArray(result) ? result : (result.leads || []);
     renderLeadsTable(leadsData);
   } catch(e) {
