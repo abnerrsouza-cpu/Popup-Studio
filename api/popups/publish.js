@@ -1,6 +1,6 @@
 // /api/popups/publish
 // POST { id } -> injeta o loader.js na loja via API de Scripts da Nuvemshop
-// Se a loja já tem UM script nosso ativo (de outro pop-up), reusa (o loader decide qual pop-up exibir).
+// Se a loja ja tem UM script nosso ativo (de outro pop-up), reusa (o loader decide qual pop-up exibir).
 
 import { supabase } from '../../lib/supabase.js';
 import { requireStore, readJson, handleOptions, setCorsAuthenticated } from '../../lib/auth.js';
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const appUrl = process.env.APP_URL || 'https://popup-studio.vercel.app';
     const src    = `${appUrl}/loader.js?store_id=${store.store_id}`;
 
-    // Se já existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
+    // Se ja existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
     let scriptId = null;
     try {
       const existing = await listScripts(store.store_id, store.access_token);
@@ -45,9 +45,8 @@ export default async function handler(req, res) {
     if (!scriptId) {
       const created = await createScript(store.store_id, store.access_token, {
         src,
-        event: 'onload',
+        event: 'onfirstinteraction',
         where: 'store',
-        type:  'javascript',
       });
       scriptId = created?.id;
     }
@@ -68,7 +67,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ popup: updated, script_id: scriptId });
   } catch (err) {
-    console.error('[publish] erro:', err);
-    return res.status(500).json({ error: 'publish_failed', message: err.message });
+    console.error('[publish] erro:', err.message, err.body ? JSON.stringify(err.body) : '');
+    return res.status(500).json({ error: 'publish_failed', message: err.message, details: err.body || null });
   }
 }
