@@ -1174,6 +1174,10 @@
     }
     .account-card-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .account-card.full { grid-column: 1 / -1; }
+    .account-value { padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text); word-break: break-all; }
+    .account-stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .account-stat-number { font-size: 28px; font-weight: 700; color: var(--accent-light); line-height: 1.2; }
+    .account-stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
     /* ─── LEADS TABLE HEADER ─────────────────────────── */
     .leads-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -1753,11 +1757,12 @@
         <div class="page-header">
           <div>
             <h1 class="page-title">Minha Conta</h1>
-            <p class="page-sub">Informações da sua loja e plano</p>
+            <p class="page-sub">Informacoes da sua loja, plano e uso</p>
           </div>
         </div>
         <div style="padding: 24px 32px;">
           <div class="account-grid">
+            <!-- DADOS DA LOJA -->
             <div class="account-card">
               <div class="account-card-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -1765,36 +1770,76 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Nome da Loja</label>
-                <input class="form-input" id="account-name" readonly>
+                <div class="account-value" id="account-name">Carregando...</div>
               </div>
               <div class="form-group">
                 <label class="form-label">URL da Loja</label>
-                <input class="form-input" id="account-url" readonly>
+                <div class="account-value" id="account-url-wrap">
+                  <a id="account-url" href="#" target="_blank" style="color:var(--accent-light);text-decoration:none;">Carregando...</a>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Store ID</label>
+                <div class="account-value" id="account-store-id" style="font-family:monospace;font-size:13px;">-</div>
               </div>
             </div>
 
+            <!-- PLANO E STATUS -->
             <div class="account-card">
               <div class="account-card-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Plano Atual
+                Plano e Status
               </div>
               <div class="form-group">
                 <label class="form-label">Plano</label>
-                <input class="form-input" id="account-plan" readonly>
+                <div class="account-value" id="account-plan">-</div>
               </div>
               <div class="form-group">
                 <label class="form-label">Status</label>
-                <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;">
-                  <span style="width:8px;height:8px;border-radius:50%;background:var(--green);"></span>
-                  <span style="font-size:14px;">Ativo</span>
+                <div class="account-value">
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:var(--green);"></span>
+                    Ativo
+                  </span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Instalado em</label>
+                <div class="account-value" id="account-installed">-</div>
+              </div>
+            </div>
+
+            <!-- RESUMO DE USO -->
+            <div class="account-card full">
+              <div class="account-card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Resumo de Uso
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;" id="account-stats">
+                <div class="account-stat-box">
+                  <div class="account-stat-number" id="acct-total-popups">-</div>
+                  <div class="account-stat-label">Popups criados</div>
+                </div>
+                <div class="account-stat-box">
+                  <div class="account-stat-number" id="acct-pub-popups">-</div>
+                  <div class="account-stat-label">Publicados</div>
+                </div>
+                <div class="account-stat-box">
+                  <div class="account-stat-number" id="acct-total-leads">-</div>
+                  <div class="account-stat-label">Leads capturados</div>
+                </div>
+                <div class="account-stat-box">
+                  <div class="account-stat-number" id="acct-total-events">-</div>
+                  <div class="account-stat-label">Eventos totais</div>
                 </div>
               </div>
             </div>
 
+            <!-- ACOES -->
             <div class="account-card full">
               <div class="account-card-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                Ações
+                Acoes
               </div>
               <div style="display:flex;gap:12px;flex-wrap:wrap;">
                 <a href="/api/auth/install" class="btn btn-outline">
@@ -2299,13 +2344,28 @@ async function init() {
     store = res;
     document.getElementById('app').style.display = 'flex';
 
-    const storeName = store.name || store.original_name || 'Minha Loja';
+    const storeName = store.shop_name || store.name || store.original_name || 'Minha Loja';
+    const storeUrl = store.shop_url || store.url || '';
     document.getElementById('store-name').textContent = storeName;
-    document.getElementById('store-url').textContent = store.url || '';
+    document.getElementById('store-url').textContent = storeUrl;
     document.getElementById('store-avatar').textContent = storeName.charAt(0).toUpperCase();
-    document.getElementById('account-name').value = storeName;
-    document.getElementById('account-url').value = store.url || '';
-    document.getElementById('account-plan').value = store.plan_name || 'Básico';
+    document.getElementById('account-name').textContent = storeName;
+    var urlEl = document.getElementById('account-url');
+    if (storeUrl) {
+      var fullUrl = storeUrl.startsWith('http') ? storeUrl : 'https://' + storeUrl;
+      urlEl.href = fullUrl;
+      urlEl.textContent = storeUrl;
+    } else {
+      urlEl.textContent = 'Nao disponivel';
+      urlEl.removeAttribute('href');
+      urlEl.style.color = 'var(--text-muted)';
+    }
+    document.getElementById('account-store-id').textContent = store.store_id || '-';
+    document.getElementById('account-plan').textContent = store.plan_name || 'free';
+    if (store.installed_at) {
+      var instDate = new Date(store.installed_at);
+      document.getElementById('account-installed').textContent = instDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
     renderGames();
     renderIntegrations();
     loadPopups();
@@ -2334,6 +2394,25 @@ function showView(name, el) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'studio') loadPopups();
   if (name === 'leads') loadLeads();
+  if (name === 'conta') loadAccountStats();
+}
+
+async function loadAccountStats() {
+  try {
+    var total = popups.length;
+    var pub = popups.filter(function(p) { return p.status === 'published'; }).length;
+    document.getElementById('acct-total-popups').textContent = total;
+    document.getElementById('acct-pub-popups').textContent = pub;
+
+    var results = await Promise.all([
+      api('GET', '/api/public/lead?count=1').catch(function() { return { count: 0 }; }),
+      api('GET', '/api/public/event?count=1').catch(function() { return { count: 0 }; })
+    ]);
+    document.getElementById('acct-total-leads').textContent = results[0].count || 0;
+    document.getElementById('acct-total-events').textContent = results[1].count || 0;
+  } catch (e) {
+    console.warn('[account] stats error:', e.message);
+  }
 }
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
