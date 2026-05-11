@@ -1,10 +1,10 @@
 // /api/popups/publish
-// POST { id } -> associa o script template à loja via API 2025-03 da Nuvemshop
-// Se a loja já tem UM script nosso ativo (de outro pop-up), reusa (o loader decide qual pop-up exibir).
+// POST { id } -> marca o pop-up como publicado no Supabase.
+// O script template (popup-studio-loader) é auto-instalado na Nuvemshop,
+// então NÃO precisamos criar associação via API — o loader.js já roda em todas as lojas.
 
 import { supabase } from '../../lib/supabase.js';
 import { requireStore, readJson, handleOptions, setCorsAuthenticated } from '../../lib/auth.js';
-import { createScript, listScripts } from '../../lib/nuvemshop.js';
 import { setSecurityHeaders } from '../../lib/security.js';
 
 export default async function handler(req, res) {
@@ -20,6 +20,7 @@ export default async function handler(req, res) {
         const { id } = await readJson(req);
         if (!id) return res.status(400).json({ error: 'missing_id' });
 
+        // Verifica se o pop-up existe e pertence à loja
         const { data: popup, error: fetchErr } = await supabase
             .from('popups')
             .select('*')
@@ -29,45 +30,17 @@ export default async function handler(req, res) {
 
         if (fetchErr || !popup) return res.status(404).json({ error: 'popup_not_found' });
 
-        // Converte para número inteiro (API Nuvemshop espera number, não string)
-        const rawScriptId = process.env.NUVEMSHOP_SCRIPT_ID || null;
-        const scriptTemplateId = rawScriptId ? parseInt(rawScriptId, 10) : null;
+        // Script template ID (auto-instalado, apenas para referência)
+        const scriptTemplateId = process.env.NUVEMSHOP_SCRIPT_ID
+            ? parseInt(process.env.NUVEMSHOP_SCRIPT_ID, 10)
+            : null;
 
-        // Se já existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
-        let scriptId = null;
-        try {
-            const existing = await listScripts(store.store_id, store.access_token);
-            // API v2 (2025-03) retorna { result: [...], total: N }
-            const arr = Array.isArray(existing) ? existing : (existing?.result || []);
-            const ours = arr.find(s => s.script_id === scriptTemplateId);
-            if (ours) scriptId = ours.id;
-        } catch (e) {
-            console.warn('[publish] listScripts falhou:', e.message);
-        }
-
-        if (!scriptId) {
-            try {
-                const created = await createScript(store.store_id, store.access_token, {
-                    script_id: scriptTemplateId,
-                });
-                scriptId = created?.id;
-            } catch (createErr) {
-                // Se 422 ou 500 da API Nuvemshop, marca como publicado com o template ID
-                if (createErr.status === 422 || createErr.status === 500) {
-                    console.log('[publish] createScript', createErr.status, 'fallback:', createErr.message);
-                    scriptId = scriptTemplateId;
-                } else {
-                    throw createErr; // outro erro -> propagar
-                }
-            }
-        }
-
-        // Marca pop-up como publicado + guarda script_id
+        // Marca pop-up como publicado
         const { data: updated, error: updErr } = await supabase
             .from('popups')
             .update({
                 status: 'published',
-                script_id: scriptId || null,
+                script_id: scriptTemplateId,
                 published_at: new Date().toISOString(),
             })
             .eq('id', id)
@@ -77,10 +50,10 @@ export default async function handler(req, res) {
 
         if (updErr) return res.status(500).json({ error: updErr.message });
 
-        return res.status(200).json({ popup: updated, script_id: scriptId });
+        return res.status(200).json({ popup: updated, script_id: scriptTemplateId });
 
     } catch (err) {
-        console.error('[publish] erro:', err.message, err.body ? JSON.stringify(err.body) : '');
-        return res.status(500).json({ error: 'publish_failed', message: err.message, details: err.body || null });
+        console.error('[publish] erro:', err.message);
+        return res.status(500).json({ error: 'publish_failed', message: err.message });
     }
 }
