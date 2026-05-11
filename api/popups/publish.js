@@ -13,71 +13,76 @@ export default async function handler(req, res) {
     setCorsAuthenticated(res);
     if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
 
-  const store = await requireStore(req, res);
+    const store = await requireStore(req, res);
     if (!store) return;
 
-  try {
+    try {
         const { id } = await readJson(req);
         if (!id) return res.status(400).json({ error: 'missing_id' });
 
-      const { data: popup, error: fetchErr } = await supabase
-          .from('popups')
-          .select('*')
-          .eq('id', id)
-          .eq('store_id', store.store_id)
-          .single();
+        const { data: popup, error: fetchErr } = await supabase
+            .from('popups')
+            .select('*')
+            .eq('id', id)
+            .eq('store_id', store.store_id)
+            .single();
+
         if (fetchErr || !popup) return res.status(404).json({ error: 'popup_not_found' });
 
-      const appUrl = process.env.APP_URL || 'https://popup-studio.vercel.app';
-        const src    = `${appUrl}/loader.js?store_id=${store.store_id}`;
+        const appUrl  = process.env.APP_URL || 'https://popup-studio.vercel.app';
+        const src     = `${appUrl}/loader.js?store_id=${store.store_id}`;
+        const scriptTemplateId = process.env.NUVEMSHOP_SCRIPT_ID || null;
 
-      // Se já existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
-      let scriptId = null;
+        // Se já existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
+        let scriptId = null;
         try {
-                const existing = await listScripts(store.store_id, store.access_token);
-                const arr = Array.isArray(existing) ? existing : (existing?.scripts || []);
-                const ours = arr.find(s => (s.src || '').startsWith(`${appUrl}/loader.js`));
-                if (ours) scriptId = ours.id;
+            const existing = await listScripts(store.store_id, store.access_token);
+            const arr = Array.isArray(existing) ? existing : (existing?.scripts || []);
+            const ours = arr.find(s => (s.src || '').startsWith(`${appUrl}/loader.js`));
+            if (ours) scriptId = ours.id;
         } catch (e) {
-                console.warn('[publish] listScripts falhou:', e.message);
+            console.warn('[publish] listScripts falhou:', e.message);
         }
 
-      if (!scriptId) {
-              try {
-                        const created = await createScript(store.store_id, store.access_token, {
-                                    src,
-                                    event: 'onfirstinteraction',
-                                    where: 'store',
-                        });
-                        scriptId = created?.id;
-              } catch (createErr) {
-                        // Script template auto-instalado pela Nuvemshop — não precisa criar manualmente
-                if (createErr.status === 422 && /auto.?install/i.test(createErr.message)) {
-                            console.log('[publish] Script é auto-instalado, pulando createScript.');
-                            scriptId = process.env.NUVEMSHOP_SCRIPT_ID || null;
+        if (!scriptId) {
+            try {
+                const created = await createScript(store.store_id, store.access_token, {
+                    src,
+                    event: 'onfirstinteraction',
+                    where: 'store',
+                    script_id: scriptTemplateId || undefined,
+                });
+                scriptId = created?.id;
+            } catch (createErr) {
+                // Se 422 (script_id required ou auto-install), marca como publicado sem script
+                if (createErr.status === 422) {
+                    console.log('[publish] createScript 422, pulando:', createErr.message);
+                    scriptId = scriptTemplateId;
                 } else {
-                            throw createErr; // outro erro → propagar
+                    throw createErr; // outro erro -> propagar
                 }
-              }
-      }
+            }
+        }
 
-      // Marca pop-up como publicado + guarda script_id
-      const { data: updated, error: updErr } = await supabase
-          .from('popups')
-          .update({
-                    status:       'published',
-                    script_id:    scriptId || null,
-                    published_at: new Date().toISOString(),
-          })
-          .eq('id', id)
-          .eq('store_id', store.store_id)
-          .select()
-          .single();
+        // Marca pop-up como publicado + guarda script_id
+        const { data: updated, error: updErr } = await supabase
+            .from('popups')
+            .update({
+                status: 'published',
+                script_id: scriptId || null,
+                published_at: new Date().toISOString(),
+            })
+            .eq('id', id)
+            .eq('store_id', store.store_id)
+            .select()
+            .single();
+
         if (updErr) return res.status(500).json({ error: updErr.message });
 
-      return res.status(200).json({ popup: updated, script_id: scriptId });
-  } catch (err) {
+        return res.status(200).json({ popup: updated, script_id: scriptId });
+
+    } catch (err) {
         console.error('[publish] erro:', err.message, err.body ? JSON.stringify(err.body) : '');
         return res.status(500).json({ error: 'publish_failed', message: err.message, details: err.body || null });
-  }
+    }
 }
