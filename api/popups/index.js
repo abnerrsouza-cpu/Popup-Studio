@@ -23,7 +23,8 @@ export default async function handler(req, res) {
       .eq('store_id', store.store_id)
       .order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: 'database_error' });
-    return res.status(200).json({ popups: data });
+const enriched = (data || []).map(p => ({ ...p, is_published: p.status === 'published' }));
+        return res.status(200).json({ popups: enriched });
   }
 
   if (req.method === 'POST') {
