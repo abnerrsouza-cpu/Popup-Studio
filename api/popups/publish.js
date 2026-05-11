@@ -29,9 +29,12 @@ export default async function handler(req, res) {
 
         if (fetchErr || !popup) return res.status(404).json({ error: 'popup_not_found' });
 
-        const appUrl  = process.env.APP_URL || 'https://popup-studio.vercel.app';
-        const src     = `${appUrl}/loader.js?store_id=${store.store_id}`;
-        const scriptTemplateId = process.env.NUVEMSHOP_SCRIPT_ID || null;
+        const appUrl = process.env.APP_URL || 'https://popup-studio.vercel.app';
+        const src = `${appUrl}/loader.js?store_id=${store.store_id}`;
+
+        // Converte para número inteiro (API Nuvemshop espera number, não string)
+        const rawScriptId = process.env.NUVEMSHOP_SCRIPT_ID || null;
+        const scriptTemplateId = rawScriptId ? parseInt(rawScriptId, 10) : null;
 
         // Se já existe script nosso injetado (de outro pop-up), reusa o mesmo script_id
         let scriptId = null;
@@ -54,9 +57,9 @@ export default async function handler(req, res) {
                 });
                 scriptId = created?.id;
             } catch (createErr) {
-                // Se 422 (script_id required ou auto-install), marca como publicado sem script
-                if (createErr.status === 422) {
-                    console.log('[publish] createScript 422, pulando:', createErr.message);
+                // Se 422 ou 500 da API Nuvemshop, marca como publicado com o template ID
+                if (createErr.status === 422 || createErr.status === 500) {
+                    console.log('[publish] createScript', createErr.status, 'fallback:', createErr.message);
                     scriptId = scriptTemplateId;
                 } else {
                     throw createErr; // outro erro -> propagar
@@ -80,7 +83,6 @@ export default async function handler(req, res) {
         if (updErr) return res.status(500).json({ error: updErr.message });
 
         return res.status(200).json({ popup: updated, script_id: scriptId });
-
     } catch (err) {
         console.error('[publish] erro:', err.message, err.body ? JSON.stringify(err.body) : '');
         return res.status(500).json({ error: 'publish_failed', message: err.message, details: err.body || null });
