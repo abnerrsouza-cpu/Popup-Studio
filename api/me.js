@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     shop_name:  store.shop_name,
     shop_url:   store.shop_url,
     plan_name:  store.plan_name,
+        status:     store.status,
     installed_at: store.installed_at,
   });
 }
