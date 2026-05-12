@@ -1036,6 +1036,8 @@
 
         if (popup.game_type === "skate_grind") {
           showSkatePopup(popup);
+        } else if (popup.game_type === "slot_machine") {
+                      showSlotMachinePopup(popup);
         } else {
           showGenericPopup(popup);
         }
