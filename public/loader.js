@@ -8,12 +8,19 @@
   /* ââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 
   function getStoreId() {
+    // Try LS object first (Nuvemshop global)
+    if (typeof LS !== "undefined" && LS && LS.store && LS.store.id) {
+      return String(LS.store.id);
+    }
     var scripts = document.getElementsByTagName("script");
     for (var i = 0; i < scripts.length; i++) {
       var src = scripts[i].getAttribute("src") || "";
-      if (src.indexOf("popup-studio") !== -1 || src.indexOf("loader.js") !== -1) {
+      if (src.indexOf("popup-studio") !== -1 || src.indexOf("loader.js") !== -1 || src.indexOf("apps-scripts") !== -1) {
         var match = src.match(/[?&]store_id=([^&]+)/);
         if (match) return match[1];
+        // Nuvemshop uses "store" param (without underscore)
+        var match2 = src.match(/[?&]store=([^&]+)/);
+        if (match2) return match2[1];
         var id = scripts[i].getAttribute("data-store-id");
         if (id) return id;
       }
