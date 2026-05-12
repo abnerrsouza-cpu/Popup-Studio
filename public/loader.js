@@ -154,7 +154,55 @@
       ".skate-victory .coupon-copy{background:#333;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
       ".skate-victory .coupon-copy:hover{background:#555}",
       ".skate-victory .vplay-again{background:none;border:1px solid #444;color:#aaa;padding:8px 20px;border-radius:8px;font-size:12px;cursor:pointer;margin-top:4px}",
-      ".skate-victory .vplay-again:hover{border-color:#888;color:#fff}"
+      ".skate-victory .vplay-again:hover{border-color:#888;color:#fff}",
+
+      /* Slot Machine popup */
+      ".slot-popup{background:linear-gradient(180deg,#0a1f14 0%,#071a0f 100%);border-radius:14px;max-width:360px;width:100%;position:relative;animation:pusSlideUp .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.6);overflow:hidden}",
+      ".slot-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#666;font-size:20px;cursor:pointer;z-index:5;line-height:1;padding:4px}",
+      ".slot-popup-close:hover{color:#fff}",
+      ".slot-popup-header{text-align:center;padding:22px 20px 14px}",
+      ".slot-popup-header .emoji{font-size:36px;margin-bottom:6px;display:block}",
+      ".slot-popup-header .title{font-size:16px;font-weight:800;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}",
+      ".slot-popup-header .subtitle{font-size:12px;color:#8aab9a;line-height:1.3}",
+
+      /* Reels */
+      ".slot-machine-wrap{background:#000;border-radius:12px;margin:0 20px 12px;padding:16px 12px;text-align:center}",
+      ".slot-machine-title{font-size:20px;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:12px;text-shadow:0 0 12px rgba(255,215,0,.4)}",
+      ".slot-reels{display:flex;justify-content:center;gap:8px;margin-bottom:14px}",
+      ".slot-reel{width:72px;height:72px;background:#111;border-radius:10px;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;position:relative}",
+      ".slot-reel.spinning .slot-reel-inner{animation:slotSpin .15s linear infinite}",
+      "@keyframes slotSpin{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}",
+      ".slot-reel.win{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.4)}",
+      ".slot-spin-btn{width:100%;padding:12px;border-radius:8px;border:2px solid #52b788;background:transparent;color:#52b788;font-size:15px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:all .2s}",
+      ".slot-spin-btn:hover{background:#52b788;color:#fff}",
+      ".slot-spin-btn:disabled{opacity:.4;cursor:not-allowed}",
+
+      /* Slot form section */
+      ".slot-form-section{display:flex;flex-direction:column;align-items:center;padding:16px 24px 20px;border-top:1px solid #1a3327}",
+      ".slot-form-section.hidden{display:none}",
+      ".slot-form-section .lock-icon{font-size:28px;margin-bottom:6px}",
+      ".slot-form-section .lock-title{font-size:13px;font-weight:600;color:#8aab9a;margin-bottom:12px;text-align:center}",
+      ".slot-form-section input{width:100%;max-width:280px;padding:11px 14px;border-radius:8px;border:1px solid #1a3327;background:#071a0f;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box;outline:none}",
+      ".slot-form-section input::placeholder{color:#4a6a5a}",
+      ".slot-form-section input:focus{border-color:#52b788}",
+      ".slot-form-section .unlock-btn{width:100%;max-width:280px;padding:12px;border-radius:8px;border:2px solid #52b788;background:transparent;color:#52b788;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:2px;margin-top:4px;transition:all .2s}",
+      ".slot-form-section .unlock-btn:hover{background:#52b788;color:#fff}",
+      ".slot-form-section .unlock-btn:disabled{opacity:.5;cursor:not-allowed}",
+
+      /* Slot result overlay */
+      ".slot-result{position:absolute;inset:0;background:rgba(7,26,15,.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:12;padding:24px;border-radius:14px;text-align:center}",
+      ".slot-result.active{display:flex}",
+      ".slot-result .result-emoji{font-size:48px;margin-bottom:10px}",
+      ".slot-result .result-title{font-size:20px;font-weight:800;color:#fff;letter-spacing:2px;margin-bottom:6px}",
+      ".slot-result .result-desc{font-size:13px;color:#8aab9a;margin-bottom:16px}",
+      ".slot-result .coupon-box{background:#0a1f14;border:1px dashed #52b788;border-radius:8px;padding:14px 20px;margin-bottom:12px}",
+      ".slot-result .coupon-code{font-size:22px;font-weight:800;color:#ffd700;letter-spacing:3px;margin-bottom:6px}",
+      ".slot-result .coupon-copy{background:#1a3327;border:none;color:#52b788;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
+      ".slot-result .coupon-copy:hover{background:#2a4337}",
+      ".slot-result .try-again-btn{background:none;border:1px solid #1a3327;color:#8aab9a;padding:8px 20px;border-radius:8px;font-size:12px;cursor:pointer;margin-top:4px}",
+      ".slot-result .try-again-btn:hover{border-color:#52b788;color:#fff}"
+    ].join("\n");
+    document.head.appendChild(style);
     ].join("\n");
     document.head.appendChild(style);
   }
@@ -226,6 +274,222 @@
 
     /* Copy coupon */
     modal.querySelector("[data-pus-copy]").addEventListener("click", function() {
+      copyText(coupon, this);
+    });
+  }
+
+    /* ââ Slot Machine Popup ââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+
+  function showSlotMachinePopup(popup) {
+    var cfg = popup.config || {};
+    var title = cfg.title || "\ud83c\udf81 Jogue e Ganhe!";
+    var desc = cfg.description || "Cadastre seu e-mail e jogue para ganhar um cupom especial!";
+    var btnText = cfg.button_text || "JOGAR!";
+    var prize = cfg.prize || "SLOT10";
+    var coupon = cfg.prize || "SLOT10";
+    var emoji1 = cfg.slot_emoji1 || "\ud83d\udc55";
+    var emoji2 = cfg.slot_emoji2 || "\ud83e\udde2";
+    var emoji3 = cfg.slot_emoji3 || "\ud83d\udc5f";
+    var machineTitle = cfg.slot_machine_title || "JACKPOT!";
+    var winText = cfg.slot_win_text || "\ud83c\udf89 PARAB\u00c9NS! Voc\u00ea ganhou!";
+    var loseText = cfg.slot_lose_text || "Que pena! Tente novamente...";
+    var bgColor = cfg.background_color || "#0a1f14";
+    var btnColor = cfg.button_color || "#52b788";
+
+    var allEmojis = [emoji1, emoji2, emoji3];
+    var unlocked = false;
+
+    var backdrop = document.createElement("div");
+    backdrop.className = "pus-backdrop";
+    backdrop.setAttribute("data-pus-popup", popup.id);
+
+    var box = document.createElement("div");
+    box.className = "slot-popup";
+    box.style.background = "linear-gradient(180deg," + bgColor + " 0%,#071a0f 100%)";
+
+    box.innerHTML = [
+      '<button class="slot-popup-close" data-slot-close>&times;</button>',
+
+      /* Header */
+      '<div class="slot-popup-header">',
+        '<span class="emoji">' + escHtml(cfg.emoji || "\ud83c\udf81") + '</span>',
+        '<div class="title">' + escHtml(title) + '</div>',
+        '<div class="subtitle">' + escHtml(desc) + '</div>',
+      '</div>',
+
+      /* Slot machine */
+      '<div class="slot-machine-wrap">',
+        '<div class="slot-machine-title">' + escHtml(machineTitle) + '</div>',
+        '<div class="slot-reels">',
+          '<div class="slot-reel" data-reel="0"><span class="slot-reel-inner">' + emoji1 + '</span></div>',
+          '<div class="slot-reel" data-reel="1"><span class="slot-reel-inner">' + emoji2 + '</span></div>',
+          '<div class="slot-reel" data-reel="2"><span class="slot-reel-inner">' + emoji3 + '</span></div>',
+        '</div>',
+        '<button class="slot-spin-btn" data-slot-spin style="border-color:' + btnColor + ';color:' + btnColor + '" disabled>GIRAR</button>',
+      '</div>',
+
+      /* Form section (pre-registration) */
+      '<div class="slot-form-section" data-slot-form>',
+        '<div class="lock-icon">\ud83d\udd12</div>',
+        '<div class="lock-title">Cadastre-se para desbloquear o jogo e ganhar seu desconto!</div>',
+        '<input type="text" placeholder="\u2709 Seu nome" data-slot-name>',
+        '<input type="email" placeholder="\u2709 Seu e-mail *" data-slot-email>',
+        '<input type="tel" placeholder="\ud83d\udcde Seu telefone" data-slot-phone>',
+        '<button class="unlock-btn" data-slot-unlock style="border-color:' + btnColor + ';color:' + btnColor + '">' + escHtml(btnText) + '</button>',
+      '</div>',
+
+      /* Result overlay */
+      '<div class="slot-result" data-slot-result>',
+        '<div class="result-emoji" data-slot-result-emoji>\ud83c\udf89</div>',
+        '<div class="result-title" data-slot-result-title></div>',
+        '<div class="result-desc" data-slot-result-desc></div>',
+        '<div class="coupon-box" data-slot-coupon-box style="display:none">',
+          '<div class="coupon-code" data-slot-coupon-val></div>',
+          '<button class="coupon-copy" data-slot-copy>Copiar</button>',
+        '</div>',
+        '<button class="try-again-btn" data-slot-retry>Jogar novamente</button>',
+      '</div>'
+    ].join("");
+
+    box.addEventListener("click", function(e) { e.stopPropagation(); });
+    backdrop.appendChild(box);
+    document.body.appendChild(backdrop);
+
+    trackEvent(popup.id, "impression");
+    markShown(popup.id);
+
+    /* Refs */
+    var spinBtn = box.querySelector("[data-slot-spin]");
+    var formSection = box.querySelector("[data-slot-form]");
+    var unlockBtn = box.querySelector("[data-slot-unlock]");
+    var reels = box.querySelectorAll(".slot-reel");
+    var resultOverlay = box.querySelector("[data-slot-result]");
+    var spinning = false;
+
+    /* Close */
+    var closeFn = function() {
+      trackEvent(popup.id, "close");
+      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+    };
+    backdrop.addEventListener("click", closeFn);
+    box.querySelector("[data-slot-close]").addEventListener("click", closeFn);
+
+    /* Unlock (registration) */
+    unlockBtn.addEventListener("click", function() {
+      var email = (box.querySelector("[data-slot-email]").value || "").trim();
+      var name = (box.querySelector("[data-slot-name]").value || "").trim();
+      var phone = (box.querySelector("[data-slot-phone]").value || "").trim();
+      if (!email || email.indexOf("@") === -1) {
+        box.querySelector("[data-slot-email]").style.borderColor = "#ef4444";
+        return;
+      }
+      unlockBtn.disabled = true;
+      unlockBtn.textContent = "...";
+      submitLead(popup.id, email, name, phone, prize, coupon, function() {
+        unlocked = true;
+        formSection.style.display = "none";
+        spinBtn.disabled = false;
+        spinBtn.style.background = btnColor;
+        spinBtn.style.color = "#fff";
+        trackEvent(popup.id, "unlock", { email: email });
+      });
+    });
+
+    /* Spin logic */
+    spinBtn.addEventListener("click", function() {
+      if (spinning || !unlocked) return;
+      spinning = true;
+      spinBtn.disabled = true;
+
+      /* Start spinning animation */
+      var intervals = [];
+      for (var r = 0; r < 3; r++) {
+        (function(idx) {
+          var reel = reels[idx];
+          var inner = reel.querySelector(".slot-reel-inner");
+          reel.classList.add("spinning");
+          var ci = 0;
+          intervals[idx] = setInterval(function() {
+            ci = (ci + 1) % allEmojis.length;
+            inner.textContent = allEmojis[ci];
+          }, 100 + idx * 30);
+        })(r);
+      }
+
+      /* Determine result (70% win rate) */
+      var isWin = Math.random() < 0.7;
+      var results;
+      if (isWin) {
+        var winEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+        results = [winEmoji, winEmoji, winEmoji];
+      } else {
+        results = [];
+        for (var j = 0; j < 3; j++) {
+          results.push(allEmojis[Math.floor(Math.random() * allEmojis.length)]);
+        }
+        /* Ensure at least one is different */
+        if (results[0] === results[1] && results[1] === results[2]) {
+          var diff = (allEmojis.indexOf(results[0]) + 1) % allEmojis.length;
+          results[2] = allEmojis[diff];
+        }
+      }
+
+      /* Stop reels one by one */
+      var stopReel = function(idx) {
+        setTimeout(function() {
+          clearInterval(intervals[idx]);
+          reels[idx].classList.remove("spinning");
+          reels[idx].querySelector(".slot-reel-inner").textContent = results[idx];
+          if (isWin) reels[idx].classList.add("win");
+
+          if (idx === 2) {
+            /* All reels stopped */
+            setTimeout(function() { showResult(isWin); }, 400);
+          }
+        }, 800 + idx * 500);
+      };
+      for (var s = 0; s < 3; s++) stopReel(s);
+    });
+
+    /* Show result */
+    function showResult(isWin) {
+      spinning = false;
+      var resultEmoji = box.querySelector("[data-slot-result-emoji]");
+      var resultTitle = box.querySelector("[data-slot-result-title]");
+      var resultDesc = box.querySelector("[data-slot-result-desc]");
+      var couponBox = box.querySelector("[data-slot-coupon-box]");
+      var couponVal = box.querySelector("[data-slot-coupon-val]");
+
+      if (isWin) {
+        resultEmoji.textContent = "\ud83c\udf89";
+        resultTitle.textContent = winText.replace(/\ud83c\udf89\s*/, "");
+        resultDesc.textContent = "Use o cupom abaixo na sua pr\u00f3xima compra:";
+        couponVal.textContent = coupon;
+        couponBox.style.display = "block";
+        trackEvent(popup.id, "win");
+      } else {
+        resultEmoji.textContent = "\ud83d\ude14";
+        resultTitle.textContent = loseText;
+        resultDesc.textContent = "Tente mais uma vez!";
+        couponBox.style.display = "none";
+        trackEvent(popup.id, "lose");
+      }
+
+      resultOverlay.classList.add("active");
+    }
+
+    /* Retry */
+    box.querySelector("[data-slot-retry]").addEventListener("click", function() {
+      resultOverlay.classList.remove("active");
+      for (var r = 0; r < 3; r++) {
+        reels[r].classList.remove("win");
+        reels[r].querySelector(".slot-reel-inner").textContent = allEmojis[r];
+      }
+      spinBtn.disabled = false;
+    });
+
+    /* Copy coupon */
+    box.querySelector("[data-slot-copy]").addEventListener("click", function() {
       copyText(coupon, this);
     });
   }
@@ -1567,6 +1831,8 @@
 
         if (popup.game_type === "skate_grind") {
           showSkatePopup(popup);
+        } else if (popup.game_type === "slot_machine") {
+          showSlotMachinePopup(popup);
         } else {
           showGenericPopup(popup);
         }
