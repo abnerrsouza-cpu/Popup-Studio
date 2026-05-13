@@ -1,6 +1,6 @@
 /*!
  * PopUp Studio - Loader v3.0
- * Este script é injetado automaticamente nas lojas Nuvemshop que instalaram o app.
+ * Este script Ã© injetado automaticamente nas lojas Nuvemshop que instalaram o app.
  * Responsabilidade: buscar a config dos pop-ups publicados e exibi-los na vitrine.
  */
 (function () {
@@ -19,7 +19,7 @@
     try { storeId = new URL(scriptEl.src).searchParams.get('store_id'); } catch (e) {}
   }
   if (!storeId && window.LS && window.LS.store && window.LS.store.id) storeId = window.LS.store.id;
-  if (!storeId) { console.warn('[PopUpStudio] store_id não encontrado.'); return; }
+  if (!storeId) { console.warn('[PopUpStudio] store_id nÃ£o encontrado.'); return; }
 
   var API = (scriptEl && scriptEl.src ? new URL(scriptEl.src).origin : 'https://popup-studio.vercel.app');
 
@@ -47,7 +47,47 @@
     });
   }
 
-  // ---- Regras de exibição (cooldown 24h por pop-up) ----
+  // ---- ValidaÃ§Ã£o de e-mail rigorosa (client-side) ----
+  var VALID_EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+  var DISPOSABLE_DOMAINS = [
+    'mailinator.com','guerrillamail.com','tempmail.com','throwaway.email','temp-mail.org',
+    'fakeinbox.com','sharklasers.com','yopmail.com','yopmail.fr','trashmail.com',
+    'trashmail.me','trashmail.net','10minutemail.com','discard.email','discardmail.com',
+    'emailondeck.com','maildrop.cc','mailnesia.com','getnada.com','mohmal.com',
+    'mailsac.com','mailcatch.com','spamgourmet.com','mytemp.email','tempinbox.com',
+    'tempmailaddress.com','emailfake.com','crazymailing.com','armyspy.com','dayrep.com',
+    'einrot.com','fleckens.hu','gustr.com','jourrapide.com','rhyta.com','superrito.com',
+    'teleworm.us','fidamul.com','aosod.com','cool.fr.nf','grr.la','guerrillamailblock.com'
+  ];
+  function isValidEmailClient(email) {
+    if (!email || typeof email !== 'string') return false;
+    var e = email.trim().toLowerCase();
+    if (e.length > 254 || e.length < 5) return false;
+    if (!VALID_EMAIL_RE.test(e)) return false;
+    var domain = e.split('@')[1];
+    if (!domain || !domain.includes('.')) return false;
+    for (var i = 0; i < DISPOSABLE_DOMAINS.length; i++) {
+      if (domain === DISPOSABLE_DOMAINS[i]) return false;
+    }
+    return true;
+  }
+  function showEmailError(inputEl, msg) {
+    inputEl.style.borderColor = '#ef4444';
+    var existing = inputEl.parentNode.querySelector('.pus-email-error');
+    if (existing) existing.remove();
+    var errDiv = document.createElement('div');
+    errDiv.className = 'pus-email-error';
+    errDiv.style.cssText = 'color:#ef4444;font-size:11px;margin-top:3px;text-align:left;';
+    errDiv.textContent = msg;
+    inputEl.parentNode.insertBefore(errDiv, inputEl.nextSibling);
+  }
+  function clearEmailError(inputEl) {
+    inputEl.style.borderColor = '';
+    var existing = inputEl.parentNode.querySelector('.pus-email-error');
+    if (existing) existing.remove();
+  }
+
+  // ---- Regras de exibiÃ§Ã£o (cooldown 24h por pop-up) ----
   function shouldShow(popup) {
     try {
       var last = parseInt(localStorage.getItem('pus_shown_' + popup.id) || '0', 10);
@@ -56,17 +96,17 @@
     return true;
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // SLOT MACHINE POPUP — Idêntico ao editor do Pop Up Studio
-  // ═══════════════════════════════════════════════════════════
+  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // SLOT MACHINE POPUP â IdÃªntico ao editor do Pop Up Studio
+  // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
   function showSlotMachinePopup(popup) {
     var cfg = popup.config || {};
-    var emoji1     = cfg.slot_emoji1 || '👕';
-    var emoji2     = cfg.slot_emoji2 || '🧢';
-    var emoji3     = cfg.slot_emoji3 || '👟';
+    var emoji1     = cfg.slot_emoji1 || 'ð';
+    var emoji2     = cfg.slot_emoji2 || 'ð§¢';
+    var emoji3     = cfg.slot_emoji3 || 'ð';
     var emojis     = [emoji1, emoji2, emoji3];
     var winEmoji   = emoji3;
-    var title      = cfg.title || '🎁 JOGUE E GANHE UM DESCONTO EXCLUSIVO!';
+    var title      = cfg.title || 'ð JOGUE E GANHE UM DESCONTO EXCLUSIVO!';
     var subtitle   = cfg.description || 'Cadastre seu e-mail e jogue para ganhar um cupom especial!';
     var machTitle  = cfg.slot_machine_title || 'JACKPOT!';
     var btnColor   = cfg.button_color || '#52b788';
@@ -75,13 +115,13 @@
     var textColor  = cfg.text_color || '#ffffff';
     var prize      = cfg.prize || 'DESCONTO10';
     var loseText   = cfg.slot_lose_text || 'Que pena! Tente novamente...';
-    var winText    = cfg.slot_win_text || '🎉 PARABÉNS! Você ganhou!';
-    var headerEmoji = cfg.emoji || '🎁';
+    var winText    = cfg.slot_win_text || 'ð PARABÃNS! VocÃª ganhou!';
+    var headerEmoji = cfg.emoji || 'ð';
 
     var slotAttempt = 0;
     var slotSpinning = false;
 
-    // ── Inject CSS ──
+    // ââ Inject CSS ââ
     var styleId = 'pus-slot-css';
     if (!document.getElementById(styleId)) {
       var css = document.createElement('style');
@@ -135,11 +175,11 @@
 .pus-slot-lever.pulled .pus-slot-lever-ball{top:44px}\
 .pus-slot-lever-base{width:16px;height:8px;background:linear-gradient(180deg,#aaa,#666);border-radius:0 0 6px 6px;margin-top:-1px}\
 .pus-slot-coupon-banner{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#f1c40f;border-top:2px solid #f1c40f;border-bottom:2px solid #f1c40f}\
-.pus-slot-coupon-banner::before,.pus-slot-coupon-banner::after{content:"◆";font-size:6px;opacity:.6}\
+.pus-slot-coupon-banner::before,.pus-slot-coupon-banner::after{content:"â";font-size:6px;opacity:.6}\
 .pus-slot-lock-overlay{position:relative;display:flex;flex-direction:column;align-items:center;z-index:20;background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.7) 100%);padding:12px 14px 14px;transition:opacity .5s ease,max-height .5s ease;overflow:hidden}\
 .pus-slot-lock-overlay.hidden{opacity:0;max-height:0;padding:0 16px;pointer-events:none}\
 .pus-slot-lock-subtitle{font-size:10px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:10px;display:flex;align-items:center;gap:6px}\
-.pus-slot-lock-subtitle::before{content:"🔒";font-size:11px}\
+.pus-slot-lock-subtitle::before{content:"ð";font-size:11px}\
 .pus-slot-lock-form{display:flex;flex-direction:column;gap:8px;width:100%;max-width:260px}\
 .pus-slot-lock-input-wrap{position:relative;display:flex;align-items:center}\
 .pus-slot-lock-input-icon{position:absolute;left:12px;font-size:14px;color:rgba(255,255,255,.35);pointer-events:none;z-index:2}\
@@ -148,7 +188,7 @@
 .pus-slot-lock-input:focus{border-color:#22c55e;background:rgba(255,255,255,.12)}\
 .pus-slot-lock-btn{background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;border:2px solid #16a34a;border-radius:10px;padding:11px;font-size:13px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 4px 20px rgba(34,197,94,.35),inset 0 1px 0 rgba(255,255,255,.15);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}\
 .pus-slot-lock-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(34,197,94,.45)}\
-.pus-slot-lock-btn::after{content:"→";font-size:16px;font-weight:400}\
+.pus-slot-lock-btn::after{content:"â";font-size:16px;font-weight:400}\
 .pus-slot-locked .pus-slot-btn-panel{display:none}\
 .pus-slot-locked .pus-slot-attempts{display:none}\
 .pus-slot-victory{position:absolute;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;z-index:10;animation:pusVictoryIn .4s ease}\
@@ -167,12 +207,12 @@
       document.documentElement.appendChild(css);
     }
 
-    // ── Build HTML ──
+    // ââ Build HTML ââ
     var back = document.createElement('div');
     back.className = 'pus-slot-backdrop';
     back.innerHTML =
       '<div class="pus-slot-popup" style="background:' + esc(bgColor) + ';color:' + esc(textColor) + ';">' +
-        '<button class="pus-slot-close" aria-label="Fechar">✕</button>' +
+        '<button class="pus-slot-close" aria-label="Fechar">â</button>' +
         // Header
         '<div class="pus-slot-header">' +
           '<div class="pus-slot-header-emoji">' + esc(headerEmoji) + '</div>' +
@@ -198,8 +238,8 @@
             // Body
             '<div class="pus-slot-body">' +
               '<div class="pus-slot-screen">' +
-                '<div class="pus-slot-payline-arrow pus-slot-payline-left">▶</div>' +
-                '<div class="pus-slot-payline-arrow pus-slot-payline-right">◀</div>' +
+                '<div class="pus-slot-payline-arrow pus-slot-payline-left">â¶</div>' +
+                '<div class="pus-slot-payline-arrow pus-slot-payline-right">â</div>' +
                 '<div class="pus-slot-grid">' +
                   '<div class="pus-slot-column">' +
                     '<div class="pus-slot-cell" data-c="1" data-r="1">' + emoji1 + '</div>' +
@@ -220,24 +260,24 @@
               '</div>' +
               '<div class="pus-slot-attempts" id="pus-slot-attempts">Tentativa 1 de 3</div>' +
               '<div class="pus-slot-btn-panel">' +
-                '<button class="pus-slot-play-btn" id="pus-slot-play-btn">🎰 JOGAR</button>' +
+                '<button class="pus-slot-play-btn" id="pus-slot-play-btn">ð° JOGAR</button>' +
               '</div>' +
             '</div>' +
             // Coupon Banner
-            '<div class="pus-slot-coupon-banner">🎁 CUPOM SURPRESA DE DESCONTO</div>' +
+            '<div class="pus-slot-coupon-banner">ð CUPOM SURPRESA DE DESCONTO</div>' +
             // Lock Overlay (registration form)
             '<div class="pus-slot-lock-overlay" id="pus-slot-lock">' +
               '<div class="pus-slot-lock-form">' +
                 '<div class="pus-slot-lock-input-wrap">' +
-                  '<span class="pus-slot-lock-input-icon">👤</span>' +
+                  '<span class="pus-slot-lock-input-icon">ð¤</span>' +
                   '<input class="pus-slot-lock-input" id="pus-slot-name" placeholder="Seu nome" type="text">' +
                 '</div>' +
                 '<div class="pus-slot-lock-input-wrap">' +
-                  '<span class="pus-slot-lock-input-icon">✉️</span>' +
+                  '<span class="pus-slot-lock-input-icon">âï¸</span>' +
                   '<input class="pus-slot-lock-input" id="pus-slot-email" placeholder="Seu e-mail *" type="email" required>' +
                 '</div>' +
                 '<div class="pus-slot-lock-input-wrap">' +
-                  '<span class="pus-slot-lock-input-icon">📞</span>' +
+                  '<span class="pus-slot-lock-input-icon">ð</span>' +
                   '<input class="pus-slot-lock-input" id="pus-slot-phone" placeholder="Seu telefone" type="tel">' +
                 '</div>' +
                 '<div class="pus-slot-lock-subtitle">Cadastre-se para desbloquear o jogo e ganhar seu desconto!</div>' +
@@ -269,7 +309,7 @@
       return machine.querySelector('.pus-slot-cell[data-c="' + c + '"][data-r="' + r + '"]');
     }
 
-    // ── Close ──
+    // ââ Close ââ
     function closePopup() {
       trackEvent('close', popup.id);
       back.classList.remove('open');
@@ -279,13 +319,24 @@
     back.querySelector('.pus-slot-close').addEventListener('click', closePopup);
     back.addEventListener('click', function (e) { if (e.target === back) closePopup(); });
 
-    // ── Unlock (registration) ──
+    // ââ Clear email error on input ââ
+    back.querySelector('#pus-slot-email').addEventListener('input', function () {
+      clearEmailError(this);
+    });
+
+    // ââ Unlock (registration) ââ
     unlockBtn.addEventListener('click', function () {
-      var email = back.querySelector('#pus-slot-email').value.trim();
+      var emailInput = back.querySelector('#pus-slot-email');
+      var email = emailInput.value.trim();
       if (!email) {
-        back.querySelector('#pus-slot-email').style.borderColor = '#ef4444';
+        showEmailError(emailInput, 'Digite seu e-mail.');
         return;
       }
+      if (!isValidEmailClient(email)) {
+        showEmailError(emailInput, 'Digite um e-mail vÃ¡lido. Ex: nome@gmail.com');
+        return;
+      }
+      clearEmailError(emailInput);
       var name  = back.querySelector('#pus-slot-name').value.trim();
       var phone = back.querySelector('#pus-slot-phone').value.trim();
 
@@ -294,265 +345,267 @@
 
       // Unlock machine
       machine.classList.remove('pus-slot-locked');
-      lockOverlay.classList.add('hidden');
-      playBtn.disabled = false;
-    });
+ØÚÓÝ\^KÛ\ÜÓ\ÝY
+	ÚY[ÊNÂ^P\ØXYH[ÙNÂJNÂËÈ8¥ 8¥ ^H
+[]\ÈÜ[H8¥ 8¥ [Ý[Û[]\
+HÂY
+ÛÝÜ[[ÈÛÝ][\HÊH]\ÂÛÝÜ[[ÈHYNÂÛÝ][\
+ÊÎÂ^P\ØXYHYNÂ^P^ÛÛ[H	ø£ìÈÒTSËÎÂ][^ÛÛ[H	Õ[]]H	È
+ÈÛÝ][\
+È	ÈHÉÎÂXÚÑ][
+	Ü^IËÜ\YÈ][\ÛÝ][\JNÂËÈ]\[[X][ÛY
+]\H]\Û\ÜÓ\ÝY
+	Ü[Y	ÊNÂÙ][Y[Ý]
+[Ý[Û
 
-    // ── Play (pull lever / spin) ──
-    function pullLever() {
-      if (slotSpinning || slotAttempt >= 3) return;
-      slotSpinning = true;
-      slotAttempt++;
+HÈY
+]\H]\Û\ÜÓ\Ý[[ÝJ	Ü[Y	ÊNÈK
+
+NÂËÈÝ\Ü[[È[HÙ[ÂÜ
+\ØÈHNÈØÈHÎÈØÊÊÊHÂÜ
+\HNÈHÎÈÊÊHÂ\Ù[HÙ]Ù[
+ØËNÂY
+Ù[
+HÙ[Û\ÜÓ\ÝY
+	ÜÜ[[ÉÊNÂBB\Ü[[\[HÙ][\[
+[Ý[Û
 
-      playBtn.disabled = true;
-      playBtn.textContent = '⏳ GIRANDO...';
-      attEl.textContent = 'Tentativa ' + slotAttempt + ' de 3';
+HÂÜ
+\ØÈHNÈØÈHÎÈØÊÊÊHÂÜ
+\HNÈHÎÈÊÊHÂ\Ù[HÙ]Ù[
+ØËNÂY
+Ù[	Ù[Û\ÜÓ\ÝÛÛZ[Ê	ÜÜ[[ÉÊJHÂÙ[^ÛÛ[H[[Ú\ÖÓX]ÛÜX][ÛJ
+H
+[[Ú\Ë[Ý
+WNÂBBBK
+NÂ\\ÕÚ[HÛÝ][\OOHÎÂËÈÝÜÛÛ[[HY\\ÂÙ][Y[Ý]
+[Ý[Û
 
-      trackEvent('play', popup.id, { attempt: slotAttempt });
+HÂÜ
+\HNÈHÎÈÊÊHÂ\Ù[HÙ]Ù[
+KNÂY
+Ù[
+HÂÙ[Û\ÜÓ\Ý[[ÝJ	ÜÜ[[ÉÊNÂÙ[^ÛÛ[H
+OOH	\ÕÚ[HÈÚ[[[ÚH
+OOHÈ[[Ú\ÖÓX]ÛÜX][ÛJ
+H
+WH[[Ú\ÖÓX]ÛÜX][ÛJ
+H
+[[Ú\Ë[Ý
+WJNÂBBK
+NÂËÈÝÜÛÛ[[Y\M\ÂÙ][Y[Ý]
+[Ý[Û
 
-      // Lever animation
-      if (lever) lever.classList.add('pulled');
-      setTimeout(function () { if (lever) lever.classList.remove('pulled'); }, 600);
+HÂÜ
+\HNÈHÎÈÊÊHÂ\Ù[HÙ]Ù[
+NÂY
+Ù[
+HÂÙ[Û\ÜÓ\Ý[[ÝJ	ÜÜ[[ÉÊNÂÙ[^ÛÛ[H
+OOH	\ÕÚ[HÈÚ[[[ÚH[[Ú\ÖÓX]ÛÜX][ÛJ
+H
+[[Ú\Ë[Ý
+WNÂBBKM
+NÂËÈÝÜÛÛ[[ÈY\\È8 %\ÛÛHÚ[ÛÜÜÂÙ][Y[Ý]
+[Ý[Û
 
-      // Start spinning all 9 cells
-      for (var cc = 1; cc <= 3; cc++) {
-        for (var rr = 1; rr <= 3; rr++) {
-          var cell = getCell(cc, rr);
-          if (cell) cell.classList.add('spinning');
-        }
-      }
+HÂÛX\[\[
+Ü[[\[
+NÂÜ
+\HNÈHÎÈÊÊHÂ\Ù[HÙ]Ù[
+ËNÂY
+Ù[
+HÂÙ[Û\ÜÓ\Ý[[ÝJ	ÜÜ[[ÉÊNÂY
+OOHHÂY
+\ÕÚ[HÂÙ[^ÛÛ[HÚ[[[ÚNÂH[ÙHÂËÈ[Ý\H^[[HÙ\ÈÕX]Ú
+ÜÙHÜÜÊB\HHÙ]Ù[
+KK^ÛÛ[Â\HÙ]Ù[
+K^ÛÛ[ÂY
+HOOHHÂÙ[^ÛÛ[H[[Ú\Ë[\[Ý[Û
+JHÈ]\HOOHNÈJVÌH[[Ú\ÖÌNÂH[ÙHÂÙ[^ÛÛ[H[[Ú\ÖÓX]ÛÜX][ÛJ
+H
+[[Ú\Ë[Ý
+WNÂBBH[ÙHÂÙ[^ÛÛ[H[[Ú\ÖÓX]ÛÜX][ÛJ
+H
+[[Ú\Ë[Ý
+WNÂBBBÛÝÜ[[ÈH[ÙNÂY
+\ÕÚ[HÂËÈÚ[\HYÚYÚ^[[HÙ[ÂÜ
+\ØÈHNÈØÈHÎÈØÊÊÊHÂÙ]Ù[
+ØËKÛ\ÜÓ\ÝY
+	ÝÚ[\ÊNÂB^P^ÛÛ[H	ü'ã¢HPÒÔÕIÎÂ^P\ØXYHYNÂXÚÑ][
+	ÝÚ[ËÜ\YÈ^N^HJNÂÙ][Y[Ý]
+[Ý[Û
 
-      var spinInterval = setInterval(function () {
-        for (var cc = 1; cc <= 3; cc++) {
-          for (var rr = 1; rr <= 3; rr++) {
-            var cell = getCell(cc, rr);
-            if (cell && cell.classList.contains('spinning')) {
-              cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            }
-          }
-        }
-      }, 80);
+HÈÚÝÕXÝÜJ
+NÈK
+NÂH[ÙHÂ^P\ØXYH[ÙNÂ^P^ÛÛ[H	ü'ã¬ÑÐT
+	È
+È
+ÈHÛÝ][\
+H
+È	ÊIÎÂXÚÑ][
+	ÛÜÙIËÜ\YÈ][\ÛÝ][\JNÂBK
+NÂB^PY][\Ý[\	ØÛXÚÉË[]\NÂ]\Y][\Ý[\	ØÛXÚÉË[]\NÂËÈ8¥ 8¥ XÝÜHÝ\^HÚ]ÛÛ]H8¥ 8¥ [Ý[ÛÚÝÕXÝÜJ
+HÂ\ÛÛÜÈHÉÈÙXÍË	ÈÙMÍÌØÉË	ÈÌÍNË	ÈÌXØÍÌIË	ÈÎXNXË	ÈÙMÙLË	ÈÌXXÎXÉË	ÈÙXÍNI×NÂÜ
+\HHÈH
+ÈJÊÊHÂ\ÛÛHØÝ[Y[ÜX]Q[[Y[
+	Ù]ÊNÂÛÛÛ\ÜÓ[YHH	Ü\Ë\ÛÝXÛÛ]IÎÂÛÛÝ[KYHX][ÛJ
+H
+L
+È	ÉIÎÂÛÛÝ[KÜH	ËLL	ÎÂÛÛÝ[KXÚÙÜÝ[HÛÛÜÖÓX]ÛÜX][ÛJ
+H
+ÛÛÜË[Ý
+WNÂÛÛÝ[K[[X][Û[^HH
+X][ÛJ
+H
+
+H
+È	ÜÉÎÂÛÛÝ[K[[X][Û\][ÛH
+H
+ÈX][ÛJ
+H
+JH
+È	ÜÉÎÂÛÛÝ[KÚYH
 
-      var isWin = slotAttempt === 3;
+
+ÈX][ÛJ
+H
+
+H
+È	Ü	ÎÂÛÛÝ[KZYÚH
 
-      // Stop column 1 after 800ms
-      setTimeout(function () {
-        for (var rr = 1; rr <= 3; rr++) {
-          var cell = getCell(1, rr);
-          if (cell) {
-            cell.classList.remove('spinning');
-            cell.textContent = (rr === 2 && isWin) ? winEmoji : (rr === 2 ? emojis[Math.floor(Math.random() * 2)] : emojis[Math.floor(Math.random() * emojis.length)]);
-          }
-        }
-      }, 800);
+
+ÈX][ÛJ
+H
+
+H
+È	Ü	ÎÂXXÚ[K\[Ú[
+ÛÛNÂB\XÝÜHHØÝ[Y[ÜX]Q[[Y[
+	Ù]ÊNÂXÝÜKÛ\ÜÓ[YHH	Ü\Ë\ÛÝ]XÝÜIÎÂXÝÜK[\SB	Ï]Û\ÜÏH\Ë\ÛÝ]XÝÜKY[[ÚHÈ
+ÈÚ[[[ÚH
+È	ÏÙ]È
+Â	Ï]Û\ÜÏH\Ë\ÛÝ]XÝÜK]^PÒÔÕOÙ]È
+Â	Ï]Û\ÜÏH\Ë\ÛÝ]XÝÜK\ÝXÙ]HÝ\ÛHH\ØÛÛÎÙ]È
+Â	Ï]Û\ÜÏH\Ë\ÛÝXÛÝ\ÛXÞYH\ËXÛÝ\ÛXÛÙHÈ
+È\ØÊ^JH
+È	ÏÙ]È
+Â	Ï]ÛÛ\ÜÏH\Ë\ÛÝ\^KX\Ë\ÛÝXÛÜKXÝ[OHX\Ú[]ÜLÝÚY]]ÎÜY[ÎLÙÛ\Ú^NLÛ]\\ÜXÚ[Î\ÈYH\ËXÛÜKXÈ
+Â	ü'ã¢HTÐTQUHÕTÓHQÓÔOØ]ÛÈ
+Â	Ï]YH\ËXÛÜKYYYXÚÈÝ[OHÜXÚ]NÙÛ\Ú^NL\ØÛÛÜÌÍMYNÛX\Ú[]ÜÝ[Ú][ÛÜXÚ]HÜÎÈ¸§!HÝ\ÛHÛÜXYÈHÛÛHÈÚXÚÛÝ]Ù]ÎÂXXÚ[K\[Ú[
+XÝÜJNÂËÈÛÜHÛÝ\ÛXÝÜK]Y\TÙ[XÝÜ	ÈÜ\ËXÛÜKXÊKY][\Ý[\	ØÛXÚÉË[Ý[Û
 
-      // Stop column 2 after 1400ms
-      setTimeout(function () {
-        for (var rr = 1; rr <= 3; rr++) {
-          var cell = getCell(2, rr);
-          if (cell) {
-            cell.classList.remove('spinning');
-            cell.textContent = (rr === 2 && isWin) ? winEmoji : emojis[Math.floor(Math.random() * emojis.length)];
-          }
-        }
-      }, 1400);
+HÂHÂY
+]YØ]ÜÛ\Ø\
+HÂ]YØ]ÜÛ\Ø\Ü]U^
+^JNÂH[ÙHÂ\HHØÝ[Y[ÜX]Q[[Y[
+	Ý^\XIÊNÂK[YHH^NÂØÝ[Y[ÙK\[Ú[
+JNÂKÙ[XÝ
 
-      // Stop column 3 after 2000ms — resolve win/loss
-      setTimeout(function () {
-        clearInterval(spinInterval);
-        for (var rr = 1; rr <= 3; rr++) {
-          var cell = getCell(3, rr);
-          if (cell) {
-            cell.classList.remove('spinning');
-            if (rr === 2) {
-              if (isWin) {
-                cell.textContent = winEmoji;
-              } else {
-                // Ensure payline does NOT match (force loss)
-                var p1 = getCell(1, 2).textContent;
-                var p2 = getCell(2, 2).textContent;
-                if (p1 === p2) {
-                  cell.textContent = emojis.filter(function (e) { return e !== p1; })[0] || emojis[0];
-                } else {
-                  cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                }
-              }
-            } else {
-              cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            }
-          }
-        }
+NÂØÝ[Y[^XÐÛÛ[X[
+	ØÛÜIÊNÂØÝ[Y[ÙK[[ÝPÚ[
+JNÂB\HXÝÜK]Y\TÙ[XÝÜ	ÈÜ\ËXÛÜKYYYXÚÉÊNÂÝ[KÜXÚ]HH	ÌIÎÂÙ][Y[Ý]
+[Ý[Û
 
-        slotSpinning = false;
+HÈÝ[KÜXÚ]HH	Ì	ÎÈKÌ
+NÂHØ]Ú
+JHßBJNÂBBËÈ8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥dËÈÑSTPÈÔT8 %[XZ[Ø\\HÚ[\\ÂËÈ8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d[Ý[ÛÚÝÑÙ[\XÔÜ\
+Ü\
+HÂ\ÙÈHÜ\ÛÛYÈßNÂ\]HHÙË]H	ÑØ[H[HÝ\ÛHIÎÂ\ÝX]HHÙË\ØÜ\[ÛÙËÝX]H	ÑZ^HÙ]HK[XZ[\HÙØ\ÎÂ\HÙË]ÛÝ^ÙËÝ^	ÒÙØ\YÛÜIÎÂ\^HHÙË^H	ÌL	HÑÎÂËÈ[XÝÙ[\XÈÔÔÂY
+YØÝ[Y[Ù][[Y[RY
+	Ü\ËYÙ[\XËXÜÜÉÊJHÂ\ÜÜÈHØÝ[Y[ÜX]Q[[Y[
+	ÜÝ[IÊNÂÜÜËYH	Ü\ËYÙ[\XËXÜÜÉÎÂÜÜË^ÛÛ[H	×\ËXXÚÙÜÜÜÚ][Û^YÚ[Ù]ØXÚÙÜÝ[ØJNÞZ[^NNNNNÙ\Ü^N^Ø[YÛZ][\ÎÙ[\Ú\ÝYKXÛÛ[Ù[\ÛÜXÚ]NÝ[Ú][ÛÜXÚ]H\ÈX\Ù_W\ËXXÚÙÜÜ[ÛÜXÚ]N_W\Ë[[Ù[ØXÚÙÜÝ[ÙØÜ\\Y]\ÎMÛX^]ÚYÝÚYLNÜY[ÎÜÜÚ][Û[]]NØÞ\ÚYÝÎ
+ØJÍJNÝ[ÙÜN[Û]VJL
+HØØ[JN
+NÝ[Ú][Û[ÙÜH\ÈX\Ù_W\ËXXÚÙÜÜ[\Ë[[Ù[Ý[ÙÜN[Û]VJ
+HØØ[JJ_W\ËXÛÜÙ^ÜÜÚ][ÛXÛÛ]NÝÜLÜYÚLØXÚÙÜÝ[[Ü\[ØÜ\ÙÛ\Ú^NØÝ\ÛÜÚ[\ØÛÛÜÎW\Ë]]^ÙÛ\Ú^NÙÛ]ÙZYÚÌÛX\Ú[
+ØÛÛÜÌLL_W\Ë\ÝXÙÛ\Ú^NMØÛÛÜÍMMNÛX\Ú[MW\ËZ[]ÝÚYL	NÜY[ÎLØÜ\\ÛÛYÙØÜ\\Y]\ÎÙÛ\Ú^NMÛX\Ú[XÝÛNLØÞ\Ú^[ÎÜ\XÞW\ËXÝÚYL	NÜY[ÎLÜØÜ\\Y]\ÎØÜ\ØXÚÙÜÝ[ÌLLNØÛÛÜÙÙÛ]ÙZYÚØÝ\ÛÜÚ[\ÙÛ\Ú^NM\W\ËXÝ\ÛÜXÚ]N_W\Ë\\Ý[Ý^X[YÛÙ[\ÜY[ÎW\Ë\^^ÙÛ\Ú^NÙÛ]ÙZYÚØÛÛÜÙMÍÌ
+ÛX\Ú[W\ËXÛÝ\ÛÙ\Ü^N[[KXØÚÎÜY[ÎMØXÚÙÜÝ[ÙYØÍÎØÜ\\ÚYÙMÍÌ
+ØÜ\\Y]\ÎÙÛY[Z[N[ÛÜÜXÙNÙÛ]ÙZYÚÌØÛÛÜÎLNÛX\Ú[LWÎÂØÝ[Y[ØÝ[Y[[[Y[\[Ú[
+ÜÜÊNÂB\XÚÈHØÝ[Y[ÜX]Q[[Y[
+	Ù]ÊNÂXÚËÛ\ÜÓ[YHH	Ü\ËXXÚÙÜ	ÎÂXÚË[\SB	Ï]Û\ÜÏH\Ë[[Ù[ÛOHX[ÙÈ\XK[[Ù[HYHÈ
+Â	Ï]ÛÛ\ÜÏH\ËXÛÜÙH\XK[X[HXÚ\°åÏØ]ÛÈ
+Â	ÏÈÛ\ÜÏH\Ë]]HÈ
+È\ØÊ]JH
+È	ÏÚÏÈ
+Â	ÏÛ\ÜÏH\Ë\ÝXÈ
+È\ØÊÝX]JH
+È	ÏÜÈ
+Â	ÏÜHÛ\ÜÏH\ËYÜHÈ
+Â	Ï[]Û\ÜÏH\ËZ[]\OH[XZ[XÙZÛ\HÙ]P[XZ[ÛÛH\]Z\YÈ
+Â	Ï]Û\OHÝXZ]Û\ÜÏH\ËXÈ
+È\ØÊH
+È	ÏØ]ÛÈ
+Â	ÏÙÜOÈ
+Â	ÏÙ]ÎÂØÝ[Y[ÙK\[Ú[
+XÚÊNÂ\]Y\Ý[[X][Û[YJ[Ý[Û
 
-        if (isWin) {
-          // Winner! Highlight payline cells
-          for (var cc = 1; cc <= 3; cc++) {
-            getCell(cc, 2).classList.add('winner');
-          }
-          playBtn.textContent = '🎉 JACKPOT!';
-          playBtn.disabled = true;
-          trackEvent('win', popup.id, { prize: prize });
-          setTimeout(function () { showVictory(); }, 800);
-        } else {
-          playBtn.disabled = false;
-          playBtn.textContent = '🎰 JOGAR (' + (3 - slotAttempt) + ')';
-          trackEvent('lose', popup.id, { attempt: slotAttempt });
-        }
-      }, 2000);
-    }
+HÈXÚËÛ\ÜÓ\ÝY
+	ÛÜ[ÊNÈJNÂXÚÑ][
+	Ú[\\ÜÚ[ÛËÜ\Y
+NÂ[Ý[ÛÛÜÙJ
+HÂXÚÑ][
+	ØÛÜÙIËÜ\Y
+NÂXÚËÛ\ÜÓ\Ý[[ÝJ	ÛÜ[ÊNÂÙ][Y[Ý]
+[Ý[Û
 
-    playBtn.addEventListener('click', pullLever);
-    lever.addEventListener('click', pullLever);
+HÈXÚË[[ÝJ
+NÈKL
+NÂHÈØØ[ÝÜYÙKÙ]][J	Ü\×ÜÚÝÛÉÈ
+ÈÜ\YÝ[Ê]KÝÊ
+JJNÈHØ]Ú
+JHßBBXÚË]Y\TÙ[XÝÜ	Ë\ËXÛÜÙIÊKY][\Ý[\	ØÛXÚÉËÛÜÙJNÂXÚËY][\Ý[\	ØÛXÚÉË[Ý[Û
+JHÈY
+K\Ù]OOHXÚÊHÛÜÙJ
+NÈJNÂXÚË]Y\TÙ[XÝÜ	Ë\ËYÜIÊKY][\Ý[\	ÜÝXZ]	Ë[Ý[Û
+JHÂK][Y][
 
-    // ── Victory overlay with confetti ──
-    function showVictory() {
-      var colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#ec4899'];
-      for (var i = 0; i < 40; i++) {
-        var conf = document.createElement('div');
-        conf.className = 'pus-slot-confetti';
-        conf.style.left = Math.random() * 100 + '%';
-        conf.style.top = '-10px';
-        conf.style.background = colors[Math.floor(Math.random() * colors.length)];
-        conf.style.animationDelay = (Math.random() * 0.8) + 's';
-        conf.style.animationDuration = (1 + Math.random() * 1) + 's';
-        conf.style.width = (4 + Math.random() * 6) + 'px';
-        conf.style.height = (4 + Math.random() * 6) + 'px';
-        machine.appendChild(conf);
-      }
-      var victory = document.createElement('div');
-      victory.className = 'pus-slot-victory';
-      victory.innerHTML =
-        '<div class="pus-slot-victory-emoji">' + winEmoji + '</div>' +
-        '<div class="pus-slot-victory-text">JACKPOT!</div>' +
-        '<div class="pus-slot-victory-sub">Seu cupom de desconto:</div>' +
-        '<div class="pus-slot-coupon-box" id="pus-coupon-code">' + esc(prize) + '</div>' +
-        '<button class="pus-slot-play-btn pus-slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;" id="pus-copy-btn">' +
-        '🎉 USAR MEU CUPOM AGORA</button>' +
-        '<div id="pus-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
-      machine.appendChild(victory);
+NÂ\[XZ[[]HXÚË]Y\TÙ[XÝÜ	Ú[]Ý\OY[XZ[IÊNÂ\[XZ[H[XZ[[][YK[J
+NÂY
+Y[XZ[
+HÈÚÝÑ[XZ[\Ü[XZ[[]	ÑYÚ]HÙ]HK[XZ[ÊNÈ]\ÈBY
+Z\Õ[Y[XZ[ÛY[
+[XZ[
+JHÈÚÝÑ[XZ[\Ü[XZ[[]	ÑYÚ]H[HK[XZ[°è[YË^ÛYPÛXZ[ÛÛIÊNÈ]\ÈBÛX\[XZ[\Ü[XZ[[]
+NÂXÚÑ][
+	Ü^IËÜ\Y
+NÂÝXZ]XY
+Ü\YÈ[XZ[[XZ[^N^HJNÂXÚÑ][
+	ÝÚ[ËÜ\YÈ^N^HJNÂXÚË]Y\TÙ[XÝÜ	Ë\Ë[[Ù[	ÊK[\SB	Ï]ÛÛ\ÜÏH\ËXÛÜÙH\XK[X[HXÚ\°åÏØ]ÛÈ
+Â	Ï]Û\ÜÏH\Ë\\Ý[È
+Â	Ï]Ý[OHÛ\Ú^N¼'ã¢OÙ]È
+Â	Ï]Û\ÜÏH\Ë\^HÈ
+È\ØÊ^JH
+È	ÏÙ]È
+Â	Ï\ÙHÈÝ\ÛNÜÈ
+Â	Ï]Û\ÜÏH\ËXÛÝ\ÛÈ
+È\ØÊ^JH
+È	ÏÙ]È
+Â	ÏÝ[OHÛ\Ú^NLØÛÛÜÍ[X[[ÜÈ[X°ê[H\HÙ]HK[XZ[ÜÈ
+Â	ÏÙ]ÎÂXÚË]Y\TÙ[XÝÜ	Ë\ËXÛÜÙIÊKY][\Ý[\	ØÛXÚÉËÛÜÙJNÂJNÂBËÈ8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥dËÈÓÕ8 %]ÚÛÛYÈ[Ý]HÈÛÜXÝÜ\[\\ËÈ8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d8¥d[Ý[ÛÛÝ
 
-      // Copy coupon
-      victory.querySelector('#pus-copy-btn').addEventListener('click', function () {
-        try {
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(prize);
-          } else {
-            var ta = document.createElement('textarea');
-            ta.value = prize;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-          }
-          var fb = victory.querySelector('#pus-copy-feedback');
-          fb.style.opacity = '1';
-          setTimeout(function () { fb.style.opacity = '0'; }, 3000);
-        } catch (e) {}
-      });
-    }
-  }
+HÂ	ÑÑU	ËTH
+È	ËØ\KÜXXËØÛÛYÏÜÝÜWÚYIÈ
+È[ÛÙUTPÛÛ\Û[
+ÝÜRY
+K[[Ý[Û
+\]JHÂY
+\Y]HP\^K\Ð\^J]KÜ\ÊH]KÜ\Ë[ÝOOH
+H]\Â\\ÝH]KÜ\Ë[\ÚÝ[ÚÝÊNÂY
+[\Ý[Ý
+H]\Â\Ü\H\ÝÌNÂÙ][Y[Ý]
+[Ý[Û
 
-  // ═══════════════════════════════════════════════════════════
-  // GENERIC POPUP — Email capture simples
-  // ═══════════════════════════════════════════════════════════
-  function showGenericPopup(popup) {
-    var cfg = popup.config || {};
-    var title    = cfg.title    || 'Ganhe um cupom!';
-    var subtitle = cfg.description || cfg.subtitle || 'Deixe seu e-mail para jogar.';
-    var btn      = cfg.button_text || cfg.btn_text || 'Jogar agora';
-    var prize    = cfg.prize    || '10% OFF';
+HÂY
+Ü\Ø[YWÝ\HOOH	ÜÛÝÛXXÚ[IÊHÂÚÝÔÛÝXXÚ[TÜ\
+Ü\
+NÂH[ÙHY
+Ü\Ø[YWÝ\HOOH	ÜÚØ]WÙÜ[	ÊHÂËÈÑÎÚÝÔÚØ]TÜ\
+Ü\
+NÂÚÝÑÙ[\XÔÜ\
+Ü\
+NÂH[ÙHÂÚÝÑÙ[\XÔÜ\
+Ü\
+NÂBKML
+NÂJNÂBÛÝ
 
-    // Inject generic CSS
-    if (!document.getElementById('pus-generic-css')) {
-      var css = document.createElement('style');
-      css.id = 'pus-generic-css';
-      css.textContent = '\
-.pus-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease}\
-.pus-backdrop.open{opacity:1}\
-.pus-modal{background:#fff;border-radius:14px;max-width:420px;width:92%;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(10px) scale(.98);transition:transform .25s ease}\
-.pus-backdrop.open .pus-modal{transform:translateY(0) scale(1)}\
-.pus-close{position:absolute;top:10px;right:12px;background:transparent;border:0;font-size:22px;cursor:pointer;color:#888}\
-.pus-title{font-size:22px;font-weight:700;margin:0 0 6px;color:#111}\
-.pus-sub{font-size:14px;color:#555;margin:0 0 16px}\
-.pus-input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:10px;box-sizing:border-box}\
-.pus-btn{width:100%;padding:13px;border-radius:8px;border:0;background:#111;color:#fff;font-weight:600;cursor:pointer;font-size:15px}\
-.pus-btn:hover{opacity:.9}\
-.pus-result{text-align:center;padding:20px 0}\
-.pus-prize{font-size:24px;font-weight:800;color:#d97706;margin:8px 0}\
-.pus-coupon{display:inline-block;padding:8px 14px;background:#fef3c7;border:2px dashed #d97706;border-radius:6px;font-family:monospace;font-weight:700;color:#92400e;margin:10px 0}\
-';
-      document.documentElement.appendChild(css);
-    }
-
-    var back = document.createElement('div');
-    back.className = 'pus-backdrop';
-    back.innerHTML =
-      '<div class="pus-modal" role="dialog" aria-modal="true">' +
-        '<button class="pus-close" aria-label="Fechar">×</button>' +
-        '<h3 class="pus-title">' + esc(title) + '</h3>' +
-        '<p class="pus-sub">' + esc(subtitle) + '</p>' +
-        '<form class="pus-form">' +
-          '<input class="pus-input" type="email" placeholder="seu@email.com" required>' +
-          '<button type="submit" class="pus-btn">' + esc(btn) + '</button>' +
-        '</form>' +
-      '</div>';
-    document.body.appendChild(back);
-    requestAnimationFrame(function () { back.classList.add('open'); });
-
-    trackEvent('impression', popup.id);
-
-    function close() {
-      trackEvent('close', popup.id);
-      back.classList.remove('open');
-      setTimeout(function () { back.remove(); }, 250);
-      try { localStorage.setItem('pus_shown_' + popup.id, String(Date.now())); } catch (e) {}
-    }
-    back.querySelector('.pus-close').addEventListener('click', close);
-    back.addEventListener('click', function (e) { if (e.target === back) close(); });
-
-    back.querySelector('.pus-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email = back.querySelector('input[type=email]').value.trim();
-      if (!email) return;
-      trackEvent('play', popup.id);
-      submitLead(popup.id, { email: email, prize: prize });
-      trackEvent('win', popup.id, { prize: prize });
-      back.querySelector('.pus-modal').innerHTML =
-        '<button class="pus-close" aria-label="Fechar">×</button>' +
-        '<div class="pus-result">' +
-          '<div style="font-size:40px">🎉</div>' +
-          '<div class="pus-prize">' + esc(prize) + '</div>' +
-          '<p>Use o cupom:</p>' +
-          '<div class="pus-coupon">' + esc(prize) + '</div>' +
-          '<p style="font-size:12px;color:#666">Enviamos também para seu e-mail.</p>' +
-        '</div>';
-      back.querySelector('.pus-close').addEventListener('click', close);
-    });
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // BOOT — Fetch config and route to correct popup renderer
-  // ═══════════════════════════════════════════════════════════
-  function boot() {
-    xhr('GET', API + '/api/public/config?store_id=' + encodeURIComponent(storeId), null, function (err, data) {
-      if (err || !data || !Array.isArray(data.popups) || data.popups.length === 0) return;
-      var list = data.popups.filter(shouldShow);
-      if (!list.length) return;
-
-      var popup = list[0];
-      setTimeout(function () {
-        if (popup.game_type === 'slot_machine') {
-          showSlotMachinePopup(popup);
-        } else if (popup.game_type === 'skate_grind') {
-          // TODO: showSkatePopup(popup);
-          showGenericPopup(popup);
-        } else {
-          showGenericPopup(popup);
-        }
-      }, 1500);
-    });
-  }
-
-  boot();
-})();
+NÂJJ
+NÂ
