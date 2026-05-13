@@ -1,1851 +1,558 @@
-(function() {
-  "use strict";
+/*!
+ * PopUp Studio - Loader v3.0
+ * Este script é injetado automaticamente nas lojas Nuvemshop que instalaram o app.
+ * Responsabilidade: buscar a config dos pop-ups publicados e exibi-los na vitrine.
+ */
+(function () {
+  if (window.__PopUpStudioLoaded) return;
+  window.__PopUpStudioLoaded = true;
 
-  var API_BASE = "https://popup-studio.vercel.app";
-  var STORAGE_KEY = "pus_shown_";
-  var STORAGE_TTL = 86400000; // 24h
-
-  /* Ã¢ÂÂÃ¢ÂÂ Helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢Â ÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function getStoreId() {
-    // Try LS object first (Nuvemshop global)
-    if (typeof LS !== "undefined" && LS && LS.store && LS.store.id) {
-      return String(LS.store.id);
-    }
-    var scripts = document.getElementsByTagName("script");
-    for (var i = 0; i < scripts.length; i++) {
-      var src = scripts[i].getAttribute("src") || "";
-      if (src.indexOf("popup-studio") !== -1 || src.indexOf("loader.js") !== -1 || src.indexOf("apps-scripts") !== -1) {
-        var match = src.match(/[?&]store_id=([^&]+)/);
-        if (match) return match[1];
-        // Nuvemshop uses "store" param (without underscore)
-        var match2 = src.match(/[?&]store=([^&]+)/);
-        if (match2) return match2[1];
-        var id = scripts[i].getAttribute("data-store-id");
-        if (id) return id;
-      }
-    }
+  // ---- Descoberta do store_id ----
+  var scriptEl = document.currentScript || (function () {
+    var s = document.getElementsByTagName('script');
+    for (var i = s.length - 1; i >= 0; i--) if ((s[i].src || '').indexOf('/loader.js') >= 0) return s[i];
     return null;
+  })();
+
+  var storeId = null;
+  if (scriptEl && scriptEl.src) {
+    try { storeId = new URL(scriptEl.src).searchParams.get('store_id'); } catch (e) {}
+  }
+  if (!storeId && window.LS && window.LS.store && window.LS.store.id) storeId = window.LS.store.id;
+  if (!storeId) { console.warn('[PopUpStudio] store_id não encontrado.'); return; }
+
+  var API = (scriptEl && scriptEl.src ? new URL(scriptEl.src).origin : 'https://popup-studio.vercel.app');
+
+  // ---- Util ----
+  function xhr(method, url, body, cb) {
+    var r = new XMLHttpRequest();
+    r.open(method, url, true);
+    r.setRequestHeader('Content-Type', 'application/json');
+    r.onload = function () { try { cb(null, JSON.parse(r.responseText || '{}')); } catch (e) { cb(null, {}); } };
+    r.onerror = function () { cb(new Error('network')); };
+    r.send(body ? JSON.stringify(body) : null);
+  }
+  function trackEvent(type, popupId, payload) {
+    xhr('POST', API + '/api/public/event', {
+      store_id: storeId, popup_id: popupId || null, event_type: type, payload: payload || {}
+    }, function () {});
+  }
+  function submitLead(popupId, data) {
+    xhr('POST', API + '/api/public/lead',
+      Object.assign({ store_id: storeId, popup_id: popupId }, data), function () {});
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
   }
 
-  function wasShownRecently(popupId) {
+  // ---- Regras de exibição (cooldown 24h por pop-up) ----
+  function shouldShow(popup) {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY + popupId);
-      if (!raw) return false;
-      var ts = parseInt(raw, 10);
-      return (Date.now() - ts) < STORAGE_TTL;
-    } catch (e) { return false; }
-  }
-
-  function markShown(popupId) {
-    try { localStorage.setItem(STORAGE_KEY + popupId, String(Date.now())); } catch (e) {}
-  }
-
-  function trackEvent(popupId, eventType, data) {
-    try {
-      var body = { popup_id: popupId, event: eventType };
-      if (data) { for (var k in data) { if (data.hasOwnProperty(k)) body[k] = data[k]; } }
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", API_BASE + "/api/public/event", true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(JSON.stringify(body));
+      var last = parseInt(localStorage.getItem('pus_shown_' + popup.id) || '0', 10);
+      if (last && Date.now() - last < 24 * 3600 * 1000) return false;
     } catch (e) {}
+    return true;
   }
 
-  function submitLead(popupId, email, name, phone, prize, coupon, cb) {
-    try {
-      var body = { popup_id: popupId, email: email, name: name || "", phone: phone || "", prize: prize || "", coupon: coupon || "" };
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", API_BASE + "/api/public/lead", true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && cb) cb(xhr.status >= 200 && xhr.status < 300);
-      };
-      xhr.send(JSON.stringify(body));
-    } catch (e) { if (cb) cb(false); }
-  }
-
-  function fetchConfig(storeId, cb) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", API_BASE + "/api/public/config?store_id=" + encodeURIComponent(storeId), true);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try { cb(JSON.parse(xhr.responseText)); } catch (e) { cb(null); }
-        } else { cb(null); }
-      }
-    };
-    xhr.send();
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Inject CSS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function injectStyles() {
-    var style = document.createElement("style");
-    style.id = "pus-styles";
-    style.textContent = [
-      /* Backdrop */
-      ".pus-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;animation:pusFadeIn .25s ease}",
-      "@keyframes pusFadeIn{from{opacity:0}to{opacity:1}}",
-      "@keyframes pusSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}",
-
-      /* Generic modal */
-      ".pus-modal{background:#1a1a2e;border-radius:14px;max-width:340px;width:100%;padding:32px 24px;text-align:center;position:relative;animation:pusSlideUp .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.6)}",
-      ".pus-modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:#888;font-size:22px;cursor:pointer;line-height:1;padding:4px}",
-      ".pus-modal-close:hover{color:#fff}",
-      ".pus-modal-emoji{font-size:40px;margin-bottom:10px}",
-      ".pus-modal-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}",
-      ".pus-modal-desc{font-size:13px;color:#aaa;margin-bottom:18px;line-height:1.4}",
-      ".pus-modal input[type=email],.pus-modal input[type=text],.pus-modal input[type=tel]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px;margin-bottom:10px;box-sizing:border-box;outline:none}",
-      ".pus-modal input:focus{border-color:#7c5cfc}",
-      ".pus-modal-btn{width:100%;padding:12px;border-radius:8px;border:none;background:#7c5cfc;color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}",
-      ".pus-modal-btn:hover{background:#9b7fff}",
-      ".pus-modal-btn:disabled{opacity:.5;cursor:not-allowed}",
-      ".pus-coupon-box{background:#111;border:1px dashed #555;border-radius:8px;padding:14px;margin-top:16px}",
-      ".pus-coupon-code{font-size:22px;font-weight:800;color:#fff;letter-spacing:3px;margin-bottom:6px}",
-      ".pus-coupon-copy{background:#333;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
-      ".pus-coupon-copy:hover{background:#555}",
-
-      /* Skate popup container */
-      ".skate-popup{background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);border-radius:14px;max-width:340px;width:100%;position:relative;animation:pusSlideUp .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.6);overflow:hidden}",
-      ".skate-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#666;font-size:20px;cursor:pointer;z-index:5;line-height:1;padding:4px}",
-      ".skate-popup-close:hover{color:#fff}",
-
-      /* Header */
-      ".skate-popup-header{text-align:center;padding:22px 20px 14px}",
-      ".skate-popup-header .emoji{font-size:36px;margin-bottom:6px;display:block}",
-      ".skate-popup-header .title{font-size:18px;font-weight:800;color:#fff;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}",
-      ".skate-popup-header .subtitle{font-size:12px;color:#888;line-height:1.3}",
-
-      /* Canvas area */
-      ".skate-canvas-wrap{width:310px;height:170px;margin:0 auto;background:#0a0a0a;border-radius:10px;position:relative;cursor:pointer;overflow:hidden}",
-      ".skate-canvas-wrap canvas{display:block}",
-
-      /* Score */
-      ".skate-score{text-align:center;padding:8px 0 4px;font-size:14px;font-weight:700;color:#fff}",
-      ".skate-instruction{text-align:center;font-size:11px;color:#666;padding:0 0 6px}",
-
-      /* Start button */
-      ".skate-start-btn{display:block;width:calc(100% - 40px);margin:6px auto 14px;padding:12px;border-radius:8px;border:none;background:#fff;color:#111;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}",
-      ".skate-start-btn:hover{background:#ddd}",
-      ".skate-start-btn:disabled{opacity:.4;cursor:not-allowed}",
-
-      /* Lock section (below canvas, NOT overlay) */
-      ".skate-lock-section{display:flex;flex-direction:column;align-items:center;padding:16px 24px 20px;border-top:1px solid #222}",
-      ".skate-lock-section.hidden{display:none}",
-      ".skate-lock-section .lock-icon{font-size:28px;margin-bottom:6px}",
-      ".skate-lock-section .lock-title{font-size:13px;font-weight:600;color:#aaa;margin-bottom:12px;text-align:center}",
-      ".skate-lock-section input{width:100%;max-width:280px;padding:11px 14px;border-radius:8px;border:1px solid #333;background:#0d0d0d;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box;outline:none}",
-      ".skate-lock-section input::placeholder{color:#555}",
-      ".skate-lock-section input:focus{border-color:#7c5cfc}",
-      ".skate-lock-section .unlock-btn{width:100%;max-width:280px;padding:12px;border-radius:8px;border:2px solid #fff;background:transparent;color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:2px;margin-top:4px;transition:all .2s}",
-      ".skate-lock-section .unlock-btn:hover{background:#fff;color:#111}",
-      ".skate-lock-section .unlock-btn:disabled{opacity:.5;cursor:not-allowed}",
-
-      /* Victory overlay */
-      ".skate-victory{position:absolute;inset:0;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:12;padding:24px;border-radius:14px;text-align:center}",
-      ".skate-victory.active{display:flex}",
-      ".skate-victory .trophy{font-size:42px;margin-bottom:8px}",
-      ".skate-victory .vtitle{font-size:18px;font-weight:800;color:#fff;letter-spacing:2px;margin-bottom:4px}",
-      ".skate-victory .vscore{font-size:13px;color:#aaa;margin-bottom:14px}",
-      ".skate-victory .vprize{font-size:15px;font-weight:700;color:#fff;margin-bottom:10px}",
-      ".skate-victory .coupon-box{background:#111;border:1px dashed #555;border-radius:8px;padding:14px 20px;margin-bottom:12px}",
-      ".skate-victory .coupon-code{font-size:22px;font-weight:800;color:#fff;letter-spacing:3px;margin-bottom:6px}",
-      ".skate-victory .coupon-copy{background:#333;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
-      ".skate-victory .coupon-copy:hover{background:#555}",
-      ".skate-victory .vplay-again{background:none;border:1px solid #444;color:#aaa;padding:8px 20px;border-radius:8px;font-size:12px;cursor:pointer;margin-top:4px}",
-      ".skate-victory .vplay-again:hover{border-color:#888;color:#fff}",
-
-      /* Slot Machine popup */
-      ".slot-popup{background:linear-gradient(180deg,#0a1f14 0%,#071a0f 100%);border-radius:14px;max-width:360px;width:100%;position:relative;animation:pusSlideUp .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.6);overflow:hidden}",
-      ".slot-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#666;font-size:20px;cursor:pointer;z-index:5;line-height:1;padding:4px}",
-      ".slot-popup-close:hover{color:#fff}",
-      ".slot-popup-header{text-align:center;padding:22px 20px 14px}",
-      ".slot-popup-header .emoji{font-size:36px;margin-bottom:6px;display:block}",
-      ".slot-popup-header .title{font-size:16px;font-weight:800;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}",
-      ".slot-popup-header .subtitle{font-size:12px;color:#8aab9a;line-height:1.3}",
-
-      /* Reels */
-      ".slot-machine-wrap{background:#000;border-radius:12px;margin:0 20px 12px;padding:16px 12px;text-align:center}",
-      ".slot-machine-title{font-size:20px;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:12px;text-shadow:0 0 12px rgba(255,215,0,.4)}",
-      ".slot-reels{display:flex;justify-content:center;gap:8px;margin-bottom:14px}",
-      ".slot-reel{width:72px;height:72px;background:#111;border-radius:10px;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden;position:relative}",
-      ".slot-reel.spinning .slot-reel-inner{animation:slotSpin .15s linear infinite}",
-      "@keyframes slotSpin{0%{transform:translateY(0)}100%{transform:translateY(-100%)}}",
-      ".slot-reel.win{border-color:#ffd700;box-shadow:0 0 12px rgba(255,215,0,.4)}",
-      ".slot-spin-btn{width:100%;padding:12px;border-radius:8px;border:2px solid #52b788;background:transparent;color:#52b788;font-size:15px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:all .2s}",
-      ".slot-spin-btn:hover{background:#52b788;color:#fff}",
-      ".slot-spin-btn:disabled{opacity:.4;cursor:not-allowed}",
-
-      /* Slot form section */
-      ".slot-form-section{display:flex;flex-direction:column;align-items:center;padding:16px 24px 20px;border-top:1px solid #1a3327}",
-      ".slot-form-section.hidden{display:none}",
-      ".slot-form-section .lock-icon{font-size:28px;margin-bottom:6px}",
-      ".slot-form-section .lock-title{font-size:13px;font-weight:600;color:#8aab9a;margin-bottom:12px;text-align:center}",
-      ".slot-form-section input{width:100%;max-width:280px;padding:11px 14px;border-radius:8px;border:1px solid #1a3327;background:#071a0f;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box;outline:none}",
-      ".slot-form-section input::placeholder{color:#4a6a5a}",
-      ".slot-form-section input:focus{border-color:#52b788}",
-      ".slot-form-section .unlock-btn{width:100%;max-width:280px;padding:12px;border-radius:8px;border:2px solid #52b788;background:transparent;color:#52b788;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:2px;margin-top:4px;transition:all .2s}",
-      ".slot-form-section .unlock-btn:hover{background:#52b788;color:#fff}",
-      ".slot-form-section .unlock-btn:disabled{opacity:.5;cursor:not-allowed}",
-
-      /* Slot result overlay */
-      ".slot-result{position:absolute;inset:0;background:rgba(7,26,15,.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:12;padding:24px;border-radius:14px;text-align:center}",
-      ".slot-result.active{display:flex}",
-      ".slot-result .result-emoji{font-size:48px;margin-bottom:10px}",
-      ".slot-result .result-title{font-size:20px;font-weight:800;color:#fff;letter-spacing:2px;margin-bottom:6px}",
-      ".slot-result .result-desc{font-size:13px;color:#8aab9a;margin-bottom:16px}",
-      ".slot-result .coupon-box{background:#0a1f14;border:1px dashed #52b788;border-radius:8px;padding:14px 20px;margin-bottom:12px}",
-      ".slot-result .coupon-code{font-size:22px;font-weight:800;color:#ffd700;letter-spacing:3px;margin-bottom:6px}",
-      ".slot-result .coupon-copy{background:#1a3327;border:none;color:#52b788;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
-      ".slot-result .coupon-copy:hover{background:#2a4337}",
-      ".slot-result .try-again-btn{background:none;border:1px solid #1a3327;color:#8aab9a;padding:8px 20px;border-radius:8px;font-size:12px;cursor:pointer;margin-top:4px}",
-      ".slot-result .try-again-btn:hover{border-color:#52b788;color:#fff}"
-    ].join("\n");
-    document.head.appendChild(style);
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Generic Popup (email form + coupon) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function showGenericPopup(popup) {
-    var cfg = popup.config || {};
-    var title = cfg.title || "Oferta Especial";
-    var desc = cfg.description || cfg.subtitle || "Cadastre-se e ganhe um desconto!";
-    var btnText = cfg.btn_text || "PARTICIPAR";
-    var emoji = cfg.emoji || "Ã°ÂÂÂ";
-    var prize = cfg.prize || "10% OFF";
-    var coupon = cfg.coupon || "PROMO10";
-
-    var backdrop = document.createElement("div");
-    backdrop.className = "pus-backdrop";
-    backdrop.setAttribute("data-pus-popup", popup.id);
-
-    var modal = document.createElement("div");
-    modal.className = "pus-modal";
-    modal.innerHTML = [
-      '<button class="pus-modal-close" data-pus-close>&times;</button>',
-      '<div class="pus-modal-emoji">' + emoji + '</div>',
-      '<div class="pus-modal-title">' + escHtml(title) + '</div>',
-      '<div class="pus-modal-desc">' + escHtml(desc) + '</div>',
-      '<div class="pus-generic-form">',
-        '<input type="email" placeholder="Seu e-mail" data-pus-email>',
-        '<button class="pus-modal-btn" data-pus-submit>' + escHtml(btnText) + '</button>',
-      '</div>',
-      '<div class="pus-generic-success" style="display:none">',
-        '<div class="pus-modal-title" style="margin-bottom:8px">Parab&eacute;ns!</div>',
-        '<div class="pus-modal-desc">Voc&ecirc; ganhou ' + escHtml(prize) + '</div>',
-        '<div class="pus-coupon-box">',
-          '<div class="pus-coupon-code" data-pus-coupon-val>' + escHtml(coupon) + '</div>',
-          '<button class="pus-coupon-copy" data-pus-copy>Copiar</button>',
-        '</div>',
-      '</div>'
-    ].join("");
-
-    modal.addEventListener("click", function(e) { e.stopPropagation(); });
-    backdrop.appendChild(modal);
-    document.body.appendChild(backdrop);
-
-    trackEvent(popup.id, "impression");
-    markShown(popup.id);
-
-    /* Close */
-    var closeFn = function() {
-      trackEvent(popup.id, "close");
-      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
-    };
-    backdrop.addEventListener("click", closeFn);
-    modal.querySelector("[data-pus-close]").addEventListener("click", closeFn);
-
-    /* Submit */
-    modal.querySelector("[data-pus-submit]").addEventListener("click", function() {
-      var emailInput = modal.querySelector("[data-pus-email]");
-      var email = (emailInput.value || "").trim();
-      if (!email || email.indexOf("@") === -1) { emailInput.style.borderColor = "#ef4444"; return; }
-      var btn = modal.querySelector("[data-pus-submit]");
-      btn.disabled = true; btn.textContent = "...";
-      submitLead(popup.id, email, "", "", prize, coupon, function() {
-        modal.querySelector(".pus-generic-form").style.display = "none";
-        modal.querySelector(".pus-generic-success").style.display = "block";
-        trackEvent(popup.id, "win", { email: email });
-      });
-    });
-
-    /* Copy coupon */
-    modal.querySelector("[data-pus-copy]").addEventListener("click", function() {
-      copyText(coupon, this);
-    });
-  }
-
-    /* Ã¢ÂÂÃ¢ÂÂ Slot Machine Popup Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
+  // ═══════════════════════════════════════════════════════════
+  // SLOT MACHINE POPUP — Idêntico ao editor do Pop Up Studio
+  // ═══════════════════════════════════════════════════════════
   function showSlotMachinePopup(popup) {
     var cfg = popup.config || {};
-    var title = cfg.title || "\ud83c\udf81 Jogue e Ganhe!";
-    var desc = cfg.description || "Cadastre seu e-mail e jogue para ganhar um cupom especial!";
-    var btnText = cfg.button_text || "JOGAR!";
-    var prize = cfg.prize || "SLOT10";
-    var coupon = cfg.prize || "SLOT10";
-    var emoji1 = cfg.slot_emoji1 || "\ud83d\udc55";
-    var emoji2 = cfg.slot_emoji2 || "\ud83e\udde2";
-    var emoji3 = cfg.slot_emoji3 || "\ud83d\udc5f";
-    var machineTitle = cfg.slot_machine_title || "JACKPOT!";
-    var winText = cfg.slot_win_text || "\ud83c\udf89 PARAB\u00c9NS! Voc\u00ea ganhou!";
-    var loseText = cfg.slot_lose_text || "Que pena! Tente novamente...";
-    var bgColor = cfg.background_color || "#0a1f14";
-    var btnColor = cfg.button_color || "#52b788";
+    var emoji1     = cfg.slot_emoji1 || '👕';
+    var emoji2     = cfg.slot_emoji2 || '🧢';
+    var emoji3     = cfg.slot_emoji3 || '👟';
+    var emojis     = [emoji1, emoji2, emoji3];
+    var winEmoji   = emoji3;
+    var title      = cfg.title || '🎁 JOGUE E GANHE UM DESCONTO EXCLUSIVO!';
+    var subtitle   = cfg.description || 'Cadastre seu e-mail e jogue para ganhar um cupom especial!';
+    var machTitle  = cfg.slot_machine_title || 'JACKPOT!';
+    var btnColor   = cfg.button_color || '#52b788';
+    var btnText    = cfg.button_text || 'Quero jogar!';
+    var bgColor    = cfg.background_color || '#0a1f14';
+    var textColor  = cfg.text_color || '#ffffff';
+    var prize      = cfg.prize || 'DESCONTO10';
+    var loseText   = cfg.slot_lose_text || 'Que pena! Tente novamente...';
+    var winText    = cfg.slot_win_text || '🎉 PARABÉNS! Você ganhou!';
+    var headerEmoji = cfg.emoji || '🎁';
 
-    var allEmojis = [emoji1, emoji2, emoji3];
-    var unlocked = false;
+    var slotAttempt = 0;
+    var slotSpinning = false;
 
-    var backdrop = document.createElement("div");
-    backdrop.className = "pus-backdrop";
-    backdrop.setAttribute("data-pus-popup", popup.id);
+    // ── Inject CSS ──
+    var styleId = 'pus-slot-css';
+    if (!document.getElementById(styleId)) {
+      var css = document.createElement('style');
+      css.id = styleId;
+      css.textContent = '\
+.pus-slot-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}\
+.pus-slot-backdrop.open{opacity:1}\
+.pus-slot-popup{position:relative;max-width:340px;width:92%;border-radius:16px;overflow:visible;box-shadow:0 20px 60px rgba(0,0,0,.5);transform:translateY(10px) scale(.97);transition:transform .3s ease}\
+.pus-slot-backdrop.open .pus-slot-popup{transform:translateY(0) scale(1)}\
+.pus-slot-header{text-align:center;padding:14px 14px 8px;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 100%);border-radius:16px 16px 0 0}\
+.pus-slot-header-emoji{font-size:28px;margin-bottom:4px}\
+.pus-slot-header-title{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}\
+.pus-slot-header-sub{font-size:11px;opacity:.7;font-weight:500}\
+.pus-slot-close{position:absolute;top:10px;right:10px;width:28px;height:28px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:rgba(255,255,255,.7);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:30}\
+.pus-slot-close:hover{background:rgba(255,255,255,.15);color:#fff}\
+.pus-slot-machine{background:linear-gradient(180deg,#3a1078 0%,#2a0a5e 40%,#1a0640 100%);border-radius:20px;max-width:320px;width:100%;margin:0 auto;box-shadow:0 10px 50px rgba(0,0,0,.7),inset 0 2px 0 rgba(255,255,255,.1),0 0 30px rgba(255,215,0,.12);position:relative;overflow:visible;border:3px solid rgba(255,215,0,.3)}\
+.pus-slot-jackpot{background:linear-gradient(180deg,#1a0640 0%,#2a0a5e 100%);border-radius:16px 16px 0 0;padding:8px 12px 6px;text-align:center;position:relative;overflow:hidden;border-bottom:3px solid #d4a017}\
+.pus-slot-jackpot-text{font-size:22px;font-weight:900;color:#f1c40f;text-shadow:0 0 10px rgba(241,196,15,.6),0 0 20px rgba(241,196,15,.3),0 2px 0 #b8860b;letter-spacing:4px;text-transform:uppercase}\
+.pus-slot-bulbs{display:flex;justify-content:center;gap:8px;margin-top:4px}\
+.pus-slot-bulb{width:8px;height:8px;border-radius:50%;animation:pusBulbBlink 1.2s ease infinite}\
+.pus-slot-bulb:nth-child(odd){animation-delay:0s}\
+.pus-slot-bulb:nth-child(even){animation-delay:.6s}\
+@keyframes pusBulbBlink{0%,100%{opacity:1;box-shadow:0 0 6px currentColor}50%{opacity:.3;box-shadow:none}}\
+.pus-slot-body{padding:10px 10px 6px;position:relative;background:linear-gradient(180deg,rgba(255,255,255,.03) 0%,transparent 100%)}\
+.pus-slot-screen{background:linear-gradient(180deg,#0a0a18 0%,#050510 100%);border-radius:14px;padding:8px;box-shadow:inset 0 4px 16px rgba(0,0,0,.8),0 2px 0 rgba(255,215,0,.15);border:3px solid #333;position:relative;overflow:hidden}\
+.pus-slot-screen::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;background:linear-gradient(90deg,rgba(255,215,0,.4),rgba(255,215,0,.1),rgba(255,215,0,.4));transform:translateY(-50%);z-index:2;pointer-events:none}\
+.pus-slot-grid{display:flex;gap:6px;justify-content:center;position:relative}\
+.pus-slot-column{display:flex;flex-direction:column;gap:4px;position:relative}\
+.pus-slot-cell{width:64px;height:48px;background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 50%,rgba(255,255,255,.06) 100%);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;border:1px solid rgba(255,255,255,.08);transition:transform .1s}\
+.pus-slot-cell.payline{border-color:rgba(255,215,0,.25);background:linear-gradient(180deg,rgba(255,215,0,.06) 0%,rgba(255,215,0,.02) 50%,rgba(255,215,0,.06) 100%)}\
+.pus-slot-cell.spinning{animation:pusCellSpin .12s linear infinite}\
+@keyframes pusCellSpin{0%{transform:translateY(-4px)}50%{transform:translateY(4px)}100%{transform:translateY(-4px)}}\
+.pus-slot-cell.winner{animation:pusCellWin .5s ease infinite;border-color:#f1c40f;box-shadow:0 0 12px rgba(241,196,15,.5)}\
+@keyframes pusCellWin{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}\
+.pus-slot-payline-arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:#f1c40f;text-shadow:0 0 8px rgba(241,196,15,.5);z-index:3}\
+.pus-slot-payline-left{left:-2px}\
+.pus-slot-payline-right{right:-2px}\
+.pus-slot-attempts{text-align:center;margin-top:8px;font-size:11px;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.5px}\
+.pus-slot-btn-panel{display:flex;gap:6px;margin-top:8px}\
+.pus-slot-play-btn{flex:2;background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;border:2px solid #15803d;border-radius:8px;padding:10px 8px;font-size:13px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .15s;box-shadow:0 3px 12px rgba(34,197,94,.3)}\
+.pus-slot-play-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(34,197,94,.4)}\
+.pus-slot-play-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}\
+.pus-slot-coin-tray{background:linear-gradient(180deg,#222,#1a1a1a);border-radius:0 0 16px 16px;padding:8px 16px 10px;border-top:3px solid #d4a017;display:flex;align-items:center;justify-content:center;gap:4px;position:relative;overflow:hidden}\
+.pus-slot-coin-tray::before{content:"";position:absolute;top:0;left:10%;right:10%;height:6px;background:linear-gradient(180deg,rgba(212,160,23,.3),transparent);border-radius:0 0 50% 50%}\
+.pus-slot-coin{font-size:16px;opacity:.5;animation:pusCoinShine 2s ease infinite}\
+.pus-slot-coin:nth-child(odd){animation-delay:.5s}\
+@keyframes pusCoinShine{0%,100%{opacity:.4}50%{opacity:.7}}\
+.pus-slot-lever{position:absolute;right:-34px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:5}\
+.pus-slot-lever-track{width:10px;height:65px;background:linear-gradient(90deg,#999,#ccc,#999);border-radius:5px;position:relative;box-shadow:inset 0 1px 3px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.2)}\
+.pus-slot-lever-ball{width:24px;height:24px;background:radial-gradient(circle at 35% 35%,#ff6b6b,#c0392b,#8B0000);border-radius:50%;position:absolute;top:-8px;left:50%;transform:translateX(-50%);box-shadow:0 3px 10px rgba(0,0,0,.5),inset 0 -2px 4px rgba(0,0,0,.3),inset 0 2px 4px rgba(255,255,255,.2);transition:top .3s cubic-bezier(.68,-.55,.27,1.55)}\
+.pus-slot-lever.pulled .pus-slot-lever-ball{top:44px}\
+.pus-slot-lever-base{width:16px;height:8px;background:linear-gradient(180deg,#aaa,#666);border-radius:0 0 6px 6px;margin-top:-1px}\
+.pus-slot-coupon-banner{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#f1c40f;border-top:2px solid #f1c40f;border-bottom:2px solid #f1c40f}\
+.pus-slot-coupon-banner::before,.pus-slot-coupon-banner::after{content:"◆";font-size:6px;opacity:.6}\
+.pus-slot-lock-overlay{position:relative;display:flex;flex-direction:column;align-items:center;z-index:20;background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,.7) 100%);padding:12px 14px 14px;transition:opacity .5s ease,max-height .5s ease;overflow:hidden}\
+.pus-slot-lock-overlay.hidden{opacity:0;max-height:0;padding:0 16px;pointer-events:none}\
+.pus-slot-lock-subtitle{font-size:10px;color:rgba(255,255,255,.6);text-align:center;margin-bottom:10px;display:flex;align-items:center;gap:6px}\
+.pus-slot-lock-subtitle::before{content:"🔒";font-size:11px}\
+.pus-slot-lock-form{display:flex;flex-direction:column;gap:8px;width:100%;max-width:260px}\
+.pus-slot-lock-input-wrap{position:relative;display:flex;align-items:center}\
+.pus-slot-lock-input-icon{position:absolute;left:12px;font-size:14px;color:rgba(255,255,255,.35);pointer-events:none;z-index:2}\
+.pus-slot-lock-input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:10px 12px 10px 36px;color:#fff;font-size:13px;outline:none;text-align:left;transition:border-color .2s,background .2s;box-sizing:border-box}\
+.pus-slot-lock-input::placeholder{color:rgba(255,255,255,.35)}\
+.pus-slot-lock-input:focus{border-color:#22c55e;background:rgba(255,255,255,.12)}\
+.pus-slot-lock-btn{background:linear-gradient(180deg,#22c55e,#16a34a);color:#fff;border:2px solid #16a34a;border-radius:10px;padding:11px;font-size:13px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:2px;box-shadow:0 4px 20px rgba(34,197,94,.35),inset 0 1px 0 rgba(255,255,255,.15);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}\
+.pus-slot-lock-btn:hover{transform:translateY(-2px);box-shadow:0 6px 25px rgba(34,197,94,.45)}\
+.pus-slot-lock-btn::after{content:"→";font-size:16px;font-weight:400}\
+.pus-slot-locked .pus-slot-btn-panel{display:none}\
+.pus-slot-locked .pus-slot-attempts{display:none}\
+.pus-slot-victory{position:absolute;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;z-index:10;animation:pusVictoryIn .4s ease}\
+@keyframes pusVictoryIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}\
+.pus-slot-victory-emoji{font-size:36px;animation:pusVicBounce .6s ease infinite}\
+@keyframes pusVicBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}\
+.pus-slot-victory-text{font-size:20px;font-weight:900;color:#f1c40f;margin:6px 0 2px;text-transform:uppercase;text-shadow:0 0 10px rgba(241,196,15,.5)}\
+.pus-slot-victory-sub{font-size:11px;color:rgba(255,255,255,.7);margin-bottom:6px}\
+.pus-slot-coupon-box{background:linear-gradient(135deg,#f1c40f 0%,#e67e22 100%);color:#1a0640;padding:12px 28px;border-radius:10px;font-size:22px;font-weight:900;letter-spacing:3px;border:2px dashed rgba(26,6,64,.4);margin-top:4px;box-shadow:0 4px 16px rgba(241,196,15,.3)}\
+.pus-slot-copy-btn{animation:pusCopyPulse 1.5s ease infinite;flex:none!important;width:auto!important}\
+@keyframes pusCopyPulse{0%,100%{box-shadow:0 4px 20px rgba(34,197,94,.35)}50%{box-shadow:0 4px 30px rgba(34,197,94,.6),0 0 15px rgba(34,197,94,.3)}}\
+.pus-slot-confetti{position:absolute;width:8px;height:8px;border-radius:2px;animation:pusConfetti 1.5s ease-out forwards;z-index:11;pointer-events:none}\
+@keyframes pusConfetti{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(200px) rotate(720deg);opacity:0}}\
+@media(max-width:400px){.pus-slot-popup{width:96%}.pus-slot-cell{width:52px;height:40px;font-size:22px}}\
+';
+      document.documentElement.appendChild(css);
+    }
 
-    var box = document.createElement("div");
-    box.className = "slot-popup";
-    box.style.background = "linear-gradient(180deg," + bgColor + " 0%,#071a0f 100%)";
+    // ── Build HTML ──
+    var back = document.createElement('div');
+    back.className = 'pus-slot-backdrop';
+    back.innerHTML =
+      '<div class="pus-slot-popup" style="background:' + esc(bgColor) + ';color:' + esc(textColor) + ';">' +
+        '<button class="pus-slot-close" aria-label="Fechar">✕</button>' +
+        // Header
+        '<div class="pus-slot-header">' +
+          '<div class="pus-slot-header-emoji">' + esc(headerEmoji) + '</div>' +
+          '<div class="pus-slot-header-title">' + esc(title) + '</div>' +
+          '<div class="pus-slot-header-sub">' + esc(subtitle) + '</div>' +
+        '</div>' +
+        // Slot Machine
+        '<div style="padding:10px 10px 0;">' +
+          '<div class="pus-slot-machine pus-slot-locked" id="pus-slot-machine">' +
+            // Jackpot Header
+            '<div class="pus-slot-jackpot">' +
+              '<div class="pus-slot-jackpot-text">' + esc(machTitle) + '</div>' +
+              '<div class="pus-slot-bulbs">' +
+                '<span class="pus-slot-bulb" style="color:#f1c40f;background:#f1c40f"></span>' +
+                '<span class="pus-slot-bulb" style="color:#e74c3c;background:#e74c3c"></span>' +
+                '<span class="pus-slot-bulb" style="color:#3498db;background:#3498db"></span>' +
+                '<span class="pus-slot-bulb" style="color:#f1c40f;background:#f1c40f"></span>' +
+                '<span class="pus-slot-bulb" style="color:#2ecc71;background:#2ecc71"></span>' +
+                '<span class="pus-slot-bulb" style="color:#e74c3c;background:#e74c3c"></span>' +
+                '<span class="pus-slot-bulb" style="color:#3498db;background:#3498db"></span>' +
+              '</div>' +
+            '</div>' +
+            // Body
+            '<div class="pus-slot-body">' +
+              '<div class="pus-slot-screen">' +
+                '<div class="pus-slot-payline-arrow pus-slot-payline-left">▶</div>' +
+                '<div class="pus-slot-payline-arrow pus-slot-payline-right">◀</div>' +
+                '<div class="pus-slot-grid">' +
+                  '<div class="pus-slot-column">' +
+                    '<div class="pus-slot-cell" data-c="1" data-r="1">' + emoji1 + '</div>' +
+                    '<div class="pus-slot-cell payline" data-c="1" data-r="2">' + emoji1 + '</div>' +
+                    '<div class="pus-slot-cell" data-c="1" data-r="3">' + emoji2 + '</div>' +
+                  '</div>' +
+                  '<div class="pus-slot-column">' +
+                    '<div class="pus-slot-cell" data-c="2" data-r="1">' + emoji3 + '</div>' +
+                    '<div class="pus-slot-cell payline" data-c="2" data-r="2">' + emoji2 + '</div>' +
+                    '<div class="pus-slot-cell" data-c="2" data-r="3">' + emoji1 + '</div>' +
+                  '</div>' +
+                  '<div class="pus-slot-column">' +
+                    '<div class="pus-slot-cell" data-c="3" data-r="1">' + emoji2 + '</div>' +
+                    '<div class="pus-slot-cell payline" data-c="3" data-r="2">' + emoji3 + '</div>' +
+                    '<div class="pus-slot-cell" data-c="3" data-r="3">' + emoji1 + '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="pus-slot-attempts" id="pus-slot-attempts">Tentativa 1 de 3</div>' +
+              '<div class="pus-slot-btn-panel">' +
+                '<button class="pus-slot-play-btn" id="pus-slot-play-btn">🎰 JOGAR</button>' +
+              '</div>' +
+            '</div>' +
+            // Coupon Banner
+            '<div class="pus-slot-coupon-banner">🎁 CUPOM SURPRESA DE DESCONTO</div>' +
+            // Lock Overlay (registration form)
+            '<div class="pus-slot-lock-overlay" id="pus-slot-lock">' +
+              '<div class="pus-slot-lock-form">' +
+                '<div class="pus-slot-lock-input-wrap">' +
+                  '<span class="pus-slot-lock-input-icon">👤</span>' +
+                  '<input class="pus-slot-lock-input" id="pus-slot-name" placeholder="Seu nome" type="text">' +
+                '</div>' +
+                '<div class="pus-slot-lock-input-wrap">' +
+                  '<span class="pus-slot-lock-input-icon">✉️</span>' +
+                  '<input class="pus-slot-lock-input" id="pus-slot-email" placeholder="Seu e-mail *" type="email" required>' +
+                '</div>' +
+                '<div class="pus-slot-lock-input-wrap">' +
+                  '<span class="pus-slot-lock-input-icon">📞</span>' +
+                  '<input class="pus-slot-lock-input" id="pus-slot-phone" placeholder="Seu telefone" type="tel">' +
+                '</div>' +
+                '<div class="pus-slot-lock-subtitle">Cadastre-se para desbloquear o jogo e ganhar seu desconto!</div>' +
+                '<button class="pus-slot-lock-btn" id="pus-slot-unlock-btn">' + esc(btnText).toUpperCase() + '</button>' +
+              '</div>' +
+            '</div>' +
+            // Lever
+            '<div class="pus-slot-lever" id="pus-slot-lever">' +
+              '<div class="pus-slot-lever-track"><div class="pus-slot-lever-ball"></div></div>' +
+              '<div class="pus-slot-lever-base"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
-    box.innerHTML = [
-      '<button class="slot-popup-close" data-slot-close>&times;</button>',
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add('open'); });
+    trackEvent('impression', popup.id);
 
-      /* Header */
-      '<div class="slot-popup-header">',
-        '<span class="emoji">' + escHtml(cfg.emoji || "\ud83c\udf81") + '</span>',
-        '<div class="title">' + escHtml(title) + '</div>',
-        '<div class="subtitle">' + escHtml(desc) + '</div>',
-      '</div>',
+    var machine = back.querySelector('#pus-slot-machine');
+    var playBtn = back.querySelector('#pus-slot-play-btn');
+    var attEl   = back.querySelector('#pus-slot-attempts');
+    var lever   = back.querySelector('#pus-slot-lever');
+    var lockOverlay = back.querySelector('#pus-slot-lock');
+    var unlockBtn = back.querySelector('#pus-slot-unlock-btn');
 
-      /* Slot machine */
-      '<div class="slot-machine-wrap">',
-        '<div class="slot-machine-title">' + escHtml(machineTitle) + '</div>',
-        '<div class="slot-reels">',
-          '<div class="slot-reel" data-reel="0"><span class="slot-reel-inner">' + emoji1 + '</span></div>',
-          '<div class="slot-reel" data-reel="1"><span class="slot-reel-inner">' + emoji2 + '</span></div>',
-          '<div class="slot-reel" data-reel="2"><span class="slot-reel-inner">' + emoji3 + '</span></div>',
-        '</div>',
-        '<button class="slot-spin-btn" data-slot-spin style="border-color:' + btnColor + ';color:' + btnColor + '" disabled>GIRAR</button>',
-      '</div>',
+    // Helper: get cell by col, row
+    function getCell(c, r) {
+      return machine.querySelector('.pus-slot-cell[data-c="' + c + '"][data-r="' + r + '"]');
+    }
 
-      /* Form section (pre-registration) */
-      '<div class="slot-form-section" data-slot-form>',
-        '<div class="lock-icon">\ud83d\udd12</div>',
-        '<div class="lock-title">Cadastre-se para desbloquear o jogo e ganhar seu desconto!</div>',
-        '<input type="text" placeholder="\u2709 Seu nome" data-slot-name>',
-        '<input type="email" placeholder="\u2709 Seu e-mail *" data-slot-email>',
-        '<input type="tel" placeholder="\ud83d\udcde Seu telefone" data-slot-phone>',
-        '<button class="unlock-btn" data-slot-unlock style="border-color:' + btnColor + ';color:' + btnColor + '">' + escHtml(btnText) + '</button>',
-      '</div>',
+    // ── Close ──
+    function closePopup() {
+      trackEvent('close', popup.id);
+      back.classList.remove('open');
+      setTimeout(function () { back.remove(); }, 300);
+      try { localStorage.setItem('pus_shown_' + popup.id, String(Date.now())); } catch (e) {}
+    }
+    back.querySelector('.pus-slot-close').addEventListener('click', closePopup);
+    back.addEventListener('click', function (e) { if (e.target === back) closePopup(); });
 
-      /* Result overlay */
-      '<div class="slot-result" data-slot-result>',
-        '<div class="result-emoji" data-slot-result-emoji>\ud83c\udf89</div>',
-        '<div class="result-title" data-slot-result-title></div>',
-        '<div class="result-desc" data-slot-result-desc></div>',
-        '<div class="coupon-box" data-slot-coupon-box style="display:none">',
-          '<div class="coupon-code" data-slot-coupon-val></div>',
-          '<button class="coupon-copy" data-slot-copy>Copiar</button>',
-        '</div>',
-        '<button class="try-again-btn" data-slot-retry>Jogar novamente</button>',
-      '</div>'
-    ].join("");
-
-    box.addEventListener("click", function(e) { e.stopPropagation(); });
-    backdrop.appendChild(box);
-    document.body.appendChild(backdrop);
-
-    trackEvent(popup.id, "impression");
-    markShown(popup.id);
-
-    /* Refs */
-    var spinBtn = box.querySelector("[data-slot-spin]");
-    var formSection = box.querySelector("[data-slot-form]");
-    var unlockBtn = box.querySelector("[data-slot-unlock]");
-    var reels = box.querySelectorAll(".slot-reel");
-    var resultOverlay = box.querySelector("[data-slot-result]");
-    var spinning = false;
-
-    /* Close */
-    var closeFn = function() {
-      trackEvent(popup.id, "close");
-      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
-    };
-    backdrop.addEventListener("click", closeFn);
-    box.querySelector("[data-slot-close]").addEventListener("click", closeFn);
-
-    /* Unlock (registration) */
-    unlockBtn.addEventListener("click", function() {
-      var email = (box.querySelector("[data-slot-email]").value || "").trim();
-      var name = (box.querySelector("[data-slot-name]").value || "").trim();
-      var phone = (box.querySelector("[data-slot-phone]").value || "").trim();
-      if (!email || email.indexOf("@") === -1) {
-        box.querySelector("[data-slot-email]").style.borderColor = "#ef4444";
+    // ── Unlock (registration) ──
+    unlockBtn.addEventListener('click', function () {
+      var email = back.querySelector('#pus-slot-email').value.trim();
+      if (!email) {
+        back.querySelector('#pus-slot-email').style.borderColor = '#ef4444';
         return;
       }
-      unlockBtn.disabled = true;
-      unlockBtn.textContent = "...";
-      submitLead(popup.id, email, name, phone, prize, coupon, function() {
-        unlocked = true;
-        formSection.style.display = "none";
-        spinBtn.disabled = false;
-        spinBtn.style.background = btnColor;
-        spinBtn.style.color = "#fff";
-        trackEvent(popup.id, "unlock", { email: email });
-      });
+      var name  = back.querySelector('#pus-slot-name').value.trim();
+      var phone = back.querySelector('#pus-slot-phone').value.trim();
+
+      submitLead(popup.id, { email: email, name: name, phone: phone });
+      trackEvent('register', popup.id, { email: email });
+
+      // Unlock machine
+      machine.classList.remove('pus-slot-locked');
+      lockOverlay.classList.add('hidden');
+      playBtn.disabled = false;
     });
 
-    /* Spin logic */
-    spinBtn.addEventListener("click", function() {
-      if (spinning || !unlocked) return;
-      spinning = true;
-      spinBtn.disabled = true;
+    // ── Play (pull lever / spin) ──
+    function pullLever() {
+      if (slotSpinning || slotAttempt >= 3) return;
+      slotSpinning = true;
+      slotAttempt++;
 
-      /* Start spinning animation */
-      var intervals = [];
-      for (var r = 0; r < 3; r++) {
-        (function(idx) {
-          var reel = reels[idx];
-          var inner = reel.querySelector(".slot-reel-inner");
-          reel.classList.add("spinning");
-          var ci = 0;
-          intervals[idx] = setInterval(function() {
-            ci = (ci + 1) % allEmojis.length;
-            inner.textContent = allEmojis[ci];
-          }, 100 + idx * 30);
-        })(r);
-      }
+      playBtn.disabled = true;
+      playBtn.textContent = '⏳ GIRANDO...';
+      attEl.textContent = 'Tentativa ' + slotAttempt + ' de 3';
 
-      /* Determine result (70% win rate) */
-      var isWin = Math.random() < 0.7;
-      var results;
-      if (isWin) {
-        var winEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
-        results = [winEmoji, winEmoji, winEmoji];
-      } else {
-        results = [];
-        for (var j = 0; j < 3; j++) {
-          results.push(allEmojis[Math.floor(Math.random() * allEmojis.length)]);
-        }
-        /* Ensure at least one is different */
-        if (results[0] === results[1] && results[1] === results[2]) {
-          var diff = (allEmojis.indexOf(results[0]) + 1) % allEmojis.length;
-          results[2] = allEmojis[diff];
+      trackEvent('play', popup.id, { attempt: slotAttempt });
+
+      // Lever animation
+      if (lever) lever.classList.add('pulled');
+      setTimeout(function () { if (lever) lever.classList.remove('pulled'); }, 600);
+
+      // Start spinning all 9 cells
+      for (var cc = 1; cc <= 3; cc++) {
+        for (var rr = 1; rr <= 3; rr++) {
+          var cell = getCell(cc, rr);
+          if (cell) cell.classList.add('spinning');
         }
       }
 
-      /* Stop reels one by one */
-      var stopReel = function(idx) {
-        setTimeout(function() {
-          clearInterval(intervals[idx]);
-          reels[idx].classList.remove("spinning");
-          reels[idx].querySelector(".slot-reel-inner").textContent = results[idx];
-          if (isWin) reels[idx].classList.add("win");
-
-          if (idx === 2) {
-            /* All reels stopped */
-            setTimeout(function() { showResult(isWin); }, 400);
-          }
-        }, 800 + idx * 500);
-      };
-      for (var s = 0; s < 3; s++) stopReel(s);
-    });
-
-    /* Show result */
-    function showResult(isWin) {
-      spinning = false;
-      var resultEmoji = box.querySelector("[data-slot-result-emoji]");
-      var resultTitle = box.querySelector("[data-slot-result-title]");
-      var resultDesc = box.querySelector("[data-slot-result-desc]");
-      var couponBox = box.querySelector("[data-slot-coupon-box]");
-      var couponVal = box.querySelector("[data-slot-coupon-val]");
-
-      if (isWin) {
-        resultEmoji.textContent = "\ud83c\udf89";
-        resultTitle.textContent = winText.replace(/\ud83c\udf89\s*/, "");
-        resultDesc.textContent = "Use o cupom abaixo na sua pr\u00f3xima compra:";
-        couponVal.textContent = coupon;
-        couponBox.style.display = "block";
-        trackEvent(popup.id, "win");
-      } else {
-        resultEmoji.textContent = "\ud83d\ude14";
-        resultTitle.textContent = loseText;
-        resultDesc.textContent = "Tente mais uma vez!";
-        couponBox.style.display = "none";
-        trackEvent(popup.id, "lose");
-      }
-
-      resultOverlay.classList.add("active");
-    }
-
-    /* Retry */
-    box.querySelector("[data-slot-retry]").addEventListener("click", function() {
-      resultOverlay.classList.remove("active");
-      for (var r = 0; r < 3; r++) {
-        reels[r].classList.remove("win");
-        reels[r].querySelector(".slot-reel-inner").textContent = allEmojis[r];
-      }
-      spinBtn.disabled = false;
-    });
-
-    /* Copy coupon */
-    box.querySelector("[data-slot-copy]").addEventListener("click", function() {
-      copyText(coupon, this);
-    });
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Skate Grind Popup Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function showSkatePopup(popup) {
-    var cfg = popup.config || {};
-    var title = cfg.title || "SKATE GRIND";
-    var subtitle = cfg.description || cfg.subtitle || "Pule obst\u00e1culos e ganhe descontos!";
-    var btnText = cfg.btn_text || "DESBLOQUEAR";
-    var prize = cfg.prize || "10% OFF";
-    var coupon = cfg.coupon || "SKATE10";
-    var emoji = cfg.emoji || "Ã°ÂÂÂ¹"; // fallback
-    var winScore = parseInt(cfg.win_score, 10) || 800;
-
-    /* Game state */
-    var GRAVITY = 0.5;
-    var JUMP_FORCE = -9;
-    var GROUND_Y = 140;
-    var SKATER_W = 20, SKATER_H = 26, SKATER_X = 40;
-    var W = 310, H = 170;
-
-    var running = false;
-    var unlocked = false;
-    var score = 0;
-    var speed = 3;
-    var animId = null;
-    var skaterY = GROUND_Y - SKATER_H;
-    var skaterVY = 0;
-    var onGround = true;
-    var grinding = false;
-    var obstacles = [];
-    var spawnTimer = 0;
-    var groundOffset = 0;
-    var floatingTexts = [];
-    var frameCount = 0;
-    var canvas, ctx;
-
-    /* Build DOM */
-    var backdrop = document.createElement("div");
-    backdrop.className = "pus-backdrop";
-    backdrop.setAttribute("data-pus-popup", popup.id);
-
-    var box = document.createElement("div");
-    box.className = "skate-popup";
-
-    var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    var instrText = isMobile ? "Ã°ÂÂÂ Clique na tela para pular" : " \u2328\ufe0f Aperte Espa\u00e7o para pular";
-
-    box.innerHTML = [
-      '<button class="skate-popup-close" data-pus-close>&times;</button>',
-
-      /* Header */
-      '<div class="skate-popup-header">',
-        '<span class="emoji">' + emoji + '</span>',
-        '<div class="title">' + escHtml(title) + '</div>',
-        '<div class="subtitle">' + escHtml(subtitle) + '</div>',
-      '</div>',
-
-      /* Canvas */
-      '<div class="skate-canvas-wrap" data-skate-tap>',
-        '<canvas width="310" height="170" data-skate-canvas></canvas>',
-      '</div>',
-
-      /* Score + instruction */
-      '<div class="skate-score"><span data-skate-score>0 / ' + winScore + ' PTS</span></div>',
-      '<div class="skate-instruction">' + instrText + '</div>',
-
-      /* Start button */
-      '<button class="skate-start-btn" data-skate-start disabled>INICIAR</button>',
-
-      /* Lock overlay */
-      '<div class="skate-lock-section" data-skate-lock>',
-        '<div class="lock-icon">\ud83d\udd12</div>',
-        '<div class="lock-title">Cadastre-se para desbloquear o jogo e ganhar seu desconto!</div>',
-        '<input type="email" placeholder="\u2709 Seu e-mail *" data-skate-email>',
-        '<input type="text" placeholder="\u2709 Seu nome" data-skate-name>',
-        '<input type="tel" placeholder="\ud83d\udcde Seu telefone" data-skate-phone>',
-        '<button class="unlock-btn" data-skate-unlock>' + escHtml(btnText) + '</button>',
-      '</div>',
-
-      /* Victory overlay */
-      '<div class="skate-victory" data-skate-victory>',
-        '<div class="trophy">\ud83c\udfc6</div>',
-        '<div class="vtitle">PARAB\u00c9NS!</div>',
-        '<div class="vscore">Pontua\u00e7\u00e3o: <span data-skate-final-score>0</span></div>',
-        '<div class="vprize">' + escHtml(prize) + '</div>',
-        '<div class="coupon-box">',
-          '<div class="coupon-code" data-skate-coupon-val>' + escHtml(coupon) + '</div>',
-          '<button class="coupon-copy" data-skate-copy>Copiar</button>',
-        '</div>',
-        '<button class="vplay-again" data-skate-replay>Jogar de novo</button>',
-      '</div>'
-    ].join("");
-
-    box.addEventListener("click", function(e) { e.stopPropagation(); });
-    backdrop.appendChild(box);
-    document.body.appendChild(backdrop);
-
-    /* Refs */
-    canvas = box.querySelector("[data-skate-canvas]");
-    ctx = canvas.getContext("2d");
-    var scoreEl = box.querySelector("[data-skate-score]");
-    var startBtn = box.querySelector("[data-skate-start]");
-    var lockOverlay = box.querySelector("[data-skate-lock]");
-    var victoryOverlay = box.querySelector("[data-skate-victory]");
-    var emailInput = box.querySelector("[data-skate-email]");
-    var nameInput = box.querySelector("[data-skate-name]");
-    var phoneInput = box.querySelector("[data-skate-phone]");
-
-    trackEvent(popup.id, "impression");
-    markShown(popup.id);
-
-    /* Ã¢ÂÂÃ¢ÂÂ Drawing Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-    function drawFrame() {
-      /* Sky */
-      var grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, "#1a1a1a");
-      grad.addColorStop(1, "#0a0a0a");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      /* City silhouette (parallax) */
-      ctx.fillStyle = "#1a1a1a";
-      var blds = [25, 40, 30, 55, 35, 45, 28, 42, 32, 60, 25, 38, 22];
-      for (var i = 0; i < blds.length; i++) {
-        var bx = i * 26 - (groundOffset * 0.2) % 26;
-        ctx.fillRect(bx, GROUND_Y - blds[i], 22, blds[i]);
-        ctx.fillStyle = "#333";
-        for (var wy = GROUND_Y - blds[i] + 6; wy < GROUND_Y - 4; wy += 8) {
-          ctx.fillRect(bx + 4, wy, 3, 3);
-          ctx.fillRect(bx + 12, wy, 3, 3);
-        }
-        ctx.fillStyle = "#1a1a1a";
-      }
-
-      /* Ground line */
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, GROUND_Y, W, 1);
-      ctx.fillStyle = "#333";
-      for (var x = -(groundOffset % 20); x < W; x += 20) {
-        ctx.fillRect(x, GROUND_Y + 3, 10, 1);
-      }
-
-      /* Obstacles */
-      for (var i = 0; i < obstacles.length; i++) {
-        drawObstacle(obstacles[i]);
-      }
-
-      /* Skater */
-      drawSkater(SKATER_X, skaterY);
-
-      /* Floating score texts */
-      ctx.font = "bold 12px sans-serif";
-      for (var i = floatingTexts.length - 1; i >= 0; i--) {
-        var ft = floatingTexts[i];
-        ft.y -= 1.2;
-        ft.life--;
-        ctx.fillStyle = "rgba(255,255,255," + (ft.life / 40) + ")";
-        ctx.fillText(ft.text, ft.x, ft.y);
-        if (ft.life <= 0) floatingTexts.splice(i, 1);
-      }
-
-      /* HUD */
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 11px sans-serif";
-      ctx.fillText(score + " / " + winScore + " PTS", 210, 14);
-
-      /* Progress bar */
-      var prog = Math.min(score / winScore, 1);
-      ctx.fillStyle = "#333";
-      ctx.fillRect(210, 18, 90, 4);
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(210, 18, 90 * prog, 4);
-    }
-
-    function drawSkater(x, y) {
-      /* Head */
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(x + 6, y, 8, 8);
-      /* Cap */
-      ctx.fillStyle = "#888";
-      ctx.fillRect(x + 4, y - 2, 12, 3);
-      /* Body */
-      ctx.fillStyle = "#ddd";
-      ctx.fillRect(x + 6, y + 8, 8, 10);
-      /* Arms */
-      if (grinding) {
-        ctx.fillRect(x + 14, y + 8, 6, 3);
-        ctx.fillRect(x, y + 6, 6, 3);
-      } else {
-        ctx.fillRect(x + 2, y + 10, 4, 3);
-        ctx.fillRect(x + 14, y + 10, 4, 3);
-      }
-      /* Legs */
-      ctx.fillStyle = "#999";
-      ctx.fillRect(x + 5, y + 18, 4, 5);
-      ctx.fillRect(x + 11, y + 18, 4, 5);
-      /* Skateboard */
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(x, y + 23, 20, 2);
-      /* Wheels */
-      ctx.fillStyle = "#666";
-      ctx.fillRect(x + 1, y + 25, 3, 2);
-      ctx.fillRect(x + 16, y + 25, 3, 2);
-      /* Grind sparks */
-      if (grinding) {
-        ctx.fillStyle = "#fff";
-        for (var s = 0; s < 3; s++) {
-          var sx = x + 5 + Math.random() * 10;
-          var sy = y + 24 + Math.random() * 3;
-          ctx.fillRect(sx, sy, 2, 1);
-        }
-      }
-    }
-
-    function drawObstacle(ob) {
-      if (ob.type === "hydrant") {
-        ctx.fillStyle = "#ccc";
-        ctx.fillRect(ob.x + 3, ob.y + 2, 8, 14);
-        ctx.fillStyle = "#999";
-        ctx.fillRect(ob.x + 1, ob.y + 5, 12, 4);
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(ob.x + 4, ob.y, 6, 3);
-      } else if (ob.type === "rail") {
-        ctx.fillStyle = "#888";
-        ctx.fillRect(ob.x, ob.y, ob.w, 3);
-        ctx.fillRect(ob.x + 5, ob.y, 2, GROUND_Y - ob.y);
-        ctx.fillRect(ob.x + ob.w - 7, ob.y, 2, GROUND_Y - ob.y);
-        ctx.fillStyle = "#aaa";
-        ctx.fillRect(ob.x, ob.y, ob.w, 1);
-      } else if (ob.type === "combo") {
-        /* Hydrant part */
-        ctx.fillStyle = "#ccc";
-        ctx.fillRect(ob.x + 3, ob.hy + 2, 8, 14);
-        ctx.fillStyle = "#999";
-        ctx.fillRect(ob.x + 1, ob.hy + 5, 12, 4);
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(ob.x + 4, ob.hy, 6, 3);
-        /* Rail part */
-        var rx = ob.x + 30;
-        ctx.fillStyle = "#888";
-        ctx.fillRect(rx, ob.ry, ob.rw, 3);
-        ctx.fillRect(rx + 5, ob.ry, 2, GROUND_Y - ob.ry);
-        ctx.fillRect(rx + ob.rw - 7, ob.ry, 2, GROUND_Y - ob.ry);
-        ctx.fillStyle = "#aaa";
-        ctx.fillRect(rx, ob.ry, ob.rw, 1);
-      }
-    }
-
-    /* Ã¢ÂÂÃ¢ÂÂ Game logic Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-    function jump() {
-      if (!running || !onGround) return;
-      skaterVY = JUMP_FORCE;
-      onGround = false;
-      grinding = false;
-    }
-
-    function addPoints(pts, x, y) {
-      score += pts;
-      floatingTexts.push({ text: "+" + pts, x: x, y: y, life: 40 });
-      scoreEl.textContent = score + " / " + winScore + " PTS";
-      if (score >= winScore) {
-        running = false;
-        cancelAnimationFrame(animId);
-        trackEvent(popup.id, "win", { score: score });
-        setTimeout(showVictory, 400);
-      }
-    }
-
-    function spawnObstacle() {
-      var r = Math.random();
-      if (r < 0.4) {
-        obstacles.push({ type: "hydrant", x: 320, y: GROUND_Y - 18, w: 14, h: 18, scored: false });
-      } else if (r < 0.75) {
-        obstacles.push({ type: "rail", x: 320, y: GROUND_Y - 20, w: 70, h: 3, scored: false });
-      } else {
-        obstacles.push({ type: "combo", x: 320, hy: GROUND_Y - 18, ry: GROUND_Y - 22, rw: 60, w: 90, scored: false });
-      }
-    }
-
-    function gameLoop() {
-      if (!running) return;
-      frameCount++;
-      groundOffset += speed;
-
-      /* Gravity */
-      if (!onGround && !grinding) {
-        skaterVY += GRAVITY;
-        skaterY += skaterVY;
-        if (skaterY >= GROUND_Y - SKATER_H) {
-          skaterY = GROUND_Y - SKATER_H;
-          skaterVY = 0;
-          onGround = true;
-        }
-      }
-
-      /* Spawn */
-      spawnTimer++;
-      if (spawnTimer >= 80) {
-        spawnTimer = 0;
-        spawnObstacle();
-      }
-
-      /* Move & collide */
-      for (var i = obstacles.length - 1; i >= 0; i--) {
-        var ob = obstacles[i];
-        ob.x -= speed;
-        if (ob.x + (ob.w || 60) < -10) { obstacles.splice(i, 1); continue; }
-
-        if (ob.type === "hydrant") {
-          if (!ob.scored && SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + 14) {
-            if (skaterY + SKATER_H <= ob.y + 4) {
-              ob.scored = true;
-              addPoints(50, ob.x, ob.y - 10);
-            } else if (skaterY + SKATER_H > ob.y + 2 && onGround) {
-              gameOver();
-              return;
+      var spinInterval = setInterval(function () {
+        for (var cc = 1; cc <= 3; cc++) {
+          for (var rr = 1; rr <= 3; rr++) {
+            var cell = getCell(cc, rr);
+            if (cell && cell.classList.contains('spinning')) {
+              cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
             }
           }
-        } else if (ob.type === "rail") {
-          var railTop = ob.y;
-          if (SKATER_X + SKATER_W > ob.x + 5 && SKATER_X < ob.x + ob.w - 5) {
-            if (!onGround && skaterVY > 0 && skaterY + SKATER_H >= railTop - 2 && skaterY + SKATER_H <= railTop + 6) {
-              skaterY = railTop - SKATER_H;
-              skaterVY = 0;
-              grinding = true;
-              onGround = false;
-              if (!ob.scored) { ob.scored = true; addPoints(100, ob.x + 20, ob.y - 15); }
-            }
-            if (grinding && SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + ob.w) {
-              skaterY = railTop - SKATER_H;
-            }
-          }
-          if (grinding && SKATER_X > ob.x + ob.w) { grinding = false; }
-        } else if (ob.type === "combo") {
-          /* Hydrant collision */
-          if (SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + 14) {
-            if (skaterY + SKATER_H > ob.hy + 2 && onGround) { gameOver(); return; }
-          }
-          /* Rail part */
-          var rx = ob.x + 30;
-          if (SKATER_X + SKATER_W > rx + 5 && SKATER_X < rx + ob.rw - 5) {
-            if (!onGround && !grinding && skaterVY > 0 && skaterY + SKATER_H >= ob.ry - 2 && skaterY + SKATER_H <= ob.ry + 6) {
-              skaterY = ob.ry - SKATER_H;
-              skaterVY = 0;
-              grinding = true;
-              onGround = false;
-              if (!ob.scored) { ob.scored = true; addPoints(150, rx + 20, ob.ry - 15); }
-            }
-            if (grinding) skaterY = ob.ry - SKATER_H;
-          }
-          if (grinding && SKATER_X > rx + ob.rw) { grinding = false; }
         }
-      }
+      }, 80);
 
-      drawFrame();
-      animId = requestAnimationFrame(gameLoop);
-    }
+      var isWin = slotAttempt === 3;
 
-    function startRun() {
-      if (running) return;
-      running = true;
-      score = 0;
-      speed = 3;
-      obstacles = [];
-      spawnTimer = 0;
-      floatingTexts = [];
-      frameCount = 0;
-      skaterY = GROUND_Y - SKATER_H;
-      skaterVY = 0;
-      onGround = true;
-      grinding = false;
-      groundOffset = 0;
-      scoreEl.textContent = "0 / " + winScore + " PTS";
-      startBtn.disabled = true;
-      victoryOverlay.classList.remove("active");
-      trackEvent(popup.id, "play");
-      gameLoop();
-    }
+      // Stop column 1 after 800ms
+      setTimeout(function () {
+        for (var rr = 1; rr <= 3; rr++) {
+          var cell = getCell(1, rr);
+          if (cell) {
+            cell.classList.remove('spinning');
+            cell.textContent = (rr === 2 && isWin) ? winEmoji : (rr === 2 ? emojis[Math.floor(Math.random() * 2)] : emojis[Math.floor(Math.random() * emojis.length)]);
+          }
+        }
+      }, 800);
 
-    function gameOver() {
-      running = false;
-      cancelAnimationFrame(animId);
-      if (ctx) {
-        ctx.fillStyle = "rgba(255,0,0,.2)";
-        ctx.fillRect(0, 0, W, H);
-      }
-      startBtn.disabled = false;
-      startBtn.textContent = "TENTAR DE NOVO";
-    }
+      // Stop column 2 after 1400ms
+      setTimeout(function () {
+        for (var rr = 1; rr <= 3; rr++) {
+          var cell = getCell(2, rr);
+          if (cell) {
+            cell.classList.remove('spinning');
+            cell.textContent = (rr === 2 && isWin) ? winEmoji : emojis[Math.floor(Math.random() * emojis.length)];
+          }
+        }
+      }, 1400);
 
-    function showVictory() {
-      box.querySelector("[data-skate-final-score]").textContent = score;
-      victoryOverlay.classList.add("active");
-      startBtn.disabled = false;
-      startBtn.textContent = "JOGAR DE NOVO";
-    }
+      // Stop column 3 after 2000ms — resolve win/loss
+      setTimeout(function () {
+        clearInterval(spinInterval);
+        for (var rr = 1; rr <= 3; rr++) {
+          var cell = getCell(3, rr);
+          if (cell) {
+            cell.classList.remove('spinning');
+            if (rr === 2) {
+              if (isWin) {
+                cell.textContent = winEmoji;
+              } else {
+                // Ensure payline does NOT match (force loss)
+                var p1 = getCell(1, 2).textContent;
+                var p2 = getCell(2, 2).textContent;
+                if (p1 === p2) {
+                  cell.textContent = emojis.filter(function (e) { return e !== p1; })[0] || emojis[0];
+                } else {
+                  cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                }
+              }
+            } else {
+              cell.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            }
+          }
+        }
 
-    function initGame() {
-      skaterY = GROUND_Y - SKATER_H;
-      obstacles = [];
-      score = 0;
-      speed = 3;
-      spawnTimer = 0;
-      skaterVY = 0;
-      onGround = true;
-      grinding = false;
-      groundOffset = 0;
-      floatingTexts = [];
-      frameCount = 0;
-      scoreEl.textContent = "0 / " + winScore + " PTS";
-      drawFrame();
-    }
+        slotSpinning = false;
 
-    /* Ã¢ÂÂÃ¢ÂÂ Event handlers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-    /* Close */
-    var closeFn = function() {
-      running = false;
-      cancelAnimationFrame(animId);
-      trackEvent(popup.id, "close");
-      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
-      document.removeEventListener("keydown", keyHandler);
-    };
-    backdrop.addEventListener("click", closeFn);
-    box.querySelector("[data-pus-close]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      closeFn();
-    });
-
-    /* Tap/click to jump */
-    box.querySelector("[data-skate-tap]").addEventListener("click", function() {
-      jump();
-    });
-
-    /* Keyboard */
-    var keyHandler = function(e) {
-      if (e.code === "Space" || e.key === " " || e.code === "ArrowUp" || e.key === "ArrowUp") {
-        e.preventDefault();
-        jump();
-      }
-    };
-    document.addEventListener("keydown", keyHandler);
-
-    /* Start button */
-    startBtn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      startRun();
-    });
-
-    /* Unlock */
-    box.querySelector("[data-skate-unlock]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      var email = (emailInput.value || "").trim();
-      if (!email || email.indexOf("@") === -1) {
-        emailInput.style.borderColor = "#ef4444";
-        return;
-      }
-      var btn = box.querySelector("[data-skate-unlock]");
-      btn.disabled = true;
-      btn.textContent = "...";
-      var name = (nameInput.value || "").trim();
-      var phone = (phoneInput.value || "").trim();
-      submitLead(popup.id, email, name, phone, prize, coupon, function(ok) {
-        unlocked = true;
-        lockOverlay.classList.add("hidden");
-        startBtn.disabled = false;
-        initGame();
-      });
-    });
-
-    /* Copy coupon */
-    box.querySelector("[data-skate-copy]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      copyText(coupon, this);
-    });
-
-    /* Replay from victory */
-    box.querySelector("[data-skate-replay]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      victoryOverlay.classList.remove("active");
-      startRun();
-    });
-
-    /* Initial draw */
-    initGame();
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Utilities Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function escHtml(s) {
-    var d = document.createElement("div");
-    d.appendChild(document.createTextNode(s));
-    return d.innerHTML;
-  }
-
-  function copyText(text, btn) {
-    var done = function() {
-      if (btn) {
-        var orig = btn.textContent;
-        btn.textContent = "Copiado!";
-        setTimeout(function() { btn.textContent = orig; }, 1500);
-      }
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done).catch(function() {
-        fallbackCopy(text);
-        done();
-      });
-    } else {
-      fallbackCopy(text);
-      done();
-    }
-  }
-
-  function fallbackCopy(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); } catch (e) {}
-    document.body.removeChild(ta);
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Boot Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function boot() {
-    var storeId = getStoreId();
-    if (!storeId) return;
-
-    injectStyles();
-
-    fetchConfig(storeId, function(data) {
-      if (!data || !data.popups || !data.popups.length) return;
-
-      for (var i = 0; i < data.popups.length; i++) {
-        var popup = data.popups[i];
-        if (!popup || !popup.id) continue;
-        if (wasShownRecently(popup.id)) continue;
-
-        if (popup.game_type === "skate_grind") {
-          showSkatePopup(popup);
-        } else if (popup.game_type === "slot_machine") {
-                      showSlotMachinePopup(popup);
+        if (isWin) {
+          // Winner! Highlight payline cells
+          for (var cc = 1; cc <= 3; cc++) {
+            getCell(cc, 2).classList.add('winner');
+          }
+          playBtn.textContent = '🎉 JACKPOT!';
+          playBtn.disabled = true;
+          trackEvent('win', popup.id, { prize: prize });
+          setTimeout(function () { showVictory(); }, 800);
         } else {
-          showGenericPopup(popup);
+          playBtn.disabled = false;
+          playBtn.textContent = '🎰 JOGAR (' + (3 - slotAttempt) + ')';
+          trackEvent('lose', popup.id, { attempt: slotAttempt });
         }
-        break; // Show one popup at a time
-      }
-    });
-  }
-
-  /* Wait for DOM */
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-
-})();
-(function() {
-  "use strict";
-
-  var API_BASE = "https://popup-studio.vercel.app";
-  var STORAGE_KEY = "pus_shown_";
-  var STORAGE_TTL = 86400000; // 24h
-
-  /* Ã¢ÂÂÃ¢ÂÂ Helpers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function getStoreId() {
-    // Try LS object first (Nuvemshop global)
-    if (typeof LS !== "undefined" && LS && LS.store && LS.store.id) {
-      return String(LS.store.id);
+      }, 2000);
     }
-    var scripts = document.getElementsByTagName("script");
-    for (var i = 0; i < scripts.length; i++) {
-      var src = scripts[i].getAttribute("src") || "";
-      if (src.indexOf("popup-studio") !== -1 || src.indexOf("loader.js") !== -1 || src.indexOf("apps-scripts") !== -1) {
-        var match = src.match(/[?&]store_id=([^&]+)/);
-        if (match) return match[1];
-        // Nuvemshop uses "store" param (without underscore)
-        var match2 = src.match(/[?&]store=([^&]+)/);
-        if (match2) return match2[1];
-        var id = scripts[i].getAttribute("data-store-id");
-        if (id) return id;
+
+    playBtn.addEventListener('click', pullLever);
+    lever.addEventListener('click', pullLever);
+
+    // ── Victory overlay with confetti ──
+    function showVictory() {
+      var colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c', '#ec4899'];
+      for (var i = 0; i < 40; i++) {
+        var conf = document.createElement('div');
+        conf.className = 'pus-slot-confetti';
+        conf.style.left = Math.random() * 100 + '%';
+        conf.style.top = '-10px';
+        conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.animationDelay = (Math.random() * 0.8) + 's';
+        conf.style.animationDuration = (1 + Math.random() * 1) + 's';
+        conf.style.width = (4 + Math.random() * 6) + 'px';
+        conf.style.height = (4 + Math.random() * 6) + 'px';
+        machine.appendChild(conf);
       }
+      var victory = document.createElement('div');
+      victory.className = 'pus-slot-victory';
+      victory.innerHTML =
+        '<div class="pus-slot-victory-emoji">' + winEmoji + '</div>' +
+        '<div class="pus-slot-victory-text">JACKPOT!</div>' +
+        '<div class="pus-slot-victory-sub">Seu cupom de desconto:</div>' +
+        '<div class="pus-slot-coupon-box" id="pus-coupon-code">' + esc(prize) + '</div>' +
+        '<button class="pus-slot-play-btn pus-slot-copy-btn" style="margin-top:12px;width:auto;padding:10px 24px;font-size:12px;letter-spacing:1px;" id="pus-copy-btn">' +
+        '🎉 USAR MEU CUPOM AGORA</button>' +
+        '<div id="pus-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
+      machine.appendChild(victory);
+
+      // Copy coupon
+      victory.querySelector('#pus-copy-btn').addEventListener('click', function () {
+        try {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(prize);
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = prize;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+          }
+          var fb = victory.querySelector('#pus-copy-feedback');
+          fb.style.opacity = '1';
+          setTimeout(function () { fb.style.opacity = '0'; }, 3000);
+        } catch (e) {}
+      });
     }
-    return null;
   }
 
-  function wasShownRecently(popupId) {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY + popupId);
-      if (!raw) return false;
-      var ts = parseInt(raw, 10);
-      return (Date.now() - ts) < STORAGE_TTL;
-    } catch (e) { return false; }
-  }
-
-  function markShown(popupId) {
-    try { localStorage.setItem(STORAGE_KEY + popupId, String(Date.now())); } catch (e) {}
-  }
-
-  function trackEvent(popupId, eventType, data) {
-    try {
-      var body = { popup_id: popupId, event: eventType };
-      if (data) { for (var k in data) { if (data.hasOwnProperty(k)) body[k] = data[k]; } }
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", API_BASE + "/api/public/event", true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(JSON.stringify(body));
-    } catch (e) {}
-  }
-
-  function submitLead(popupId, email, name, phone, prize, coupon, cb) {
-    try {
-      var body = { popup_id: popupId, email: email, name: name || "", phone: phone || "", prize: prize || "", coupon: coupon || "" };
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", API_BASE + "/api/public/lead", true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && cb) cb(xhr.status >= 200 && xhr.status < 300);
-      };
-      xhr.send(JSON.stringify(body));
-    } catch (e) { if (cb) cb(false); }
-  }
-
-  function fetchConfig(storeId, cb) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", API_BASE + "/api/public/config?store_id=" + encodeURIComponent(storeId), true);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try { cb(JSON.parse(xhr.responseText)); } catch (e) { cb(null); }
-        } else { cb(null); }
-      }
-    };
-    xhr.send();
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Inject CSS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function injectStyles() {
-    var style = document.createElement("style");
-    style.id = "pus-styles";
-    style.textContent = [
-      /* Backdrop */
-      ".pus-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;animation:pusFadeIn .25s ease}",
-      "@keyframes pusFadeIn{from{opacity:0}to{opacity:1}}",
-      "@keyframes pusSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}",
-
-      /* Generic modal */
-      ".pus-modal{background:#1a1a2e;border-radius:14px;max-width:340px;width:100%;padding:32px 24px;text-align:center;position:relative;animation:pusSlideUp .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.6)}",
-      ".pus-modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:#888;font-size:22px;cursor:pointer;line-height:1;padding:4px}",
-      ".pus-modal-close:hover{color:#fff}",
-      ".pus-modal-emoji{font-size:40px;margin-bottom:10px}",
-      ".pus-modal-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}",
-      ".pus-modal-desc{font-size:13px;color:#aaa;margin-bottom:18px;line-height:1.4}",
-      ".pus-modal input[type=email],.pus-modal input[type=text],.pus-modal input[type=tel]{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:14px;margin-bottom:10px;box-sizing:border-box;outline:none}",
-      ".pus-modal input:focus{border-color:#7c5cfc}",
-      ".pus-modal-btn{width:100%;padding:12px;border-radius:8px;border:none;background:#7c5cfc;color:#fff;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}",
-      ".pus-modal-btn:hover{background:#9b7fff}",
-      ".pus-modal-btn:disabled{opacity:.5;cursor:not-allowed}",
-      ".pus-coupon-box{background:#111;border:1px dashed #555;border-radius:8px;padding:14px;margin-top:16px}",
-      ".pus-coupon-code{font-size:22px;font-weight:800;color:#fff;letter-spacing:3px;margin-bottom:6px}",
-      ".pus-coupon-copy{background:#333;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
-      ".pus-coupon-copy:hover{background:#555}",
-
-      /* Skate popup container */
-      ".skate-popup{background:linear-gradient(180deg,#111 0%,#0a0a0a 100%);border-radius:14px;max-width:340px;width:100%;position:relative;animation:pusSlideUp .3s ease;box-shadow:0 12px 48px rgba(0,0,0,.6);overflow:hidden}",
-      ".skate-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;color:#666;font-size:20px;cursor:pointer;z-index:5;line-height:1;padding:4px}",
-      ".skate-popup-close:hover{color:#fff}",
-
-      /* Header */
-      ".skate-popup-header{text-align:center;padding:22px 20px 14px}",
-      ".skate-popup-header .emoji{font-size:36px;margin-bottom:6px;display:block}",
-      ".skate-popup-header .title{font-size:18px;font-weight:800;color:#fff;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}",
-      ".skate-popup-header .subtitle{font-size:12px;color:#888;line-height:1.3}",
-
-      /* Canvas area */
-      ".skate-canvas-wrap{width:310px;height:170px;margin:0 auto;background:#0a0a0a;border-radius:10px;position:relative;cursor:pointer;overflow:hidden}",
-      ".skate-canvas-wrap canvas{display:block}",
-
-      /* Score */
-      ".skate-score{text-align:center;padding:8px 0 4px;font-size:14px;font-weight:700;color:#fff}",
-      ".skate-instruction{text-align:center;font-size:11px;color:#666;padding:0 0 6px}",
-
-      /* Start button */
-      ".skate-start-btn{display:block;width:calc(100% - 40px);margin:6px auto 14px;padding:12px;border-radius:8px;border:none;background:#fff;color:#111;font-size:14px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}",
-      ".skate-start-btn:hover{background:#ddd}",
-      ".skate-start-btn:disabled{opacity:.4;cursor:not-allowed}",
-
-      /* Lock overlay */
-      ".skate-lock-overlay{position:absolute;inset:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:24px;border-radius:14px}",
-      ".skate-lock-overlay.hidden{display:none}",
-      ".skate-lock-overlay .lock-icon{font-size:32px;margin-bottom:10px}",
-      ".skate-lock-overlay .lock-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center}",
-      ".skate-lock-overlay .lock-desc{font-size:12px;color:#888;margin-bottom:14px;text-align:center;line-height:1.3}",
-      ".skate-lock-overlay input{width:100%;max-width:260px;padding:10px 12px;border-radius:8px;border:1px solid #333;background:#111;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box;outline:none}",
-      ".skate-lock-overlay input:focus{border-color:#7c5cfc}",
-      ".skate-lock-overlay .unlock-btn{width:100%;max-width:260px;padding:11px;border-radius:8px;border:none;background:#fff;color:#111;font-size:13px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;margin-top:4px}",
-      ".skate-lock-overlay .unlock-btn:hover{background:#ddd}",
-      ".skate-lock-overlay .unlock-btn:disabled{opacity:.5;cursor:not-allowed}",
-
-      /* Victory overlay */
-      ".skate-victory{position:absolute;inset:0;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:12;padding:24px;border-radius:14px;text-align:center}",
-      ".skate-victory.active{display:flex}",
-      ".skate-victory .trophy{font-size:42px;margin-bottom:8px}",
-      ".skate-victory .vtitle{font-size:18px;font-weight:800;color:#fff;letter-spacing:2px;margin-bottom:4px}",
-      ".skate-victory .vscore{font-size:13px;color:#aaa;margin-bottom:14px}",
-      ".skate-victory .vprize{font-size:15px;font-weight:700;color:#fff;margin-bottom:10px}",
-      ".skate-victory .coupon-box{background:#111;border:1px dashed #555;border-radius:8px;padding:14px 20px;margin-bottom:12px}",
-      ".skate-victory .coupon-code{font-size:22px;font-weight:800;color:#fff;letter-spacing:3px;margin-bottom:6px}",
-      ".skate-victory .coupon-copy{background:#333;border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600}",
-      ".skate-victory .coupon-copy:hover{background:#555}",
-      ".skate-victory .vplay-again{background:none;border:1px solid #444;color:#aaa;padding:8px 20px;border-radius:8px;font-size:12px;cursor:pointer;margin-top:4px}",
-      ".skate-victory .vplay-again:hover{border-color:#888;color:#fff}"
-    ].join("\n");
-    document.head.appendChild(style);
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Generic Popup (email form + coupon) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
+  // ═══════════════════════════════════════════════════════════
+  // GENERIC POPUP — Email capture simples
+  // ═══════════════════════════════════════════════════════════
   function showGenericPopup(popup) {
     var cfg = popup.config || {};
-    var title = cfg.title || "Oferta Especial";
-    var desc = cfg.description || cfg.subtitle || "Cadastre-se e ganhe um desconto!";
-    var btnText = cfg.btn_text || "PARTICIPAR";
-    var emoji = cfg.emoji || "Ã°ÂÂÂ";
-    var prize = cfg.prize || "10% OFF";
-    var coupon = cfg.coupon || "PROMO10";
+    var title    = cfg.title    || 'Ganhe um cupom!';
+    var subtitle = cfg.description || cfg.subtitle || 'Deixe seu e-mail para jogar.';
+    var btn      = cfg.button_text || cfg.btn_text || 'Jogar agora';
+    var prize    = cfg.prize    || '10% OFF';
 
-    var backdrop = document.createElement("div");
-    backdrop.className = "pus-backdrop";
-    backdrop.setAttribute("data-pus-popup", popup.id);
+    // Inject generic CSS
+    if (!document.getElementById('pus-generic-css')) {
+      var css = document.createElement('style');
+      css.id = 'pus-generic-css';
+      css.textContent = '\
+.pus-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999998;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s ease}\
+.pus-backdrop.open{opacity:1}\
+.pus-modal{background:#fff;border-radius:14px;max-width:420px;width:92%;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(10px) scale(.98);transition:transform .25s ease}\
+.pus-backdrop.open .pus-modal{transform:translateY(0) scale(1)}\
+.pus-close{position:absolute;top:10px;right:12px;background:transparent;border:0;font-size:22px;cursor:pointer;color:#888}\
+.pus-title{font-size:22px;font-weight:700;margin:0 0 6px;color:#111}\
+.pus-sub{font-size:14px;color:#555;margin:0 0 16px}\
+.pus-input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:10px;box-sizing:border-box}\
+.pus-btn{width:100%;padding:13px;border-radius:8px;border:0;background:#111;color:#fff;font-weight:600;cursor:pointer;font-size:15px}\
+.pus-btn:hover{opacity:.9}\
+.pus-result{text-align:center;padding:20px 0}\
+.pus-prize{font-size:24px;font-weight:800;color:#d97706;margin:8px 0}\
+.pus-coupon{display:inline-block;padding:8px 14px;background:#fef3c7;border:2px dashed #d97706;border-radius:6px;font-family:monospace;font-weight:700;color:#92400e;margin:10px 0}\
+';
+      document.documentElement.appendChild(css);
+    }
 
-    var modal = document.createElement("div");
-    modal.className = "pus-modal";
-    modal.innerHTML = [
-      '<button class="pus-modal-close" data-pus-close>&times;</button>',
-      '<div class="pus-modal-emoji">' + emoji + '</div>',
-      '<div class="pus-modal-title">' + escHtml(title) + '</div>',
-      '<div class="pus-modal-desc">' + escHtml(desc) + '</div>',
-      '<div class="pus-generic-form">',
-        '<input type="email" placeholder="Seu e-mail" data-pus-email>',
-        '<button class="pus-modal-btn" data-pus-submit>' + escHtml(btnText) + '</button>',
-      '</div>',
-      '<div class="pus-generic-success" style="display:none">',
-        '<div class="pus-modal-title" style="margin-bottom:8px">Parab&eacute;ns!</div>',
-        '<div class="pus-modal-desc">Voc&ecirc; ganhou ' + escHtml(prize) + '</div>',
-        '<div class="pus-coupon-box">',
-          '<div class="pus-coupon-code" data-pus-coupon-val>' + escHtml(coupon) + '</div>',
-          '<button class="pus-coupon-copy" data-pus-copy>Copiar</button>',
-        '</div>',
-      '</div>'
-    ].join("");
+    var back = document.createElement('div');
+    back.className = 'pus-backdrop';
+    back.innerHTML =
+      '<div class="pus-modal" role="dialog" aria-modal="true">' +
+        '<button class="pus-close" aria-label="Fechar">×</button>' +
+        '<h3 class="pus-title">' + esc(title) + '</h3>' +
+        '<p class="pus-sub">' + esc(subtitle) + '</p>' +
+        '<form class="pus-form">' +
+          '<input class="pus-input" type="email" placeholder="seu@email.com" required>' +
+          '<button type="submit" class="pus-btn">' + esc(btn) + '</button>' +
+        '</form>' +
+      '</div>';
+    document.body.appendChild(back);
+    requestAnimationFrame(function () { back.classList.add('open'); });
 
-    modal.addEventListener("click", function(e) { e.stopPropagation(); });
-    backdrop.appendChild(modal);
-    document.body.appendChild(backdrop);
+    trackEvent('impression', popup.id);
 
-    trackEvent(popup.id, "impression");
-    markShown(popup.id);
+    function close() {
+      trackEvent('close', popup.id);
+      back.classList.remove('open');
+      setTimeout(function () { back.remove(); }, 250);
+      try { localStorage.setItem('pus_shown_' + popup.id, String(Date.now())); } catch (e) {}
+    }
+    back.querySelector('.pus-close').addEventListener('click', close);
+    back.addEventListener('click', function (e) { if (e.target === back) close(); });
 
-    /* Close */
-    var closeFn = function() {
-      trackEvent(popup.id, "close");
-      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
-    };
-    backdrop.addEventListener("click", closeFn);
-    modal.querySelector("[data-pus-close]").addEventListener("click", closeFn);
-
-    /* Submit */
-    modal.querySelector("[data-pus-submit]").addEventListener("click", function() {
-      var emailInput = modal.querySelector("[data-pus-email]");
-      var email = (emailInput.value || "").trim();
-      if (!email || email.indexOf("@") === -1) { emailInput.style.borderColor = "#ef4444"; return; }
-      var btn = modal.querySelector("[data-pus-submit]");
-      btn.disabled = true; btn.textContent = "...";
-      submitLead(popup.id, email, "", "", prize, coupon, function() {
-        modal.querySelector(".pus-generic-form").style.display = "none";
-        modal.querySelector(".pus-generic-success").style.display = "block";
-        trackEvent(popup.id, "win", { email: email });
-      });
-    });
-
-    /* Copy coupon */
-    modal.querySelector("[data-pus-copy]").addEventListener("click", function() {
-      copyText(coupon, this);
+    back.querySelector('.pus-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = back.querySelector('input[type=email]').value.trim();
+      if (!email) return;
+      trackEvent('play', popup.id);
+      submitLead(popup.id, { email: email, prize: prize });
+      trackEvent('win', popup.id, { prize: prize });
+      back.querySelector('.pus-modal').innerHTML =
+        '<button class="pus-close" aria-label="Fechar">×</button>' +
+        '<div class="pus-result">' +
+          '<div style="font-size:40px">🎉</div>' +
+          '<div class="pus-prize">' + esc(prize) + '</div>' +
+          '<p>Use o cupom:</p>' +
+          '<div class="pus-coupon">' + esc(prize) + '</div>' +
+          '<p style="font-size:12px;color:#666">Enviamos também para seu e-mail.</p>' +
+        '</div>';
+      back.querySelector('.pus-close').addEventListener('click', close);
     });
   }
 
-  /* Ã¢ÂÂÃ¢ÂÂ Skate Grind Popup Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function showSkatePopup(popup) {
-    var cfg = popup.config || {};
-    var title = cfg.title || "SKATE GRIND";
-    var subtitle = cfg.description || cfg.subtitle || "Pule obstÃÂ¡culos e ganhe descontos!";
-    var btnText = cfg.btn_text || "DESBLOQUEAR";
-    var prize = cfg.prize || "10% OFF";
-    var coupon = cfg.coupon || "SKATE10";
-    var emoji = cfg.emoji || "Ã°ÂÂÂ¹"; // fallback
-    var winScore = parseInt(cfg.win_score, 10) || 800;
-
-    /* Game state */
-    var GRAVITY = 0.5;
-    var JUMP_FORCE = -9;
-    var GROUND_Y = 140;
-    var SKATER_W = 20, SKATER_H = 26, SKATER_X = 40;
-    var W = 310, H = 170;
-
-    var running = false;
-    var unlocked = false;
-    var score = 0;
-    var speed = 3;
-    var animId = null;
-    var skaterY = GROUND_Y - SKATER_H;
-    var skaterVY = 0;
-    var onGround = true;
-    var grinding = false;
-    var obstacles = [];
-    var spawnTimer = 0;
-    var groundOffset = 0;
-    var floatingTexts = [];
-    var frameCount = 0;
-    var canvas, ctx;
-
-    /* Build DOM */
-    var backdrop = document.createElement("div");
-    backdrop.className = "pus-backdrop";
-    backdrop.setAttribute("data-pus-popup", popup.id);
-
-    var box = document.createElement("div");
-    box.className = "skate-popup";
-
-    var isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    var instrText = isMobile ? "Ã°ÂÂÂ Clique na tela para pular" : "Ã¢ÂÂ¨Ã¯Â¸Â Aperte EspaÃÂ§o para pular";
-
-    box.innerHTML = [
-      '<button class="skate-popup-close" data-pus-close>&times;</button>',
-
-      /* Header */
-      '<div class="skate-popup-header">',
-        '<span class="emoji">' + emoji + '</span>',
-        '<div class="title">' + escHtml(title) + '</div>',
-        '<div class="subtitle">' + escHtml(subtitle) + '</div>',
-      '</div>',
-
-      /* Canvas */
-      '<div class="skate-canvas-wrap" data-skate-tap>',
-        '<canvas width="310" height="170" data-skate-canvas></canvas>',
-      '</div>',
-
-      /* Score + instruction */
-      '<div class="skate-score">Score: <span data-skate-score>0 / ' + winScore + '</span></div>',
-      '<div class="skate-instruction">' + instrText + '</div>',
-
-      /* Start button */
-      '<button class="skate-start-btn" data-skate-start disabled>INICIAR</button>',
-
-      /* Lock overlay */
-      '<div class="skate-lock-overlay" data-skate-lock>',
-        '<div class="lock-icon">Ã°ÂÂÂ</div>',
-        '<div class="lock-title">Cadastre-se para jogar</div>',
-        '<div class="lock-desc">Insira seus dados para desbloquear o jogo e concorrer a ' + escHtml(prize) + '</div>',
-        '<input type="email" placeholder="Seu e-mail *" data-skate-email>',
-        '<input type="text" placeholder="Seu nome" data-skate-name>',
-        '<input type="tel" placeholder="Telefone" data-skate-phone>',
-        '<button class="unlock-btn" data-skate-unlock>' + escHtml(btnText) + '</button>',
-      '</div>',
-
-      /* Victory overlay */
-      '<div class="skate-victory" data-skate-victory>',
-        '<div class="trophy">Ã°ÂÂÂ</div>',
-        '<div class="vtitle">PARABÃÂNS!</div>',
-        '<div class="vscore">PontuaÃÂ§ÃÂ£o: <span data-skate-final-score>0</span></div>',
-        '<div class="vprize">' + escHtml(prize) + '</div>',
-        '<div class="coupon-box">',
-          '<div class="coupon-code" data-skate-coupon-val>' + escHtml(coupon) + '</div>',
-          '<button class="coupon-copy" data-skate-copy>Copiar</button>',
-        '</div>',
-        '<button class="vplay-again" data-skate-replay>Jogar de novo</button>',
-      '</div>'
-    ].join("");
-
-    box.addEventListener("click", function(e) { e.stopPropagation(); });
-    backdrop.appendChild(box);
-    document.body.appendChild(backdrop);
-
-    /* Refs */
-    canvas = box.querySelector("[data-skate-canvas]");
-    ctx = canvas.getContext("2d");
-    var scoreEl = box.querySelector("[data-skate-score]");
-    var startBtn = box.querySelector("[data-skate-start]");
-    var lockOverlay = box.querySelector("[data-skate-lock]");
-    var victoryOverlay = box.querySelector("[data-skate-victory]");
-    var emailInput = box.querySelector("[data-skate-email]");
-    var nameInput = box.querySelector("[data-skate-name]");
-    var phoneInput = box.querySelector("[data-skate-phone]");
-
-    trackEvent(popup.id, "impression");
-    markShown(popup.id);
-
-    /* Ã¢ÂÂÃ¢ÂÂ Drawing Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-    function drawFrame() {
-      /* Sky */
-      var grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, "#1a1a1a");
-      grad.addColorStop(1, "#0a0a0a");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      /* City silhouette (parallax) */
-      ctx.fillStyle = "#1a1a1a";
-      var blds = [25, 40, 30, 55, 35, 45, 28, 42, 32, 60, 25, 38, 22];
-      for (var i = 0; i < blds.length; i++) {
-        var bx = i * 26 - (groundOffset * 0.2) % 26;
-        ctx.fillRect(bx, GROUND_Y - blds[i], 22, blds[i]);
-        ctx.fillStyle = "#333";
-        for (var wy = GROUND_Y - blds[i] + 6; wy < GROUND_Y - 4; wy += 8) {
-          ctx.fillRect(bx + 4, wy, 3, 3);
-          ctx.fillRect(bx + 12, wy, 3, 3);
-        }
-        ctx.fillStyle = "#1a1a1a";
-      }
-
-      /* Ground line */
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, GROUND_Y, W, 1);
-      ctx.fillStyle = "#333";
-      for (var x = -(groundOffset % 20); x < W; x += 20) {
-        ctx.fillRect(x, GROUND_Y + 3, 10, 1);
-      }
-
-      /* Obstacles */
-      for (var i = 0; i < obstacles.length; i++) {
-        drawObstacle(obstacles[i]);
-      }
-
-      /* Skater */
-      drawSkater(SKATER_X, skaterY);
-
-      /* Floating score texts */
-      ctx.font = "bold 12px sans-serif";
-      for (var i = floatingTexts.length - 1; i >= 0; i--) {
-        var ft = floatingTexts[i];
-        ft.y -= 1.2;
-        ft.life--;
-        ctx.fillStyle = "rgba(255,255,255," + (ft.life / 40) + ")";
-        ctx.fillText(ft.text, ft.x, ft.y);
-        if (ft.life <= 0) floatingTexts.splice(i, 1);
-      }
-
-      /* HUD */
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 11px sans-serif";
-      ctx.fillText(score + " / " + winScore + " PTS", 210, 14);
-
-      /* Progress bar */
-      var prog = Math.min(score / winScore, 1);
-      ctx.fillStyle = "#333";
-      ctx.fillRect(210, 18, 90, 4);
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(210, 18, 90 * prog, 4);
-    }
-
-    function drawSkater(x, y) {
-      /* Head */
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(x + 6, y, 8, 8);
-      /* Cap */
-      ctx.fillStyle = "#888";
-      ctx.fillRect(x + 4, y - 2, 12, 3);
-      /* Body */
-      ctx.fillStyle = "#ddd";
-      ctx.fillRect(x + 6, y + 8, 8, 10);
-      /* Arms */
-      if (grinding) {
-        ctx.fillRect(x + 14, y + 8, 6, 3);
-        ctx.fillRect(x, y + 6, 6, 3);
-      } else {
-        ctx.fillRect(x + 2, y + 10, 4, 3);
-        ctx.fillRect(x + 14, y + 10, 4, 3);
-      }
-      /* Legs */
-      ctx.fillStyle = "#999";
-      ctx.fillRect(x + 5, y + 18, 4, 5);
-      ctx.fillRect(x + 11, y + 18, 4, 5);
-      /* Skateboard */
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(x, y + 23, 20, 2);
-      /* Wheels */
-      ctx.fillStyle = "#666";
-      ctx.fillRect(x + 1, y + 25, 3, 2);
-      ctx.fillRect(x + 16, y + 25, 3, 2);
-      /* Grind sparks */
-      if (grinding) {
-        ctx.fillStyle = "#fff";
-        for (var s = 0; s < 3; s++) {
-          var sx = x + 5 + Math.random() * 10;
-          var sy = y + 24 + Math.random() * 3;
-          ctx.fillRect(sx, sy, 2, 1);
-        }
-      }
-    }
-
-    function drawObstacle(ob) {
-      if (ob.type === "hydrant") {
-        ctx.fillStyle = "#ccc";
-        ctx.fillRect(ob.x + 3, ob.y + 2, 8, 14);
-        ctx.fillStyle = "#999";
-        ctx.fillRect(ob.x + 1, ob.y + 5, 12, 4);
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(ob.x + 4, ob.y, 6, 3);
-      } else if (ob.type === "rail") {
-        ctx.fillStyle = "#888";
-        ctx.fillRect(ob.x, ob.y, ob.w, 3);
-        ctx.fillRect(ob.x + 5, ob.y, 2, GROUND_Y - ob.y);
-        ctx.fillRect(ob.x + ob.w - 7, ob.y, 2, GROUND_Y - ob.y);
-        ctx.fillStyle = "#aaa";
-        ctx.fillRect(ob.x, ob.y, ob.w, 1);
-      } else if (ob.type === "combo") {
-        /* Hydrant part */
-        ctx.fillStyle = "#ccc";
-        ctx.fillRect(ob.x + 3, ob.hy + 2, 8, 14);
-        ctx.fillStyle = "#999";
-        ctx.fillRect(ob.x + 1, ob.hy + 5, 12, 4);
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(ob.x + 4, ob.hy, 6, 3);
-        /* Rail part */
-        var rx = ob.x + 30;
-        ctx.fillStyle = "#888";
-        ctx.fillRect(rx, ob.ry, ob.rw, 3);
-        ctx.fillRect(rx + 5, ob.ry, 2, GROUND_Y - ob.ry);
-        ctx.fillRect(rx + ob.rw - 7, ob.ry, 2, GROUND_Y - ob.ry);
-        ctx.fillStyle = "#aaa";
-        ctx.fillRect(rx, ob.ry, ob.rw, 1);
-      }
-    }
-
-    /* Ã¢ÂÂÃ¢ÂÂ Game logic Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-    function jump() {
-      if (!running || !onGround) return;
-      skaterVY = JUMP_FORCE;
-      onGround = false;
-      grinding = false;
-    }
-
-    function addPoints(pts, x, y) {
-      score += pts;
-      floatingTexts.push({ text: "+" + pts, x: x, y: y, life: 40 });
-      scoreEl.textContent = score + " / " + winScore;
-      if (score >= winScore) {
-        running = false;
-        cancelAnimationFrame(animId);
-        trackEvent(popup.id, "win", { score: score });
-        setTimeout(showVictory, 400);
-      }
-    }
-
-    function spawnObstacle() {
-      var r = Math.random();
-      if (r < 0.4) {
-        obstacles.push({ type: "hydrant", x: 320, y: GROUND_Y - 18, w: 14, h: 18, scored: false });
-      } else if (r < 0.75) {
-        obstacles.push({ type: "rail", x: 320, y: GROUND_Y - 20, w: 70, h: 3, scored: false });
-      } else {
-        obstacles.push({ type: "combo", x: 320, hy: GROUND_Y - 18, ry: GROUND_Y - 22, rw: 60, w: 90, scored: false });
-      }
-    }
-
-    function gameLoop() {
-      if (!running) return;
-      frameCount++;
-      groundOffset += speed;
-
-      /* Gravity */
-      if (!onGround && !grinding) {
-        skaterVY += GRAVITY;
-        skaterY += skaterVY;
-        if (skaterY >= GROUND_Y - SKATER_H) {
-          skaterY = GROUND_Y - SKATER_H;
-          skaterVY = 0;
-          onGround = true;
-        }
-      }
-
-      /* Spawn */
-      spawnTimer++;
-      if (spawnTimer >= 80) {
-        spawnTimer = 0;
-        spawnObstacle();
-      }
-
-      /* Move & collide */
-      for (var i = obstacles.length - 1; i >= 0; i--) {
-        var ob = obstacles[i];
-        ob.x -= speed;
-        if (ob.x + (ob.w || 60) < -10) { obstacles.splice(i, 1); continue; }
-
-        if (ob.type === "hydrant") {
-          if (!ob.scored && SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + 14) {
-            if (skaterY + SKATER_H <= ob.y + 4) {
-              ob.scored = true;
-              addPoints(50, ob.x, ob.y - 10);
-            } else if (skaterY + SKATER_H > ob.y + 2 && onGround) {
-              gameOver();
-              return;
-            }
-          }
-        } else if (ob.type === "rail") {
-          var railTop = ob.y;
-          if (SKATER_X + SKATER_W > ob.x + 5 && SKATER_X < ob.x + ob.w - 5) {
-            if (!onGround && skaterVY > 0 && skaterY + SKATER_H >= railTop - 2 && skaterY + SKATER_H <= railTop + 6) {
-              skaterY = railTop - SKATER_H;
-              skaterVY = 0;
-              grinding = true;
-              onGround = false;
-              if (!ob.scored) { ob.scored = true; addPoints(100, ob.x + 20, ob.y - 15); }
-            }
-            if (grinding && SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + ob.w) {
-              skaterY = railTop - SKATER_H;
-            }
-          }
-          if (grinding && SKATER_X > ob.x + ob.w) { grinding = false; }
-        } else if (ob.type === "combo") {
-          /* Hydrant collision */
-          if (SKATER_X + SKATER_W > ob.x && SKATER_X < ob.x + 14) {
-            if (skaterY + SKATER_H > ob.hy + 2 && onGround) { gameOver(); return; }
-          }
-          /* Rail part */
-          var rx = ob.x + 30;
-          if (SKATER_X + SKATER_W > rx + 5 && SKATER_X < rx + ob.rw - 5) {
-            if (!onGround && !grinding && skaterVY > 0 && skaterY + SKATER_H >= ob.ry - 2 && skaterY + SKATER_H <= ob.ry + 6) {
-              skaterY = ob.ry - SKATER_H;
-              skaterVY = 0;
-              grinding = true;
-              onGround = false;
-              if (!ob.scored) { ob.scored = true; addPoints(150, rx + 20, ob.ry - 15); }
-            }
-            if (grinding) skaterY = ob.ry - SKATER_H;
-          }
-          if (grinding && SKATER_X > rx + ob.rw) { grinding = false; }
-        }
-      }
-
-      drawFrame();
-      animId = requestAnimationFrame(gameLoop);
-    }
-
-    function startRun() {
-      if (running) return;
-      running = true;
-      score = 0;
-      speed = 3;
-      obstacles = [];
-      spawnTimer = 0;
-      floatingTexts = [];
-      frameCount = 0;
-      skaterY = GROUND_Y - SKATER_H;
-      skaterVY = 0;
-      onGround = true;
-      grinding = false;
-      groundOffset = 0;
-      scoreEl.textContent = "0 / " + winScore;
-      startBtn.disabled = true;
-      victoryOverlay.classList.remove("active");
-      trackEvent(popup.id, "play");
-      gameLoop();
-    }
-
-    function gameOver() {
-      running = false;
-      cancelAnimationFrame(animId);
-      if (ctx) {
-        ctx.fillStyle = "rgba(255,0,0,.2)";
-        ctx.fillRect(0, 0, W, H);
-      }
-      startBtn.disabled = false;
-      startBtn.textContent = "TENTAR DE NOVO";
-    }
-
-    function showVictory() {
-      box.querySelector("[data-skate-final-score]").textContent = score;
-      victoryOverlay.classList.add("active");
-      startBtn.disabled = false;
-      startBtn.textContent = "JOGAR DE NOVO";
-    }
-
-    function initGame() {
-      skaterY = GROUND_Y - SKATER_H;
-      obstacles = [];
-      score = 0;
-      speed = 3;
-      spawnTimer = 0;
-      skaterVY = 0;
-      onGround = true;
-      grinding = false;
-      groundOffset = 0;
-      floatingTexts = [];
-      frameCount = 0;
-      scoreEl.textContent = "0 / " + winScore;
-      drawFrame();
-    }
-
-    /* Ã¢ÂÂÃ¢ÂÂ Event handlers Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-    /* Close */
-    var closeFn = function() {
-      running = false;
-      cancelAnimationFrame(animId);
-      trackEvent(popup.id, "close");
-      if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
-      document.removeEventListener("keydown", keyHandler);
-    };
-    backdrop.addEventListener("click", closeFn);
-    box.querySelector("[data-pus-close]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      closeFn();
-    });
-
-    /* Tap/click to jump */
-    box.querySelector("[data-skate-tap]").addEventListener("click", function() {
-      jump();
-    });
-
-    /* Keyboard */
-    var keyHandler = function(e) {
-      if (e.code === "Space" || e.key === " " || e.code === "ArrowUp" || e.key === "ArrowUp") {
-        e.preventDefault();
-        jump();
-      }
-    };
-    document.addEventListener("keydown", keyHandler);
-
-    /* Start button */
-    startBtn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      startRun();
-    });
-
-    /* Unlock */
-    box.querySelector("[data-skate-unlock]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      var email = (emailInput.value || "").trim();
-      if (!email || email.indexOf("@") === -1) {
-        emailInput.style.borderColor = "#ef4444";
-        return;
-      }
-      var btn = box.querySelector("[data-skate-unlock]");
-      btn.disabled = true;
-      btn.textContent = "...";
-      var name = (nameInput.value || "").trim();
-      var phone = (phoneInput.value || "").trim();
-      submitLead(popup.id, email, name, phone, prize, coupon, function(ok) {
-        unlocked = true;
-        lockOverlay.classList.add("hidden");
-        startBtn.disabled = false;
-        initGame();
-      });
-    });
-
-    /* Copy coupon */
-    box.querySelector("[data-skate-copy]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      copyText(coupon, this);
-    });
-
-    /* Replay from victory */
-    box.querySelector("[data-skate-replay]").addEventListener("click", function(e) {
-      e.stopPropagation();
-      victoryOverlay.classList.remove("active");
-      startRun();
-    });
-
-    /* Initial draw */
-    initGame();
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Utilities Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
-  function escHtml(s) {
-    var d = document.createElement("div");
-    d.appendChild(document.createTextNode(s));
-    return d.innerHTML;
-  }
-
-  function copyText(text, btn) {
-    var done = function() {
-      if (btn) {
-        var orig = btn.textContent;
-        btn.textContent = "Copiado!";
-        setTimeout(function() { btn.textContent = orig; }, 1500);
-      }
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done).catch(function() {
-        fallbackCopy(text);
-        done();
-      });
-    } else {
-      fallbackCopy(text);
-      done();
-    }
-  }
-
-  function fallbackCopy(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); } catch (e) {}
-    document.body.removeChild(ta);
-  }
-
-  /* Ã¢ÂÂÃ¢ÂÂ Boot Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ */
-
+  // ═══════════════════════════════════════════════════════════
+  // BOOT — Fetch config and route to correct popup renderer
+  // ═══════════════════════════════════════════════════════════
   function boot() {
-    var storeId = getStoreId();
-    if (!storeId) return;
+    xhr('GET', API + '/api/public/config?store_id=' + encodeURIComponent(storeId), null, function (err, data) {
+      if (err || !data || !Array.isArray(data.popups) || data.popups.length === 0) return;
+      var list = data.popups.filter(shouldShow);
+      if (!list.length) return;
 
-    injectStyles();
-
-    fetchConfig(storeId, function(data) {
-      if (!data || !data.popups || !data.popups.length) return;
-
-      for (var i = 0; i < data.popups.length; i++) {
-        var popup = data.popups[i];
-        if (!popup || !popup.id) continue;
-        if (wasShownRecently(popup.id)) continue;
-
-        if (popup.game_type === "skate_grind") {
-          showSkatePopup(popup);
-        } else if (popup.game_type === "slot_machine") {
+      var popup = list[0];
+      setTimeout(function () {
+        if (popup.game_type === 'slot_machine') {
           showSlotMachinePopup(popup);
+        } else if (popup.game_type === 'skate_grind') {
+          // TODO: showSkatePopup(popup);
+          showGenericPopup(popup);
         } else {
           showGenericPopup(popup);
         }
-        break; // Show one popup at a time
-      }
+      }, 1500);
     });
   }
 
-  /* Wait for DOM */
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-
+  boot();
 })();
