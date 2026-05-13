@@ -6,6 +6,7 @@
 import { supabase } from '../../lib/supabase.js';
 import { setCors, handleOptions, readJson, requireStore, setCorsAuthenticated } from '../../lib/auth.js';
 import { setSecurityHeaders } from '../../lib/security.js';
+import { isValidEmail, isDisposableEmail, sanitize, isValidStoreId, isValidPhone, sanitizePayload } from '../../lib/validate.js';
 
 const ALLOWED_EVENTS = new Set(['impression', 'play', 'win', 'close', 'coupon_used']);
 
@@ -29,6 +30,17 @@ async function handleEvent(req, res, body) {
 async function handleLeadPost(req, res, body) {
   const { store_id, popup_id, email, phone, name, coupon, prize, payload } = body;
   if (!store_id) return res.status(400).json({ error: 'missing_store_id' });
+
+  // Validação de email
+  if (email && !isValidEmail(email)) {
+    return res.status(400).json({ error: 'invalid_email', message: 'Por favor, use um e-mail válido.' });
+  }
+  if (email && isDisposableEmail(email)) {
+    return res.status(400).json({ error: 'disposable_email', message: 'E-mails temporários não são aceitos.' });
+  }
+  if (!email && !phone) {
+    return res.status(400).json({ error: 'email_or_phone_required' });
+  }
 
   const { data, error } = await supabase
     .from('leads')
