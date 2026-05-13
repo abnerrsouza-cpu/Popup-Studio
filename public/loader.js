@@ -4,8 +4,8 @@
  * Responsabilidade: buscar a config dos pop-ups publicados e exibi-los na vitrine.
  */
 (function () {
-  if (window.__PopUpStudioLoaded) return;
-  window.__PopUpStudioLoaded = true;
+  if (window.__PopUpStudioLoaderRan) return;
+  window.__PopUpStudioLoaderRan = true;
 
   // ---- Descoberta do store_id ----
   var scriptEl = document.currentScript || (function () {
