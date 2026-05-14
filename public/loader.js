@@ -315,6 +315,12 @@
         back.querySelector('#pus-slot-email').style.borderColor = '#ef4444';
         return;
       }
+      var emailInputEl = back.querySelector("#pus-slot-email");
+      if (!isValidEmailClient(email)) {
+        showEmailError(emailInputEl, "Por favor, insira um e-mail v\u00e1lido.");
+        return;
+      }
+      clearEmailError(emailInputEl);
       var name  = back.querySelector('#pus-slot-name').value.trim();
       var phone = back.querySelector('#pus-slot-phone').value.trim();
 
