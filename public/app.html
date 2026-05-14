@@ -3087,7 +3087,7 @@ async function deleteLead(id, btnEl) {
   btnEl.disabled = true;
   btnEl.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div>';
   try {
-    await api('DELETE', '/api/leads/' + id);
+    await api('DELETE', '/api/me?lead_id=' + id);
     leadsData = leadsData.filter(l => l.id !== id);
     var row = document.getElementById('lead-row-' + id);
     if (row) { row.style.transition='opacity .3s,transform .3s'; row.style.opacity='0'; row.style.transform='translateX(20px)'; setTimeout(function(){row.remove();},300); }
