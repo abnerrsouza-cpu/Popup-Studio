@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       .select('store_id, status')
       .eq('store_id', storeId)
       .single();
-    if (storeErr || !store || store.status !== 'active') {
+    if (storeErr || !store || (store.status !== 'active' && store.status !== 'ativo')) {
           return res.status(200).json({ popups: [] }); // não expõe se a loja não existe
     }
 
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       .from('popups')
       .select('id, name, game_type, config')
       .eq('store_id', storeId)
-      .eq('status', 'published')
+      .in('status', ['published', 'publicado'])
       .order('published_at', { ascending: false });
 
   if (error) return res.status(500).json({ error: error.message });
