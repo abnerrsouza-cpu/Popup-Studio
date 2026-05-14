@@ -96,8 +96,8 @@ async function handleLeadGet(req, res) {
 
     return res.status(200).json({ leads: data || [] });
   } catch (e) {
-    console.error('[leads] Error:', e.message);
-    return res.status(500).json({ error: 'database_error' });
+    console.error('[leads] DB insert error:', e.message, e.details, e.hint);
+    return res.status(500).json({ error: 'database_error', detail: e.message });
   }
 }
 
