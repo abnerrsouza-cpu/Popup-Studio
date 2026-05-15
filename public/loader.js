@@ -75,6 +75,29 @@
     if (p) p.remove();
   }
 
+  // ---- Client-side Phone Validation ----
+  function isValidPhoneClient(ph) {
+    if (!ph) return false;
+    var digits = ph.replace(/\D/g, '');
+    return digits.length >= 10 && digits.length <= 15;
+  }
+
+  // ---- Generic Field Error (for name, phone) ----
+  function showFieldError(el, msg) {
+    clearFieldError(el);
+    el.style.borderColor = '#ef4444';
+    var d = document.createElement('div');
+    d.className = 'pus-field-error';
+    d.style.cssText = 'color:#ef4444;font-size:12px;margin:-6px 0 6px;';
+    d.textContent = msg;
+    if (el.parentNode) el.parentNode.insertBefore(d, el.nextSibling);
+  }
+  function clearFieldError(el) {
+    el.style.borderColor = '';
+    var wrap = el.parentNode;
+    if (wrap) { var p = wrap.querySelector('.pus-field-error'); if (p) p.remove(); }
+  }
+
 
   // ---- Regras de exibição (cooldown 24h por pop-up) ----
   function shouldShow(popup) {
@@ -259,7 +282,7 @@
               '<div class="pus-slot-lock-form">' +
                 '<div class="pus-slot-lock-input-wrap">' +
                   '<span class="pus-slot-lock-input-icon">👤</span>' +
-                  '<input class="pus-slot-lock-input" id="pus-slot-name" placeholder="Seu nome" type="text">' +
+                  '<input class="pus-slot-lock-input" id="pus-slot-name" placeholder="Seu nome *" type="text">' +
                 '</div>' +
                 '<div class="pus-slot-lock-input-wrap">' +
                   '<span class="pus-slot-lock-input-icon">✉️</span>' +
@@ -267,7 +290,7 @@
                 '</div>' +
                 '<div class="pus-slot-lock-input-wrap">' +
                   '<span class="pus-slot-lock-input-icon">📞</span>' +
-                  '<input class="pus-slot-lock-input" id="pus-slot-phone" placeholder="Seu telefone" type="tel">' +
+                  '<input class="pus-slot-lock-input" id="pus-slot-phone" placeholder="Seu telefone *" type="tel">' +
                 '</div>' +
                 '<div class="pus-slot-lock-subtitle">Cadastre-se para desbloquear o jogo e ganhar seu desconto!</div>' +
                 '<button class="pus-slot-lock-btn" id="pus-slot-unlock-btn">' + esc(btnText).toUpperCase() + '</button>' +
@@ -310,21 +333,31 @@
 
     // ── Unlock (registration) ──
     unlockBtn.addEventListener('click', function () {
-      var email = back.querySelector('#pus-slot-email').value.trim();
-      if (!email) {
-        back.querySelector('#pus-slot-email').style.borderColor = '#ef4444';
-        return;
-      }
-      var emailInputEl = back.querySelector("#pus-slot-email");
-      if (!isValidEmailClient(email)) {
-        showEmailError(emailInputEl, "Por favor, insira um e-mail v\u00e1lido.");
-        return;
-      }
-      clearEmailError(emailInputEl);
-      var name  = back.querySelector('#pus-slot-name').value.trim();
-      var phone = back.querySelector('#pus-slot-phone').value.trim();
+      var nameEl = back.querySelector('#pus-slot-name');
+      var emailEl = back.querySelector('#pus-slot-email');
+      var phoneEl = back.querySelector('#pus-slot-phone');
+      var nm = nameEl.value.trim();
+      var email = emailEl.value.trim();
+      var phone = phoneEl.value.trim();
+      var hasErr = false;
 
-      submitLead(popup.id, { email: email, name: name, phone: phone });
+      // Validate name
+      clearFieldError(nameEl);
+      if (!nm) { showFieldError(nameEl, 'Por favor, insira seu nome.'); hasErr = true; }
+
+      // Validate email
+      clearEmailError(emailEl);
+      if (!email) { showFieldError(emailEl, 'Por favor, insira seu e-mail.'); hasErr = true; }
+      else if (!isValidEmailClient(email)) { showEmailError(emailEl, 'Por favor, insira um e-mail v\u00e1lido.'); hasErr = true; }
+
+      // Validate phone
+      clearFieldError(phoneEl);
+      if (!phone) { showFieldError(phoneEl, 'Por favor, insira seu telefone.'); hasErr = true; }
+      else if (!isValidPhoneClient(phone)) { showFieldError(phoneEl, 'Telefone inv\u00e1lido. Use DDD + n\u00famero.'); hasErr = true; }
+
+      if (hasErr) return;
+
+      submitLead(popup.id, { email: email, name: nm, phone: phone });
       trackEvent('register', popup.id, { email: email });
 
       // Unlock machine
@@ -528,9 +561,11 @@
         '<h3 class="pus-title">' + esc(title) + '</h3>' +
         '<p class="pus-sub">' + esc(subtitle) + '</p>' +
         '<form class="pus-form">' +
-          '<input class="pus-input" type="email" placeholder="seu@email.com" required>' +
-          '<button type="submit" class="pus-btn">' + esc(btn) + '</button>' +
-        '</form>' +
+      '<input class="pus-input" type="text" placeholder="Seu nome *" id="pus-gen-name" required>' +
+      '<input class="pus-input" type="email" placeholder="Seu e-mail *" id="pus-gen-email" required>' +
+      '<input class="pus-input" type="tel" placeholder="Seu telefone *" id="pus-gen-phone" required>' +
+      '<button type="submit" class="pus-btn">' + esc(btn) + '</button>' +
+      '</form>' +
       '</div>';
     document.body.appendChild(back);
     requestAnimationFrame(function () { back.classList.add('open'); });
@@ -548,30 +583,41 @@
 
     back.querySelector('.pus-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      var email = back.querySelector('input[type=email]').value.trim();
-      if (!email) return;
-      var emailInput = form.querySelector('input[type=email]') || form.querySelector('.pus-input');
-      if (emailInput) clearEmailError(emailInput);
-      if (!isValidEmailClient(email)) {
-        if (emailInput) showEmailError(emailInput, 'Por favor, use um e-mail v\u00e1lido.');
-        return;
+      var nameEl = back.querySelector('#pus-gen-name');
+      var emailEl = back.querySelector('#pus-gen-email');
+      var phoneEl = back.querySelector('#pus-gen-phone');
+      var nm = nameEl ? nameEl.value.trim() : '';
+      var email = emailEl ? emailEl.value.trim() : '';
+      var phone = phoneEl ? phoneEl.value.trim() : '';
+      var hasErr = false;
+
+      // Validate name
+      if (nameEl) { clearFieldError(nameEl); if (!nm) { showFieldError(nameEl, 'Por favor, insira seu nome.'); hasErr = true; } }
+
+      // Validate email
+      if (emailEl) { clearEmailError(emailEl); clearFieldError(emailEl);
+        if (!email) { showFieldError(emailEl, 'Por favor, insira seu e-mail.'); hasErr = true; }
+        else if (!isValidEmailClient(email)) { showEmailError(emailEl, 'Por favor, use um e-mail v\u00e1lido.'); hasErr = true; }
       }
+
+      // Validate phone
+      if (phoneEl) { clearFieldError(phoneEl); if (!phone) { showFieldError(phoneEl, 'Por favor, insira seu telefone.'); hasErr = true; }
+        else if (!isValidPhoneClient(phone)) { showFieldError(phoneEl, 'Telefone inv\u00e1lido. Use DDD + n\u00famero.'); hasErr = true; }
+      }
+
+      if (hasErr) return;
+
       trackEvent('play', popup.id);
-      if (!isValidEmailClient(email)) {
-        var eInput = back.querySelector('input[type=email]') || back.querySelector('.pus-input-email');
-        if (eInput) showEmailError(eInput, 'Por favor, use um e-mail v\u00e1lido.');
-        return;
-      }
-      submitLead(popup.id, { email: email, prize: prize });
+      submitLead(popup.id, { email: email, name: nm, phone: phone, prize: prize });
       trackEvent('win', popup.id, { prize: prize });
       back.querySelector('.pus-modal').innerHTML =
-        '<button class="pus-close" aria-label="Fechar">×</button>' +
+        '<button class="pus-close" aria-label="Fechar">\u00d7</button>' +
         '<div class="pus-result">' +
-          '<div style="font-size:40px">🎉</div>' +
+          '<div style="font-size:40px">\ud83c\udf89</div>' +
           '<div class="pus-prize">' + esc(prize) + '</div>' +
           '<p>Use o cupom:</p>' +
           '<div class="pus-coupon">' + esc(prize) + '</div>' +
-          '<p style="font-size:12px;color:#666">Enviamos também para seu e-mail.</p>' +
+          '<p style="font-size:12px;color:#666">Enviamos tamb\u00e9m para seu e-mail.</p>' +
         '</div>';
       back.querySelector('.pus-close').addEventListener('click', close);
     });
