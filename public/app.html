@@ -403,6 +403,84 @@
 
     /* Bottom row */
     .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+      .dash-funnel-section {
+        background: rgba(30,30,40,.55);
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 16px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+      }
+      .dash-funnel-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .dash-funnel-header h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+      }
+      .dash-funnel-sub {
+        font-size: 12px;
+        color: rgba(255,255,255,.45);
+      }
+      .dash-funnel-body {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .funnel-step {
+        display: grid;
+        grid-template-columns: 120px 1fr 52px;
+        align-items: center;
+        gap: 12px;
+      }
+      .funnel-label {
+        font-size: 13px;
+        color: rgba(255,255,255,.75);
+        text-align: right;
+        font-weight: 500;
+      }
+      .funnel-bar-wrap {
+        background: rgba(255,255,255,.06);
+        border-radius: 8px;
+        height: 32px;
+        overflow: hidden;
+        position: relative;
+      }
+      .funnel-bar {
+        height: 100%;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0 10px;
+        transition: width .6s ease;
+        min-width: 40px;
+      }
+      .funnel-bar-val {
+        font-size: 12px;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0,0,0,.4);
+      }
+      .funnel-conv {
+        font-size: 11px;
+        color: rgba(255,255,255,.5);
+        text-align: left;
+        min-width: 40px;
+      }
+      @media (max-width: 600px) {
+        .funnel-step {
+          grid-template-columns: 90px 1fr 44px;
+          gap: 8px;
+        }
+        .funnel-label { font-size: 11px; }
+        .funnel-bar { height: 26px; }
+      }
+
     .dash-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1703,7 +1781,17 @@
           </div>
 
           <!-- ── Bottom row: Ranking + Activity ── -->
-          <div class="dash-row">
+          
+            <!-- Funil de Conversão de Cupom -->
+            <div class="dash-funnel-section">
+                <div class="dash-funnel-header">
+                    <h3>Funil de Conversão de Cupom</h3>
+                    <span class="dash-funnel-sub">Jornada completa do cliente</span>
+                </div>
+                <div id="dash-funnel" class="dash-funnel-body"></div>
+            </div>
+
+            <div class="dash-row">
             <!-- Ranking de Popups -->
             <div class="dash-panel">
               <div class="dash-panel-header">
@@ -2576,7 +2664,7 @@ async function loadDashboard() {
   document.getElementById('dash-last-update').textContent = 'Atualizado às ' + hh + ':' + mm;
 
   // Fetch aggregated data
-  let leads = 0, views = 0, plays = 0, wins = 0;
+  let leads = 0, views = 0, plays = 0, wins = 0, couponsUsed = 0;
   let recentEvents = [];
   let leadsPerPopup = {};
   let dailyLeads = {};
@@ -2606,6 +2694,7 @@ async function loadDashboard() {
           if (ev.event_type === 'impression') { views++; dailyViews[day] = (dailyViews[day] || 0) + 1; }
           if (ev.event_type === 'play') { plays++; dailyPlays[day] = (dailyPlays[day] || 0) + 1; }
           if (ev.event_type === 'win') wins++;
+        if (ev.event_type === 'coupon_used') couponsUsed++;
         });
       }
       // If we got event counts from summary, prefer those
@@ -2765,6 +2854,33 @@ async function loadDashboard() {
         + '<div class="activity-time">' + timeAgo(ev.created_at) + '</div>'
         + '</div></div>';
     }).join('');
+
+  // ── Funil de Conversão de Cupom ──
+  const funnelData = [
+    { label: 'Impressões', value: views, color: '#3b82f6' },
+    { label: 'Cadastros', value: leads, color: '#22c55e' },
+    { label: 'Ganhou Cupom', value: wins, color: '#f59e0b' },
+    { label: 'Usou Cupom', value: couponsUsed, color: '#ec4899' }
+  ];
+  const funnelMax = Math.max(...funnelData.map(d => d.value), 1);
+  const funnelEl = document.getElementById('dash-funnel');
+  if (funnelEl) {
+    funnelEl.innerHTML = funnelData.map((step, i) => {
+      const pct = Math.max((step.value / funnelMax) * 100, 8);
+      const convRate = i > 0 && funnelData[i-1].value > 0
+        ? ((step.value / funnelData[i-1].value) * 100).toFixed(1) + '%'
+        : '';
+      return '<div class="funnel-step">'
+        + '<div class="funnel-label">' + step.label + '</div>'
+        + '<div class="funnel-bar-wrap">'
+        + '<div class="funnel-bar" style="width:' + pct + '%;background:' + step.color + '">'
+        + '<span class="funnel-bar-val">' + formatNum(step.value) + '</span>'
+        + '</div>'
+        + '</div>'
+        + (convRate ? '<div class="funnel-conv">' + convRate + '</div>' : '<div class="funnel-conv"></div>')
+        + '</div>';
+    }).join('');
+  }
   }
 }
 
