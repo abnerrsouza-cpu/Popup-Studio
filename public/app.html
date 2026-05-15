@@ -1741,26 +1741,25 @@
               <div class="dash-card-sparkline" id="dash-conv-spark"></div>
             </div>
 
-            <!-- 5. Jogadas (Plays) -->
+            <!-- 5. Cupons Usados -->
             <div class="dash-card">
-              <div class="dash-card-glow" style="background:var(--cyan,#06b6d4)"></div>
+              <div class="dash-card-glow" style="background:var(--pink,#ec4899)"></div>
               <div class="dash-card-top">
-                <div class="dash-card-icon cyan">
-                  🎮
+                <div class="dash-card-icon pink">
+                  🎟️
                 </div>
                 <div class="dash-card-info" onclick="this.classList.toggle('active')">i</div>
                 <div class="dash-card-tooltip">
-                  <div class="dash-card-tooltip-title">Jogadas</div>
-                  <div class="dash-card-tooltip-desc">Total de vezes que os visitantes clicaram em "Jogar" nos seus jogos (slot machine, roleta, etc). Cada clique no botão de jogar conta como uma jogada.</div>
+                  <div class="dash-card-tooltip-title">Cupons Usados</div>
+                  <div class="dash-card-tooltip-desc">Quantidade de cupons que foram efetivamente utilizados pelos clientes no checkout da loja. Mostra quantos leads converteram em vendas reais.</div>
                 </div>
                 <div class="dash-card-trend neutral" id="dash-plays-trend">—</div>
               </div>
-              <div class="dash-card-label">Jogadas</div>
-              <div class="dash-card-value cyan" id="dash-plays">—</div>
-              <div class="dash-card-sub">interações com jogos</div>
+              <div class="dash-card-label">Cupons Usados</div>
+              <div class="dash-card-value pink" id="dash-plays">—</div>
+              <div class="dash-card-sub">cupons resgatados</div>
               <div class="dash-card-sparkline" id="dash-plays-spark"></div>
             </div>
-          </div>
 
           <!-- ── Chart Section ── -->
           <div class="dash-chart-section">
@@ -2669,7 +2668,7 @@ async function loadDashboard() {
   let leadsPerPopup = {};
   let dailyLeads = {};
   let dailyViews = {};
-  let dailyPlays = {};
+  let dailyCoupons = {};
 
   const days = dashChartPeriod === '30d' ? 30 : dashChartPeriod === '14d' ? 14 : 7;
   const daysArr = getDaysArray(days);
@@ -2692,9 +2691,9 @@ async function loadDashboard() {
         events.forEach(ev => {
           const day = (ev.created_at || '').split('T')[0];
           if (ev.event_type === 'impression') { views++; dailyViews[day] = (dailyViews[day] || 0) + 1; }
-          if (ev.event_type === 'play') { plays++; dailyPlays[day] = (dailyPlays[day] || 0) + 1; }
+          if (ev.event_type === 'play') { plays++; }
           if (ev.event_type === 'win') wins++;
-        if (ev.event_type === 'coupon_used') couponsUsed++;
+        if (ev.event_type === 'coupon_used') { couponsUsed++; dailyCoupons[day] = (dailyCoupons[day] || 0) + 1; }
         });
       }
       // If we got event counts from summary, prefer those
@@ -2727,16 +2726,16 @@ async function loadDashboard() {
   document.getElementById('dash-leads').textContent = formatNum(leads);
   document.getElementById('dash-views').textContent = formatNum(views);
   document.getElementById('dash-conversion').textContent = views > 0 ? ((leads / views) * 100).toFixed(1) + '%' : '0%';
-  document.getElementById('dash-plays').textContent = formatNum(plays);
+  document.getElementById('dash-plays').textContent = formatNum(couponsUsed);
 
   // ── Sparklines (last 7 days always) ──
   const spark7 = getDaysArray(7);
   const sparkLeads = spark7.map(d => dailyLeads[d.date] || 0);
   const sparkViews = spark7.map(d => dailyViews[d.date] || 0);
-  const sparkPlays = spark7.map(d => dailyPlays[d.date] || 0);
+  const sparkCoupons = spark7.map(d => dailyCoupons[d.date] || 0);
   renderSparkline('dash-leads-spark', sparkLeads, 'rgba(34,197,94,.3)');
   renderSparkline('dash-views-spark', sparkViews, 'rgba(59,130,246,.3)');
-  renderSparkline('dash-plays-spark', sparkPlays, 'rgba(6,182,212,.3)');
+  renderSparkline('dash-plays-spark', sparkCoupons, 'rgba(236,72,153,.3)');
   renderSparkline('dash-active-spark', [0,0,0,0,0,0,pub], 'rgba(124,92,252,.25)');
   renderSparkline('dash-conv-spark', sparkLeads.map((l,i) => sparkViews[i] > 0 ? Math.round((l/sparkViews[i])*100) : 0), 'rgba(236,72,153,.25)');
 
@@ -2756,9 +2755,9 @@ async function loadDashboard() {
   vtEl.className = 'dash-card-trend ' + vt.cls;
   vtEl.textContent = vt.text;
 
-  const firstPlays = daysArr.slice(0, mid).reduce((s, d) => s + (dailyPlays[d.date]||0), 0);
-  const secondPlays = daysArr.slice(mid).reduce((s, d) => s + (dailyPlays[d.date]||0), 0);
-  const pt = trendBadge(secondPlays, firstPlays);
+  const firstCoupons = daysArr.slice(0, mid).reduce((s, d) => s + (dailyCoupons[d.date]||0), 0);
+  const secondCoupons = daysArr.slice(mid).reduce((s, d) => s + (dailyCoupons[d.date]||0), 0);
+  const pt = trendBadge(secondCoupons, firstCoupons);
   const ptEl = document.getElementById('dash-plays-trend');
   ptEl.className = 'dash-card-trend ' + pt.cls;
   ptEl.textContent = pt.text;
