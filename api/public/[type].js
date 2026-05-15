@@ -1,7 +1,7 @@
 // /api/public/[type]
-// Handles /api/public/event (POST) and /api/public/lead (POST + GET).
+// Handles /api/public/event (POST + GET) and /api/public/lead (POST + GET).
 // POST = publico (loader.js envia leads/events)
-// GET  = autenticado (painel admin lista leads)
+// GET  = autenticado (painel admin lista leads e eventos)
 
 import { supabase } from '../../lib/supabase.js';
 import { setCors, handleOptions, readJson, requireStore, setCorsAuthenticated } from '../../lib/auth.js';
@@ -92,6 +92,47 @@ async function handleLeadGet(req, res) {
   }
 }
 
+async function handleEventGet(req, res) {
+  setCorsAuthenticated(res);
+  const store = await requireStore(req, res);
+  if (!store) return;
+
+  try {
+    const { popup_id, limit, offset, count, since, event_type } = req.query || {};
+
+    if (count === '1') {
+      const { count: total, error } = await supabase
+        .from('events')
+        .select('*', { count: 'exact', head: true })
+        .eq('store_id', store.store_id);
+      if (error) throw error;
+      return res.status(200).json({ count: total || 0 });
+    }
+
+    let query = supabase
+      .from('events')
+      .select('*')
+      .eq('store_id', store.store_id)
+      .order('created_at', { ascending: false });
+
+    if (popup_id) query = query.eq('popup_id', popup_id);
+    if (since) query = query.gte('created_at', since);
+    if (event_type) query = query.eq('event_type', event_type);
+
+    const lim = Math.min(parseInt(limit) || 500, 1000);
+    const off = parseInt(offset) || 0;
+    query = query.range(off, off + lim - 1);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return res.status(200).json({ events: data || [] });
+  } catch (e) {
+    console.error('[events] DB error:', e.message, e.details, e.hint);
+    return res.status(500).json({ error: 'database_error' });
+  }
+}
+
 export default async function handler(req, res) {
   if (handleOptions(req, res)) return;
 
@@ -100,6 +141,11 @@ export default async function handler(req, res) {
   // GET /api/public/lead - autenticado, lista leads da loja
   if (req.method === 'GET' && type === 'lead') {
     return await handleLeadGet(req, res);
+  }
+
+  // GET /api/public/event - autenticado, lista eventos da loja
+  if (req.method === 'GET' && type === 'event') {
+    return await handleEventGet(req, res);
   }
 
   // POST - publico
