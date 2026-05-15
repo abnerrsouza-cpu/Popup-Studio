@@ -502,6 +502,7 @@
 
       // Copy coupon
       victory.querySelector('#pus-copy-btn').addEventListener('click', function () {
+        trackEvent('coupon_used', popup.id, { coupon: prize });
         try {
           if (navigator.clipboard) {
             navigator.clipboard.writeText(prize);
