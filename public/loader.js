@@ -41,6 +41,20 @@
     xhr('POST', API + '/api/public/lead',
       Object.assign({ store_id: storeId, popup_id: popupId }, data), function () {});
   }
+
+  // ---- Detectar uso real de cupom na thank you page (Nuvemshop) ----
+  if (window.LS && window.LS.order && window.LS.order.coupon) {
+    var orderCoupons = Array.isArray(window.LS.order.coupon) ? window.LS.order.coupon : [window.LS.order.coupon];
+    orderCoupons.forEach(function(code) {
+      var saved = null;
+      try { saved = JSON.parse(localStorage.getItem('pus_coupon_' + code)); } catch(e) {}
+      if (saved) {
+        trackEvent('coupon_used', saved.popup_id, { coupon: code, order_id: window.LS.order.id, order_total: window.LS.order.total });
+        try { localStorage.removeItem('pus_coupon_' + code); } catch(e) {}
+      }
+    });
+  }
+
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
@@ -500,10 +514,12 @@
         '<div id="pus-copy-feedback" style="opacity:0;font-size:11px;color:#22c55e;margin-top:6px;transition:opacity .3s;">✅ Cupom copiado! Cole no checkout.</div>';
       machine.appendChild(victory);
 
+      // Salvar cupom ganho no localStorage para rastrear uso real no checkout
+      try { localStorage.setItem('pus_coupon_' + prize, JSON.stringify({ popup_id: popup.id, coupon: prize, won_at: Date.now() })); } catch(e) {}
+
       // Copy coupon
       victory.querySelector('#pus-copy-btn').addEventListener('click', function () {
-        trackEvent('coupon_used', popup.id, { coupon: prize });
-        try {
+          try {
           if (navigator.clipboard) {
             navigator.clipboard.writeText(prize);
           } else {
