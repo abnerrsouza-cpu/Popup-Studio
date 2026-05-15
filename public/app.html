@@ -371,15 +371,6 @@
       line-height: 1.5;
       color: var(--muted);
     }
-    .dash-card-tooltip-formula {
-      margin-top: 8px;
-      padding: 6px 10px;
-      background: rgba(124,92,252,.08);
-      border-radius: 6px;
-      font-size: 11px;
-      color: var(--accent-light);
-      font-family: monospace;
-    }
     @keyframes tooltipFadeIn {
       from { opacity: 0; transform: translateY(-6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -1603,7 +1594,6 @@
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Popups Ativos</div>
                   <div class="dash-card-tooltip-desc">Quantidade de popups com status "publicado" que estão sendo exibidos ativamente na sua loja. Apenas popups publicados aparecem para os visitantes.</div>
-                  <div class="dash-card-tooltip-formula">COUNT(popups WHERE status = "publicado")</div>
                 </div>
                 <div class="dash-card-trend neutral" id="dash-active-trend">—</div>
               </div>
@@ -1624,7 +1614,6 @@
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Leads Capturados</div>
                   <div class="dash-card-tooltip-desc">Total de visitantes que preencheram o formulário com nome, e-mail e telefone. São seus potenciais clientes capturados pelo popup.</div>
-                  <div class="dash-card-tooltip-formula">COUNT(leads)</div>
                 </div>
                 <div class="dash-card-trend neutral" id="dash-leads-trend">—</div>
               </div>
@@ -1645,7 +1634,6 @@
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Impressões</div>
                   <div class="dash-card-tooltip-desc">Número de vezes que seus popups foram exibidos aos visitantes da loja. Cada vez que um popup aparece na tela conta como 1 impressão.</div>
-                  <div class="dash-card-tooltip-formula">COUNT(events WHERE type = "impression")</div>
                 </div>
                 <div class="dash-card-trend neutral" id="dash-views-trend">—</div>
               </div>
@@ -1666,7 +1654,6 @@
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Taxa de Conversão</div>
                   <div class="dash-card-tooltip-desc">Percentual de visitantes que viram o popup e se cadastraram. Quanto maior, melhor a eficácia do seu popup em capturar leads.</div>
-                  <div class="dash-card-tooltip-formula">(leads ÷ impressões) × 100</div>
                 </div>
                 <div class="dash-card-trend neutral" id="dash-conv-trend">—</div>
               </div>
@@ -1687,7 +1674,6 @@
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Jogadas</div>
                   <div class="dash-card-tooltip-desc">Total de vezes que os visitantes clicaram em "Jogar" nos seus jogos (slot machine, roleta, etc). Cada clique no botão de jogar conta como uma jogada.</div>
-                  <div class="dash-card-tooltip-formula">COUNT(events WHERE type = "play")</div>
                 </div>
                 <div class="dash-card-trend neutral" id="dash-plays-trend">—</div>
               </div>
