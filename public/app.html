@@ -393,10 +393,17 @@
     .dash-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .dash-chart-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
     .dash-chart-title svg { color: var(--accent-light); }
-    .dash-chart-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 3px; }
+    .dash-chart-tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: 8px; padding: 3px; align-items: center; }
     .dash-chart-tab { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 6px; cursor: pointer; color: var(--muted); transition: all .2s; border: none; background: none; }
     .dash-chart-tab.active { background: var(--accent); color: white; }
     .dash-chart-tab:hover:not(.active) { color: var(--text); }
+    .dash-date-range { display: none; align-items: center; gap: 6px; margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border); }
+    .dash-date-range.visible { display: flex; }
+    .dash-date-range input[type="date"] { background: var(--surface3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 11px; padding: 4px 8px; cursor: pointer; outline: none; font-family: inherit; }
+    .dash-date-range input[type="date"]:focus { border-color: var(--accent); }
+    .dash-date-range span { color: var(--muted); font-size: 11px; }
+    .dash-date-apply { background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; cursor: pointer; transition: opacity .2s; }
+    .dash-date-apply:hover { opacity: .85; }
     .dash-chart-area { height: 180px; display: flex; align-items: flex-end; gap: 8px; padding-top: 10px; position: relative; }
     .dash-chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .dash-chart-bar { width: 100%; border-radius: 6px 6px 2px 2px; background: linear-gradient(180deg, var(--accent) 0%, rgba(124,92,252,.3) 100%); transition: height .5s cubic-bezier(.4,0,.2,1); position: relative; min-height: 4px; cursor: pointer; }
@@ -1417,6 +1424,9 @@
       .dash-panel { padding: 16px; max-height: 320px; }
       .dash-chart-section { padding: 16px; }
       .dash-chart-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+      .dash-chart-tabs { flex-wrap: wrap; }
+      .dash-date-range { margin-left: 0; padding-left: 0; border-left: none; margin-top: 4px; width: 100%; }
+      .dash-date-range input[type="date"] { flex: 1; min-width: 0; }
       .dash-chart-area { height: 140px; gap: 4px; }
       .dash-chart-bar-val { font-size: 9px; }
       .dash-chart-day { font-size: 8px; }
@@ -1785,6 +1795,13 @@
                 <button class="dash-chart-tab active" onclick="switchChartPeriod('7d', this)">7 dias</button>
                 <button class="dash-chart-tab" onclick="switchChartPeriod('14d', this)">14 dias</button>
                 <button class="dash-chart-tab" onclick="switchChartPeriod('30d', this)">30 dias</button>
+                <button class="dash-chart-tab" onclick="toggleCustomDateRange(this)" id="dash-custom-btn">Personalizado</button>
+                <div class="dash-date-range" id="dash-date-range">
+                  <input type="date" id="dash-date-from" />
+                  <span>até</span>
+                  <input type="date" id="dash-date-to" />
+                  <button class="dash-date-apply" onclick="applyCustomDateRange()">Aplicar</button>
+                </div>
               </div>
             </div>
             <div class="dash-chart-area" id="dash-chart-area">
@@ -2608,11 +2625,53 @@ async function loadAccountStats() {
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
 let dashChartPeriod = '7d';
+let dashCustomFrom = null;
+let dashCustomTo = null;
 
 function switchChartPeriod(period, btn) {
   dashChartPeriod = period;
+  dashCustomFrom = null;
+  dashCustomTo = null;
   document.querySelectorAll('.dash-chart-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
+  document.getElementById('dash-date-range').classList.remove('visible');
+  document.getElementById('dash-custom-btn').classList.remove('active');
+  loadDashboard();
+}
+
+function toggleCustomDateRange(btn) {
+  const range = document.getElementById('dash-date-range');
+  const isVisible = range.classList.contains('visible');
+  if (isVisible) {
+    range.classList.remove('visible');
+    btn.classList.remove('active');
+  } else {
+    range.classList.add('visible');
+    const fromInput = document.getElementById('dash-date-from');
+    const toInput = document.getElementById('dash-date-to');
+    if (!fromInput.value) {
+      const d = new Date(); d.setDate(d.getDate() - 7);
+      fromInput.value = d.toISOString().split('T')[0];
+    }
+    if (!toInput.value) {
+      toInput.value = new Date().toISOString().split('T')[0];
+    }
+    const today = new Date().toISOString().split('T')[0];
+    fromInput.max = today;
+    toInput.max = today;
+  }
+}
+
+function applyCustomDateRange() {
+  const fromVal = document.getElementById('dash-date-from').value;
+  const toVal = document.getElementById('dash-date-to').value;
+  if (!fromVal || !toVal) return;
+  if (fromVal > toVal) { alert('A data inicial deve ser anterior à data final.'); return; }
+  dashChartPeriod = 'custom';
+  dashCustomFrom = fromVal;
+  dashCustomTo = toVal;
+  document.querySelectorAll('.dash-chart-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('dash-custom-btn').classList.add('active');
   loadDashboard();
 }
 
@@ -2701,9 +2760,24 @@ async function loadDashboard() {
   let dailyViews = {};
   let dailyCoupons = {};
 
-  const days = dashChartPeriod === '30d' ? 30 : dashChartPeriod === '14d' ? 14 : 7;
-  const daysArr = getDaysArray(days);
-  const sinceDate = daysArr[0].date;
+  let days, daysArr, sinceDate;
+  if (dashChartPeriod === 'custom' && dashCustomFrom && dashCustomTo) {
+    const from = new Date(dashCustomFrom);
+    const to = new Date(dashCustomTo);
+    days = Math.round((to - from) / 86400000) + 1;
+    daysArr = [];
+    const dayNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    for (let i = 0; i < days; i++) {
+      const d = new Date(from);
+      d.setDate(d.getDate() + i);
+      daysArr.push({ date: d.toISOString().split('T')[0], label: dayNames[d.getDay()], dayNum: d.getDate() });
+    }
+    sinceDate = dashCustomFrom;
+  } else {
+    days = dashChartPeriod === '30d' ? 30 : dashChartPeriod === '14d' ? 14 : 7;
+    daysArr = getDaysArray(days);
+    sinceDate = daysArr[0].date;
+  }
 
   try {
     const [leadRes, eventRes] = await Promise.all([
