@@ -2634,8 +2634,9 @@ function renderSparkline(containerId, data, color, labels) {
       return '<div class="spark" style="height:' + h + 'px;background:' + color + '" data-val="' + v + suffix + '" data-label="' + lbl + '"></div>';
     }).join('');
   const tip = document.getElementById(containerId + '-tip');
+  var pinned = false;
   el.querySelectorAll('.spark').forEach(bar => {
-    function showTip(e) {
+    function showTip() {
       const rect = bar.getBoundingClientRect();
       const parentRect = el.getBoundingClientRect();
       tip.textContent = bar.dataset.label + ': ' + bar.dataset.val;
@@ -2643,9 +2644,10 @@ function renderSparkline(containerId, data, color, labels) {
       tip.classList.add('visible');
     }
     bar.addEventListener('mouseenter', showTip);
-    bar.addEventListener('click', showTip);
-    bar.addEventListener('mouseleave', () => tip.classList.remove('visible'));
+    bar.addEventListener('click', function(e) { e.stopPropagation(); showTip(); pinned = true; });
+    bar.addEventListener('mouseleave', function() { if (!pinned) tip.classList.remove('visible'); });
   });
+  document.addEventListener('click', function() { pinned = false; tip.classList.remove('visible'); });
 }
 
 function trendBadge(current, previous) {
