@@ -312,8 +312,12 @@
       opacity: .1;
       pointer-events: none;
     }
-    .dash-card-sparkline { margin-top: 10px; height: 28px; display: flex; align-items: flex-end; gap: 2px; }
-    .dash-card-sparkline .spark { flex: 1; border-radius: 2px; background: rgba(124,92,252,.2); min-height: 3px; transition: height .3s; }
+    .dash-card-sparkline { margin-top: 10px; height: 28px; display: flex; align-items: flex-end; gap: 2px; position: relative; }
+    .dash-card-sparkline .spark { flex: 1; border-radius: 2px; background: rgba(124,92,252,.2); min-height: 3px; transition: height .3s, opacity .15s; cursor: pointer; }
+    .dash-card-sparkline .spark:hover { opacity: .85; filter: brightness(1.5); }
+    .dash-card-sparkline .spark-tooltip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: rgba(20,20,30,.95); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 6px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 10; border: 1px solid rgba(124,92,252,.3); }
+    .dash-card-sparkline .spark-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: rgba(20,20,30,.95); }
+    .dash-card-sparkline .spark-tooltip.visible { opacity: 1; }
 
     /* ─── TOOLTIP INFO CARDS ─────────────────────────── */
     .dash-card-info {
@@ -2618,14 +2622,30 @@ function formatNum(n) {
   return String(n);
 }
 
-function renderSparkline(containerId, data, color) {
+function renderSparkline(containerId, data, color, labels) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const max = Math.max(...data, 1);
-  el.innerHTML = data.map(v => {
-    const h = Math.max(3, (v / max) * 28);
-    return '<div class="spark" style="height:' + h + 'px;background:' + color + '"></div>';
-  }).join('');
+  const suffix = containerId === 'dash-conv-spark' ? '%' : '';
+  el.innerHTML = '<div class="spark-tooltip" id="' + containerId + '-tip"></div>' +
+    data.map((v, i) => {
+      const h = Math.max(3, (v / max) * 28);
+      const lbl = labels && labels[i] ? labels[i] : '';
+      return '<div class="spark" style="height:' + h + 'px;background:' + color + '" data-val="' + v + suffix + '" data-label="' + lbl + '"></div>';
+    }).join('');
+  const tip = document.getElementById(containerId + '-tip');
+  el.querySelectorAll('.spark').forEach(bar => {
+    function showTip(e) {
+      const rect = bar.getBoundingClientRect();
+      const parentRect = el.getBoundingClientRect();
+      tip.textContent = bar.dataset.label + ': ' + bar.dataset.val;
+      tip.style.left = (rect.left - parentRect.left + rect.width / 2) + 'px';
+      tip.classList.add('visible');
+    }
+    bar.addEventListener('mouseenter', showTip);
+    bar.addEventListener('click', showTip);
+    bar.addEventListener('mouseleave', () => tip.classList.remove('visible'));
+  });
 }
 
 function trendBadge(current, previous) {
@@ -2742,11 +2762,12 @@ async function loadDashboard() {
   const sparkLeads = spark7.map(d => dailyLeads[d.date] || 0);
   const sparkViews = spark7.map(d => dailyViews[d.date] || 0);
   const sparkCoupons = spark7.map(d => dailyCoupons[d.date] || 0);
-  renderSparkline('dash-leads-spark', sparkLeads, 'rgba(34,197,94,.3)');
-  renderSparkline('dash-views-spark', sparkViews, 'rgba(59,130,246,.3)');
-  renderSparkline('dash-plays-spark', sparkCoupons, 'rgba(236,72,153,.3)');
-  renderSparkline('dash-active-spark', [0,0,0,0,0,0,pub], 'rgba(124,92,252,.25)');
-  renderSparkline('dash-conv-spark', sparkLeads.map((l,i) => sparkViews[i] > 0 ? Math.round((l/sparkViews[i])*100) : 0), 'rgba(236,72,153,.25)');
+  const sparkLabels = spark7.map(d => d.label + ' ' + d.dayNum);
+  renderSparkline('dash-leads-spark', sparkLeads, 'rgba(34,197,94,.3)', sparkLabels);
+  renderSparkline('dash-views-spark', sparkViews, 'rgba(59,130,246,.3)', sparkLabels);
+  renderSparkline('dash-plays-spark', sparkPlays, 'rgba(6,182,212,.3)', sparkLabels);
+  renderSparkline('dash-active-spark', [0,0,0,0,0,0,pub], 'rgba(124,92,252,.25)', sparkLabels);
+  renderSparkline('dash-conv-spark', sparkLeads.map((l,i) => sparkViews[i] > 0 ? Math.round((l/sparkViews[i])*100) : 0), 'rgba(236,72,153,.25)', sparkLabels);
 
   // ── Trends (compare first half vs second half of period) ──
   const mid = Math.floor(daysArr.length / 2);
