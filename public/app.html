@@ -1691,7 +1691,7 @@
                 <div class="dash-card-icon purple">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
                 </div>
-                <div class="dash-card-info" onclick="this.classList.toggle('active')">i</div>
+                <div class="dash-card-info" onclick="event.stopPropagation(); this.classList.toggle('active'); document.querySelectorAll('.dash-card-info.active').forEach(el => { if(el !== this) el.classList.remove('active'); });">i</div>
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Popups Ativos</div>
                   <div class="dash-card-tooltip-desc">Quantidade de popups com status "publicado" que estão sendo exibidos ativamente na sua loja. Apenas popups publicados aparecem para os visitantes.</div>
@@ -1711,7 +1711,7 @@
                 <div class="dash-card-icon green">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                 </div>
-                <div class="dash-card-info" onclick="this.classList.toggle('active')">i</div>
+                <div class="dash-card-info" onclick="event.stopPropagation(); this.classList.toggle('active'); document.querySelectorAll('.dash-card-info.active').forEach(el => { if(el !== this) el.classList.remove('active'); });">i</div>
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Leads Capturados</div>
                   <div class="dash-card-tooltip-desc">Total de visitantes que preencheram o formulário com nome, e-mail e telefone. São seus potenciais clientes capturados pelo popup.</div>
@@ -1731,7 +1731,7 @@
                 <div class="dash-card-icon blue">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </div>
-                <div class="dash-card-info" onclick="this.classList.toggle('active')">i</div>
+                <div class="dash-card-info" onclick="event.stopPropagation(); this.classList.toggle('active'); document.querySelectorAll('.dash-card-info.active').forEach(el => { if(el !== this) el.classList.remove('active'); });">i</div>
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Impressões</div>
                   <div class="dash-card-tooltip-desc">Número de vezes que seus popups foram exibidos aos visitantes da loja. Cada vez que um popup aparece na tela conta como 1 impressão.</div>
@@ -1751,7 +1751,7 @@
                 <div class="dash-card-icon pink">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
-                <div class="dash-card-info" onclick="this.classList.toggle('active')">i</div>
+                <div class="dash-card-info" onclick="event.stopPropagation(); this.classList.toggle('active'); document.querySelectorAll('.dash-card-info.active').forEach(el => { if(el !== this) el.classList.remove('active'); });">i</div>
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Taxa de Conversão</div>
                   <div class="dash-card-tooltip-desc">Percentual de visitantes que viram o popup e se cadastraram. Quanto maior, melhor a eficácia do seu popup em capturar leads.</div>
@@ -1771,7 +1771,7 @@
                 <div class="dash-card-icon pink">
                   🎟️
                 </div>
-                <div class="dash-card-info" onclick="this.classList.toggle('active')">i</div>
+                <div class="dash-card-info" onclick="event.stopPropagation(); this.classList.toggle('active'); document.querySelectorAll('.dash-card-info.active').forEach(el => { if(el !== this) el.classList.remove('active'); });">i</div>
                 <div class="dash-card-tooltip">
                   <div class="dash-card-tooltip-title">Cupons Usados</div>
                   <div class="dash-card-tooltip-desc">Quantidade de cupons que foram efetivamente utilizados pelos clientes no checkout da loja. Mostra quantos leads converteram em vendas reais.</div>
@@ -1852,6 +1852,7 @@
 
         </div>
       </div>
+    </div>
 
       <!-- ═══════════════ POP UP STUDIO VIEW ═══════════ -->
       <div id="view-studio" class="view">
@@ -4370,6 +4371,11 @@ function toggleMobileMenu() {
     overlay.classList.add('active');
   }
 }
+
+    // Close tooltips when clicking outside (mobile fix)
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.dash-card-info.active').forEach(function(el) { el.classList.remove('active'); });
+    });
 // Close mobile menu when nav item clicked
 document.querySelectorAll('.nav-item').forEach(function(item) {
   item.addEventListener('click', function() {
