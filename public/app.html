@@ -258,7 +258,7 @@
     .dash-content { padding: 24px 32px; overflow-x: hidden; }
     .dash-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(5, 1fr);
       gap: 14px;
       margin-bottom: 24px;
     }
@@ -405,6 +405,7 @@
 
     /* Bottom row */
     .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .dash-chart-section, .dash-funnel-section, .dash-row { grid-column: 1 / -1; }
       .dash-funnel-section {
         background: rgba(30,30,40,.55);
         border: 1px solid rgba(255,255,255,.07);
