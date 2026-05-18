@@ -43,19 +43,32 @@
   }
 
   // ---- Detectar uso real de cupom na thank you page (Nuvemshop) ----
-  if (window.LS && window.LS.order && window.LS.order.coupon) {
-    var orderCoupons = Array.isArray(window.LS.order.coupon) ? window.LS.order.coupon : [window.LS.order.coupon];
-    orderCoupons.forEach(function(code) {
+  // Robusto: funciona mesmo se localStorage foi limpo ou compra foi em outro dispositivo
+  var _pusCouponTracked = {};
+  function detectCouponUsage() {
+    if (!window.LS || !window.LS.order) return;
+    var order = window.LS.order;
+    var coupons = order.coupon || order.discount_coupon || [];
+    if (!Array.isArray(coupons)) coupons = [coupons];
+    coupons.forEach(function(c) {
+      var code = (typeof c === 'object' && c !== null) ? (c.code || c.name || String(c)) : String(c);
+      if (!code || code === 'undefined' || code === 'null') return;
+      code = code.toUpperCase().trim();
+      if (_pusCouponTracked[code]) return;
+      _pusCouponTracked[code] = true;
       var saved = null;
       try { saved = JSON.parse(localStorage.getItem('pus_coupon_' + code)); } catch(e) {}
-      if (saved) {
-        trackEvent('coupon_used', saved.popup_id, { coupon: code, order_id: window.LS.order.id, order_total: window.LS.order.total });
-        try { localStorage.removeItem('pus_coupon_' + code); } catch(e) {}
-      }
+      var popupId = saved ? saved.popup_id : null;
+      trackEvent('coupon_used', popupId, { coupon: code, order_id: order.id || null, order_total: order.total || null });
+      if (saved) { try { localStorage.removeItem('pus_coupon_' + code); } catch(e) {} }
     });
   }
+  // Try immediately and also after a delay (LS.order may load late)
+  detectCouponUsage();
+  setTimeout(detectCouponUsage, 2000);
+  setTimeout(detectCouponUsage, 5000);
 
-  function esc(s) {
+    function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
       return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
     });
@@ -515,7 +528,7 @@
       machine.appendChild(victory);
 
       // Salvar cupom ganho no localStorage para rastrear uso real no checkout
-      try { localStorage.setItem('pus_coupon_' + prize, JSON.stringify({ popup_id: popup.id, coupon: prize, won_at: Date.now() })); } catch(e) {}
+      try { localStorage.setItem('pus_coupon_' + prize.toUpperCase().trim(), JSON.stringify({ popup_id: popup.id, coupon: prize, won_at: Date.now() })); } catch(e) {}
 
       // Copy coupon
       victory.querySelector('#pus-copy-btn').addEventListener('click', function () {
