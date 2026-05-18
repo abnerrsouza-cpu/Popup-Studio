@@ -552,6 +552,416 @@
   }
 
   // ═══════════════════════════════════════════════════════════
+
+  // ═══════════════════════════════════════════════════════════
+  // SKATE GRIND POPUP — Canvas game with obstacles and grinding
+  // ═══════════════════════════════════════════════════════════
+  function showSkateGrindPopup(popup) {
+    var cfg = popup.config || {};
+    var title = cfg.title || 'SKATE GRIND';
+    var subtitle = cfg.description || 'Pule obstáculos e ganhe descontos!';
+    var btnColor = cfg.button_color || '#22c55e';
+    var bgColor = cfg.background_color || '#111111';
+    var textColor = cfg.text_color || '#ffffff';
+    var btnText = cfg.button_text || 'Desbloquear';
+    var prize = cfg.prize || 'SKATE10';
+    var headerEmoji = cfg.emoji || '🛩';
+
+    var WIN_SCORE = 800;
+    var GROUND_Y = 140, SKATER_W = 20, SKATER_H = 26, SKATER_X = 40;
+    var GRAVITY = 0.5, JUMP_FORCE = -9;
+    var running = false, unlocked = false, score = 0, speed = 3;
+    var animId = null, skaterY = GROUND_Y - SKATER_H, skaterVY = 0, onGround = true, grinding = false;
+    var obstacles = [], floatingTexts = [], stars = [];
+    var frameCount = 0, combo = 0, lastGrind = 0;
+    var canvas, ctx, scoreEl, startBtn;
+    var CW = 320, CH = 180;
+
+    // Generate stars
+    for (var si = 0; si < 40; si++) {
+      stars.push({ x: Math.random() * CW, y: Math.random() * (GROUND_Y * 0.6), s: 0.5 + Math.random() * 1.5, b: Math.random() });
+    }
+
+    // --- CSS ---
+    if (!document.getElementById('pus-skate-css')) {
+      var css = document.createElement('style');
+      css.id = 'pus-skate-css';
+      css.textContent = '\
+.pus-skate-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}\
+.pus-skate-backdrop.open{opacity:1}\
+.pus-skate-popup{position:relative;width:92%;max-width:380px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);transform:translateY(30px) scale(.95);transition:transform .35s cubic-bezier(.4,0,.2,1)}\
+.pus-skate-backdrop.open .pus-skate-popup{transform:translateY(0) scale(1)}\
+.pus-skate-close{position:absolute;top:10px;right:10px;width:28px;height:28px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:rgba(255,255,255,.7);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:30}\
+.pus-skate-header{text-align:center;padding:14px 14px 8px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.06)}\
+.pus-skate-header-icon{font-size:28px;display:block;margin-bottom:4px}\
+.pus-skate-header-title{font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:2px;margin:0}\
+.pus-skate-header-sub{font-size:11px;opacity:.6;margin:4px 0 0}\
+.pus-skate-canvas-wrap{position:relative;width:100%;background:#000}\
+.pus-skate-canvas-wrap canvas{display:block;width:100%;height:auto}\
+.pus-skate-score{text-align:center;padding:6px;font-size:13px;font-weight:700;letter-spacing:1px}\
+.pus-skate-instruction{text-align:center;padding:4px;font-size:10px;opacity:.5}\
+.pus-skate-start{display:block;width:80%;margin:8px auto 12px;padding:10px;border:none;border-radius:8px;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer}\
+.pus-skate-lock{position:absolute;inset:0;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:16px;border-radius:0 0 14px 14px}\
+.pus-skate-lock h4{margin:0 0 10px;font-size:15px;font-weight:800}\
+.pus-skate-lock .pus-form{width:100%;max-width:260px}\
+.pus-skate-lock .pus-form input{width:100%;padding:8px 10px;margin:4px 0;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:rgba(255,255,255,.08);color:#fff;font-size:13px;box-sizing:border-box}\
+.pus-skate-lock .pus-form input::placeholder{color:rgba(255,255,255,.35)}\
+.pus-skate-lock .pus-form button{width:100%;padding:10px;margin-top:8px;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}\
+.pus-skate-victory{position:absolute;inset:0;background:rgba(0,0,0,.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:15;padding:18px;border-radius:14px;text-align:center}\
+.pus-skate-victory.active{display:flex}\
+.pus-skate-victory .trophy{font-size:40px}\
+.pus-skate-victory h4{color:#fff;margin:8px 0 4px;font-size:16px;font-weight:900;letter-spacing:2px}\
+.pus-skate-victory .prize-text{font-size:24px;font-weight:900;margin:4px 0}\
+.pus-skate-victory .coupon-box{background:rgba(255,255,255,.1);border-radius:8px;padding:8px 16px;margin:10px 0}\
+.pus-skate-victory .coupon-box code{font-size:16px;font-weight:800;letter-spacing:2px}\
+.pus-skate-victory .coupon-box button{background:#fff;border:none;color:#111;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700}\
+';
+      document.documentElement.appendChild(css);
+    }
+
+    // --- HTML ---
+    var back = document.createElement('div');
+    back.className = 'pus-skate-backdrop';
+    back.innerHTML = '<div class="pus-skate-popup" style="background:' + bgColor + ';color:' + textColor + '">' +
+      '<button class="pus-skate-close" aria-label="Fechar">×</button>' +
+      '<div class="pus-skate-header">' +
+        '<span class="pus-skate-header-icon">' + headerEmoji + '</span>' +
+        '<h3 class="pus-skate-header-title" style="color:' + textColor + '">' + esc(title) + '</h3>' +
+        '<p class="pus-skate-header-sub">' + esc(subtitle) + '</p>' +
+      '</div>' +
+      '<div class="pus-skate-canvas-wrap">' +
+        '<canvas width="' + CW + '" height="' + CH + '"></canvas>' +
+        '<div class="pus-skate-victory" id="pus-skate-victory">' +
+          '<div class="trophy">🏆</div>' +
+          '<h4>PARABÉNS!</h4>' +
+          '<p class="prize-text" style="color:' + btnColor + '">Pontuação: <span id="pus-skate-final">0</span></p>' +
+          '<div class="coupon-box">' +
+            '<p style="font-size:11px;opacity:.6;margin:0 0 4px">Seu cupom:</p>' +
+            '<code id="pus-skate-coupon" style="color:' + btnColor + '">' + esc(prize) + '</code><br>' +
+            '<button id="pus-skate-copy" style="margin-top:6px">COPIAR CUPOM</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="pus-skate-lock" id="pus-skate-lock" style="display:flex">' +
+          '<h4 style="color:' + textColor + '">🔒 Cadastre-se para jogar</h4>' +
+          '<form class="pus-form">' +
+            '<input type="text" id="pus-gen-name" placeholder="Seu nome" required>' +
+            '<input type="email" id="pus-gen-email" placeholder="Seu e-mail" required>' +
+            '<input type="tel" id="pus-gen-phone" placeholder="Seu telefone" required>' +
+            '<button type="submit" style="background:' + btnColor + ';color:' + bgColor + '">' + esc(btnText) + '</button>' +
+          '</form>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pus-skate-score" id="pus-skate-score" style="color:' + textColor + '">0 / ' + WIN_SCORE + '</div>' +
+      '<p class="pus-skate-instruction">Toque ou pressione ESPAÇO para pular</p>' +
+      '<button class="pus-skate-start" id="pus-skate-start" style="background:' + btnColor + ';color:' + bgColor + '" disabled>JOGAR</button>' +
+    '</div>';
+
+    document.body.appendChild(back);
+    trackEvent('impression', popup.id);
+    requestAnimationFrame(function () { back.classList.add('open'); });
+
+    canvas = back.querySelector('canvas');
+    ctx = canvas.getContext('2d');
+    scoreEl = back.querySelector('#pus-skate-score');
+    startBtn = back.querySelector('#pus-skate-start');
+    var lockEl = back.querySelector('#pus-skate-lock');
+
+    // --- Drawing ---
+    function drawFrame() {
+      ctx.clearRect(0, 0, CW, CH);
+      var skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+      skyGrad.addColorStop(0, '#1a1a2e');
+      skyGrad.addColorStop(1, '#16213e');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, CW, GROUND_Y);
+
+      for (var si = 0; si < stars.length; si++) {
+        var st = stars[si];
+        var twinkle = 0.5 + 0.5 * Math.sin(frameCount * 0.03 + st.b * 10);
+        ctx.globalAlpha = twinkle * 0.8;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(st.x, st.y, st.s, st.s);
+        if (running) { st.x -= speed * 0.2; if (st.x < 0) st.x = CW; }
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.fillStyle = '#0f0f23';
+      for (var bi = 0; bi < 8; bi++) {
+        var bx = ((bi * 50 - (running ? frameCount * 0.5 : 0)) % (CW + 50) + CW + 50) % (CW + 50) - 25;
+        var bh = 20 + (bi * 17) % 35;
+        ctx.fillRect(bx, GROUND_Y - bh, 30, bh);
+        ctx.fillStyle = '#1a1a3e';
+        for (var wy = GROUND_Y - bh + 4; wy < GROUND_Y - 4; wy += 8) {
+          for (var wx = bx + 4; wx < bx + 26; wx += 8) {
+            ctx.fillRect(wx, wy, 3, 4);
+          }
+        }
+        ctx.fillStyle = '#0f0f23';
+      }
+
+      ctx.fillStyle = '#333';
+      ctx.fillRect(0, GROUND_Y, CW, CH - GROUND_Y);
+      ctx.fillStyle = '#444';
+      ctx.fillRect(0, GROUND_Y, CW, 2);
+      ctx.fillStyle = 'rgba(34,197,94,0.08)';
+      ctx.fillRect(0, GROUND_Y + 2, CW, 6);
+
+      for (var oi = 0; oi < obstacles.length; oi++) { drawObs(obstacles[oi]); }
+      drawSkater();
+
+      for (var fi = floatingTexts.length - 1; fi >= 0; fi--) {
+        var ft = floatingTexts[fi];
+        ctx.globalAlpha = ft.life / 40;
+        ctx.fillStyle = '#22c55e';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ft.y -= 0.8; ft.life--;
+        if (ft.life <= 0) floatingTexts.splice(fi, 1);
+      }
+      ctx.globalAlpha = 1;
+
+      if (running) {
+        var prog = Math.min(score / WIN_SCORE, 1);
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.fillRect(10, 6, CW - 20, 5);
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(10, 6, (CW - 20) * prog, 5);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(score + ' / ' + WIN_SCORE, CW - 70, 22);
+      }
+    }
+
+    function drawSkater() {
+      var x = SKATER_X, y = skaterY;
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(x - 2, GROUND_Y - 2, SKATER_W + 4, 3);
+      if (!onGround) {
+        ctx.globalAlpha = 0.15;
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(x + 2, y + SKATER_H, 6, GROUND_Y - y - SKATER_H);
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = '#888';
+      ctx.fillRect(x + 4, y, 12, 4);
+      ctx.fillRect(x + 12, y + 1, 4, 3);
+      ctx.fillStyle = '#ffd5a0';
+      ctx.fillRect(x + 6, y + 4, 8, 6);
+      ctx.fillStyle = '#111';
+      ctx.fillRect(x + 9, y + 6, 2, 2);
+      ctx.fillRect(x + 13, y + 6, 2, 2);
+      ctx.fillStyle = '#ddd';
+      ctx.fillRect(x + 5, y + 10, 10, 8);
+      if (!onGround) {
+        ctx.fillRect(x + 1, y + 10, 4, 3);
+        ctx.fillRect(x + 15, y + 10, 4, 3);
+      } else if (grinding) {
+        ctx.fillRect(x + 1, y + 12, 4, 3);
+        ctx.fillRect(x + 15, y + 8, 4, 3);
+      } else {
+        ctx.fillRect(x + 2, y + 11, 3, 3);
+        ctx.fillRect(x + 15, y + 11, 3, 3);
+      }
+      ctx.fillStyle = '#999';
+      ctx.fillRect(x + 5, y + 18, 4, 5);
+      ctx.fillRect(x + 11, y + 18, 4, 5);
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(x + 2, y + 23, 16, 3);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x + 3, y + 25, 3, 2);
+      ctx.fillRect(x + 14, y + 25, 3, 2);
+      if (grinding && running) {
+        ctx.fillStyle = '#fbbf24';
+        for (var sp = 0; sp < 4; sp++) {
+          var sx = x + 2 + Math.random() * 16;
+          var sy = y + 24 + Math.random() * 3;
+          ctx.fillRect(sx, sy, 2, 1);
+        }
+      }
+    }
+
+    function drawObs(o) {
+      if (o.type === 'hydrant') {
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(o.x + 2, GROUND_Y - 18, 12, 18);
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(o.x, GROUND_Y - 14, 16, 4);
+        ctx.fillStyle = '#fca5a5';
+        ctx.fillRect(o.x + 4, GROUND_Y - 16, 3, 2);
+      } else if (o.type === 'rail') {
+        ctx.fillStyle = '#888';
+        ctx.fillRect(o.x, GROUND_Y - 22, 2, 22);
+        ctx.fillRect(o.x + o.w - 2, GROUND_Y - 22, 2, 22);
+        ctx.fillStyle = '#aaa';
+        ctx.fillRect(o.x, GROUND_Y - 22, o.w, 3);
+        ctx.fillStyle = 'rgba(168,168,168,0.15)';
+        ctx.fillRect(o.x, GROUND_Y - 25, o.w, 2);
+      } else if (o.type === 'combo') {
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(o.x + 2, GROUND_Y - 18, 12, 18);
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(o.x, GROUND_Y - 14, 16, 4);
+        ctx.fillStyle = '#888';
+        ctx.fillRect(o.x + 20, GROUND_Y - 22, 2, 22);
+        ctx.fillRect(o.x + 20 + o.w - 22, GROUND_Y - 22, 2, 22);
+        ctx.fillStyle = '#aaa';
+        ctx.fillRect(o.x + 20, GROUND_Y - 22, o.w - 20, 3);
+      }
+    }
+
+    function jump() {
+      if (onGround || grinding) { skaterVY = JUMP_FORCE; onGround = false; grinding = false; }
+    }
+
+    function addPts(pts, label) {
+      score += pts;
+      if (scoreEl) scoreEl.textContent = score + ' / ' + WIN_SCORE;
+      floatingTexts.push({ text: '+' + pts + (label ? ' ' + label : ''), x: SKATER_X + 20, y: skaterY - 5, life: 40 });
+      try { localStorage.setItem('pus_coupon', prize); localStorage.setItem('pus_coupon_popup', String(popup.id)); } catch (e) {}
+    }
+
+    function spawnObs() {
+      var r = Math.random();
+      if (r < 0.4) { obstacles.push({ type: 'hydrant', x: CW + 10, w: 16, h: 18 }); }
+      else if (r < 0.75) { var rw = 50 + Math.random() * 30; obstacles.push({ type: 'rail', x: CW + 10, w: rw, h: 22 }); }
+      else { var cw = 70 + Math.random() * 20; obstacles.push({ type: 'combo', x: CW + 10, w: cw, h: 22 }); }
+    }
+
+    function gameLoop() {
+      if (!running) return;
+      frameCount++;
+      skaterVY += GRAVITY; skaterY += skaterVY; grinding = false;
+      if (skaterY >= GROUND_Y - SKATER_H) { skaterY = GROUND_Y - SKATER_H; skaterVY = 0; onGround = true; }
+      speed = 3 + score * 0.003;
+      if (frameCount % Math.max(40, 70 - Math.floor(score / 50)) === 0) { spawnObs(); }
+
+      for (var i = obstacles.length - 1; i >= 0; i--) {
+        var o = obstacles[i]; o.x -= speed;
+        if (o.x + o.w < -10) { obstacles.splice(i, 1); continue; }
+        var skL = SKATER_X + 3, skR = SKATER_X + SKATER_W - 3;
+        var skT = skaterY + 4, skB = skaterY + SKATER_H;
+
+        if (o.type === 'hydrant') {
+          var oL = o.x, oR = o.x + 16, oT = GROUND_Y - 18;
+          if (skR > oL && skL < oR && skB > oT && skT < GROUND_Y) { gameOver(); return; }
+        } else if (o.type === 'rail') {
+          var railTop = GROUND_Y - 22;
+          if (skR > o.x && skL < o.x + o.w) {
+            if (skB >= railTop && skB <= railTop + 8 && skaterVY >= 0) {
+              skaterY = railTop - SKATER_H; skaterVY = 0; onGround = false; grinding = true;
+              if (frameCount - lastGrind > 5) { combo++; var pts = 10 * combo; addPts(pts, combo > 1 ? 'x' + combo : 'GRIND'); lastGrind = frameCount; }
+            } else if (skR > o.x + 2 && skL < o.x + o.w - 2 && skT < GROUND_Y && skB > railTop + 8) { gameOver(); return; }
+          }
+        } else if (o.type === 'combo') {
+          var hL = o.x, hR = o.x + 16, hT = GROUND_Y - 18;
+          if (skR > hL && skL < hR && skB > hT && skT < GROUND_Y) { gameOver(); return; }
+          var rStart = o.x + 20, rEnd = o.x + o.w, rTop = GROUND_Y - 22;
+          if (skR > rStart && skL < rEnd) {
+            if (skB >= rTop && skB <= rTop + 8 && skaterVY >= 0) {
+              skaterY = rTop - SKATER_H; skaterVY = 0; onGround = false; grinding = true;
+              if (frameCount - lastGrind > 5) { combo++; var pts2 = 15 * combo; addPts(pts2, 'COMBO x' + combo); lastGrind = frameCount; }
+            } else if (skR > rStart + 2 && skL < rEnd - 2 && skT < GROUND_Y && skB > rTop + 8) { gameOver(); return; }
+          }
+        }
+      }
+
+      if (frameCount % 10 === 0) { addPts(1, ''); }
+      if (score >= WIN_SCORE) { running = false; cancelAnimationFrame(animId); trackEvent('win', popup.id, { prize: prize }); showVictory(); return; }
+      drawFrame();
+      animId = requestAnimationFrame(gameLoop);
+    }
+
+    function gameOver() {
+      running = false; cancelAnimationFrame(animId);
+      ctx.fillStyle = 'rgba(239,68,68,0.4)'; ctx.fillRect(0, 0, CW, CH);
+      score = Math.max(0, score - 50); combo = 0;
+      if (scoreEl) scoreEl.textContent = score + ' / ' + WIN_SCORE;
+      startBtn.disabled = false; startBtn.textContent = 'TENTAR DE NOVO';
+    }
+
+    function startRun() {
+      if (!unlocked) return;
+      running = true; obstacles = []; floatingTexts = []; frameCount = 0; combo = 0; speed = 3;
+      skaterY = GROUND_Y - SKATER_H; skaterVY = 0; onGround = true; grinding = false;
+      startBtn.disabled = true; startBtn.textContent = 'JOGANDO...';
+      back.querySelector('#pus-skate-victory').classList.remove('active');
+      if (scoreEl) scoreEl.textContent = score + ' / ' + WIN_SCORE;
+      trackEvent('play', popup.id); gameLoop();
+    }
+
+    function showVictory() {
+      back.querySelector('#pus-skate-final').textContent = score;
+      back.querySelector('#pus-skate-coupon').textContent = prize;
+      back.querySelector('#pus-skate-victory').classList.add('active');
+      startBtn.disabled = false; startBtn.textContent = 'JOGAR DE NOVO';
+    }
+
+    function closePopup() {
+      trackEvent('close', popup.id); running = false;
+      if (animId) cancelAnimationFrame(animId);
+      back.classList.remove('open');
+      setTimeout(function () { back.remove(); }, 250);
+      try { localStorage.setItem('pus_shown_' + popup.id, String(Date.now())); } catch (e) {}
+    }
+
+    back.querySelector('.pus-skate-close').addEventListener('click', closePopup);
+    back.addEventListener('click', function (e) { if (e.target === back) closePopup(); });
+
+    back.querySelector('.pus-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nameEl = back.querySelector('#pus-gen-name');
+      var emailEl = back.querySelector('#pus-gen-email');
+      var phoneEl = back.querySelector('#pus-gen-phone');
+      var nm = nameEl ? nameEl.value.trim() : '';
+      var email = emailEl ? emailEl.value.trim() : '';
+      var phone = phoneEl ? phoneEl.value.trim() : '';
+      var hasErr = false;
+
+      if (nameEl) { clearFieldError(nameEl); if (!nm) { showFieldError(nameEl, 'Por favor, insira seu nome.'); hasErr = true; } }
+      if (emailEl) { clearEmailError(emailEl); clearFieldError(emailEl);
+        if (!email) { showFieldError(emailEl, 'Por favor, insira seu e-mail.'); hasErr = true; }
+        else if (!isValidEmailClient(email)) { showEmailError(emailEl, 'Por favor, use um e-mail válido.'); hasErr = true; }
+      }
+      if (phoneEl) { clearFieldError(phoneEl);
+        if (!phone) { showFieldError(phoneEl, 'Por favor, insira seu telefone.'); hasErr = true; }
+        else if (!isValidPhoneClient(phone)) { showFieldError(phoneEl, 'Telefone inválido. Use DDD + número.'); hasErr = true; }
+      }
+      if (hasErr) return;
+
+      submitLead(popup.id, { email: email, name: nm, phone: phone, prize: prize });
+      trackEvent('register', popup.id);
+      unlocked = true; lockEl.style.display = 'none'; startBtn.disabled = false;
+    });
+
+    startBtn.addEventListener('click', function () { if (running) return; startRun(); });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); if (!running) return; jump(); }
+    });
+
+    canvas.addEventListener('click', function () { if (running) jump(); });
+    canvas.addEventListener('touchstart', function (e) { e.preventDefault(); if (running) jump(); });
+
+    var copyBtn = back.querySelector('#pus-skate-copy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        try {
+          navigator.clipboard.writeText(prize);
+          copyBtn.textContent = 'COPIADO!';
+          setTimeout(function () { copyBtn.textContent = 'COPIAR CUPOM'; }, 2000);
+        } catch (err) {
+          var inp = document.createElement('input'); inp.value = prize;
+          document.body.appendChild(inp); inp.select(); document.execCommand('copy');
+          document.body.removeChild(inp);
+          copyBtn.textContent = 'COPIADO!';
+          setTimeout(function () { copyBtn.textContent = 'COPIAR CUPOM'; }, 2000);
+        }
+      });
+    }
+
+    drawFrame();
+  }
+
   // GENERIC POPUP — Email capture simples
   // ═══════════════════════════════════════════════════════════
   function showGenericPopup(popup) {
@@ -667,8 +1077,7 @@
         if (popup.game_type === 'slot_machine') {
           showSlotMachinePopup(popup);
         } else if (popup.game_type === 'skate_grind') {
-          // TODO: showSkatePopup(popup);
-          showGenericPopup(popup);
+          showSkateGrindPopup(popup);
         } else {
           showGenericPopup(popup);
         }
