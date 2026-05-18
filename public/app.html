@@ -2965,7 +2965,6 @@ async function loadDashboard() {
   const funnelData = [
     { label: 'Impressões', value: views, color: '#3b82f6' },
     { label: 'Cadastros', value: leads, color: '#22c55e' },
-    { label: 'Ganhou Cupom', value: wins, color: '#f59e0b' },
     { label: 'Usou Cupom', value: couponsUsed, color: '#ec4899' }
   ];
   const funnelMax = Math.max(...funnelData.map(d => d.value), 1);
