@@ -2256,6 +2256,20 @@
                 </div>
               </div>
               <!-- WHEEL DESIGN TEMPLATES -->
+
+            <!-- SKATE GRIND COLOR PRESETS -->
+            <div id="skate-color-presets" style="display:none;">
+              <div class="form-group">
+                <label class="form-label">🎨 Temas Prontos</label>
+                <div class="preset-grid" id="preset-grid-skate">
+                  <div class="preset-card active" onclick="applySkatePreset(0)" style="background:linear-gradient(135deg,#111,#0a0a0a);"><div class="preset-mini-slot" style="background:#333;color:#fff;font-size:10px;">🛹</div><div class="preset-card-name">Street</div></div>
+                  <div class="preset-card" onclick="applySkatePreset(1)" style="background:linear-gradient(135deg,#1a0a2e,#0d0520);"><div class="preset-mini-slot" style="background:#7c3aed;color:#fff;font-size:10px;">🛹</div><div class="preset-card-name">Neon</div></div>
+                  <div class="preset-card" onclick="applySkatePreset(2)" style="background:linear-gradient(135deg,#1e3a5f,#0c1524);"><div class="preset-mini-slot" style="background:#38bdf8;color:#fff;font-size:10px;">🛹</div><div class="preset-card-name">Ocean</div></div>
+                  <div class="preset-card" onclick="applySkatePreset(3)" style="background:linear-gradient(135deg,#3f1a00,#1a0c00);"><div class="preset-mini-slot" style="background:#f97316;color:#fff;font-size:10px;">🛹</div><div class="preset-card-name">Sunset</div></div>
+                  <div class="preset-card" onclick="applySkatePreset(4)" style="background:linear-gradient(135deg,#0f2918,#061a0d);"><div class="preset-mini-slot" style="background:#22c55e;color:#fff;font-size:10px;">🛹</div><div class="preset-card-name">Matrix</div></div>
+                </div>
+              </div>
+            </div>
               <div id="wheel-design-section" style="display:none;">
                 <div class="form-group">
                   <label class="form-label">🎯 Estilo da Roleta</label>
@@ -3312,12 +3326,33 @@ function updatePreview() {
     renderWheelSegments();
     initWheelBulbs();
   } else if (isSkate) {
-    var sTitle = document.getElementById('skate-popup-title');
-    var sSub = document.getElementById('skate-popup-subtitle');
-    if (sTitle) sTitle.textContent = document.getElementById('f-title').value || 'SKATE GRIND';
-    if (sSub) sSub.textContent = document.getElementById('f-desc').value || 'Desvie dos obstáculos e ganhe prêmios!';
-    initSkateGame();
-  } else {
+        var sTitle = document.getElementById('skate-popup-title');
+        var sSub = document.getElementById('skate-popup-subtitle');
+        if (sTitle) sTitle.textContent = document.getElementById('f-title').value || 'SKATE GRIND';
+        if (sSub) sSub.textContent = document.getElementById('f-desc').value || 'Desvie dos obst\u00e1culos e ganhe pr\u00eamios!';
+        // Apply theme colors to popup wrapper
+        var t = SKATE_PRESETS[skatePresetIdx];
+        var skPopup = document.getElementById('skate-popup-preview');
+        if (skPopup) {
+          skPopup.style.background = 'linear-gradient(180deg, ' + t.popupBg + ' 0%, ' + t.sky2 + ' 100%)';
+          skPopup.style.color = t.popupText;
+          skPopup.style.borderColor = t.accent + '33';
+        }
+        var skHeader = skPopup ? skPopup.querySelector('.skate-popup-header') : null;
+        if (skHeader) {
+          skHeader.querySelector('h3').style.color = t.accent;
+          skHeader.querySelector('p').style.color = t.popupText + '88';
+        }
+        var skScore = skPopup ? skPopup.querySelector('.skate-score') : null;
+        if (skScore) skScore.style.color = t.hud;
+        var skBtn = document.getElementById('skateStartBtn');
+        if (skBtn) { skBtn.style.background = t.accent; skBtn.style.color = t.sky2; }
+        var skUnlockBtn = skPopup ? skPopup.querySelector('.skate-unlock-btn') : null;
+        if (skUnlockBtn) { skUnlockBtn.style.background = t.accent; skUnlockBtn.style.color = t.sky2; }
+        var lockOv = document.getElementById('skateLockOverlay');
+        if (lockOv) lockOv.querySelectorAll('input').forEach(function(inp) { inp.style.borderColor = t.accent + '33'; });
+        initSkateGame();
+      } else {
     // Standard preview
     const box = document.getElementById('preview-box');
     if (!box) return;
@@ -3468,6 +3503,16 @@ const SLOT_PRESETS = [
   { name: 'Midnight', machine: '#c2185b', machineDark: '#880e4f', topBar: '#f06292', topBarEnd: '#ec407a', display: '#1a0a12', accent: '#f48fb1', btnBg: '#f06292', btnColor: '#880e4f' }
 ];
 
+    const SKATE_PRESETS = [
+      { name: "Street", sky1: "#1a1a1a", sky2: "#0a0a0a", ground: "#fff", building: "#1a1a1a", window: "#333", obstacle: "#ccc", obstacleAlt: "#999", rail: "#888", railHL: "#aaa", skater: "#fff", skaterBody: "#ddd", skaterLegs: "#999", cap: "#888", hud: "#fff", accent: "#fff", progressBg: "#333", progressFill: "#fff", popupBg: "#111", popupText: "#e0e0e0" },
+      { name: "Neon", sky1: "#1a0a2e", sky2: "#0d0520", ground: "#a855f7", building: "#1a0a2e", window: "#7c3aed", obstacle: "#c084fc", obstacleAlt: "#a855f7", rail: "#7c3aed", railHL: "#c084fc", skater: "#e9d5ff", skaterBody: "#c084fc", skaterLegs: "#a855f7", cap: "#7c3aed", hud: "#e9d5ff", accent: "#a855f7", progressBg: "#3b0764", progressFill: "#a855f7", popupBg: "#1a0a2e", popupText: "#e9d5ff" },
+      { name: "Ocean", sky1: "#0c1524", sky2: "#060a12", ground: "#38bdf8", building: "#0c1524", window: "#0ea5e9", obstacle: "#7dd3fc", obstacleAlt: "#38bdf8", rail: "#0ea5e9", railHL: "#7dd3fc", skater: "#e0f2fe", skaterBody: "#7dd3fc", skaterLegs: "#38bdf8", cap: "#0ea5e9", hud: "#e0f2fe", accent: "#38bdf8", progressBg: "#082f49", progressFill: "#38bdf8", popupBg: "#0c1524", popupText: "#e0f2fe" },
+      { name: "Sunset", sky1: "#3f1a00", sky2: "#1a0c00", ground: "#f97316", building: "#3f1a00", window: "#fb923c", obstacle: "#fdba74", obstacleAlt: "#f97316", rail: "#ea580c", railHL: "#fdba74", skater: "#fff7ed", skaterBody: "#fed7aa", skaterLegs: "#fb923c", cap: "#ea580c", hud: "#fff7ed", accent: "#f97316", progressBg: "#431407", progressFill: "#f97316", popupBg: "#1c0800", popupText: "#fff7ed" },
+      { name: "Matrix", sky1: "#0f2918", sky2: "#061a0d", ground: "#22c55e", building: "#0f2918", window: "#16a34a", obstacle: "#86efac", obstacleAlt: "#22c55e", rail: "#16a34a", railHL: "#86efac", skater: "#dcfce7", skaterBody: "#86efac", skaterLegs: "#22c55e", cap: "#16a34a", hud: "#dcfce7", accent: "#22c55e", progressBg: "#052e16", progressFill: "#22c55e", popupBg: "#071a0d", popupText: "#dcfce7" }
+    ];
+    var skatePresetIdx = 0;
+
+
 function onGameTypeChange() {
   const type = document.getElementById('f-type').value;
   const isSlot = type === 'slot_machine';
@@ -3479,7 +3524,8 @@ function onGameTypeChange() {
   document.getElementById('preset-grid-slot').style.display = isSlot ? 'grid' : 'none';
   document.getElementById('preset-grid-general').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'grid';
   document.getElementById('emoji-deco-group').style.display = (isSlot || isWheel || isSkate) ? 'none' : 'block';
-  document.getElementById('wheel-color-presets').style.display = isWheel ? 'block' : 'none';
+  document.getElementById('wheel-color-presets').style.display = isWheel ? 'block' : 'none';      document.getElementById('skate-color-presets').style.display = isSkate ? 'block' : 'none';
+
   document.getElementById('wheel-design-section').style.display = isWheel ? 'block' : 'none';
   resetSlotGame();
   if (isWheel) { updateWheelFromConfig(); initWheelBulbs(); relockWheel(); }
@@ -3588,6 +3634,20 @@ function resetSlotGame() {
       var cell = document.getElementById('sc-' + c + '-' + r);
       if (cell) cell.className = r === 2 ? 'slot-cell payline-cell' : 'slot-cell';
     }
+
+    function applySkatePreset(idx) {
+      skatePresetIdx = idx;
+      document.querySelectorAll('#preset-grid-skate .preset-card').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
+      var p = SKATE_PRESETS[idx];
+      document.getElementById('f-bg').value = p.popupBg;
+      document.getElementById('f-bg-text').value = p.popupBg;
+      document.getElementById('f-text-color').value = p.popupText;
+      document.getElementById('f-text-text').value = p.popupText;
+      document.getElementById('f-btn-color').value = p.accent;
+      document.getElementById('f-btn-text').value = p.accent;
+      updatePreview();
+    }
+
   }
   var victory = document.querySelector('.slot-victory');
   if (victory) victory.remove();
@@ -4026,105 +4086,138 @@ function initSkateGame() {
 }
 
 function drawSkateFrame() {
-  var ctx = skateCtx; if (!ctx) return;
-  var W = 310, H = 170;
-  // Sky gradient
-  var grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, '#1a1a1a'); grad.addColorStop(1, '#0a0a0a');
-  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-  // City silhouette (parallax)
-  ctx.fillStyle = '#1a1a1a';
-  var blds = [25,40,30,55,35,45,28,42,32,60,25,38,22];
-  for (var i = 0; i < blds.length; i++) {
-    var bx = i * 26 - (skateGroundOffset * 0.2) % 26;
-    ctx.fillRect(bx, SKATE_GROUND_Y - blds[i], 22, blds[i]);
-    // Windows
-    ctx.fillStyle = '#333';
-    for (var wy = SKATE_GROUND_Y - blds[i] + 6; wy < SKATE_GROUND_Y - 4; wy += 8) {
-      ctx.fillRect(bx + 4, wy, 3, 3); ctx.fillRect(bx + 12, wy, 3, 3);
+      var ctx = skateCtx; if (!ctx) return;
+      var W = 310, H = 170;
+      var t = SKATE_PRESETS[skatePresetIdx];
+      // Sky gradient
+      var grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, t.sky1); grad.addColorStop(1, t.sky2);
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+      // Stars
+      ctx.fillStyle = t.accent + '33';
+      for (var s = 0; s < 15; s++) {
+        var sx = (s * 73 + skateGroundOffset * 0.05) % W;
+        var sy = (s * 37) % (SKATE_GROUND_Y - 60) + 5;
+        ctx.fillRect(sx, sy, 1, 1);
+      }
+      // City silhouette (parallax)
+      ctx.fillStyle = t.building;
+      var blds = [25,40,30,55,35,45,28,42,32,60,25,38,22];
+      for (var i = 0; i < blds.length; i++) {
+        var bx = i * 26 - (skateGroundOffset * 0.2) % 26;
+        ctx.fillRect(bx, SKATE_GROUND_Y - blds[i], 22, blds[i]);
+        ctx.fillStyle = t.window;
+        for (var wy = SKATE_GROUND_Y - blds[i] + 6; wy < SKATE_GROUND_Y - 4; wy += 8) {
+          ctx.fillRect(bx + 4, wy, 3, 3); ctx.fillRect(bx + 12, wy, 3, 3);
+        }
+        ctx.fillStyle = t.building;
+      }
+      // Ground line with glow
+      ctx.fillStyle = t.ground; ctx.fillRect(0, SKATE_GROUND_Y, W, 1);
+      ctx.fillStyle = t.ground + '22'; ctx.fillRect(0, SKATE_GROUND_Y + 1, W, 3);
+      ctx.fillStyle = t.progressBg;
+      for (var x = -(skateGroundOffset % 20); x < W; x += 20) ctx.fillRect(x, SKATE_GROUND_Y + 5, 10, 1);
+      // Obstacles
+      for (var i = 0; i < skateObstacles.length; i++) drawObstacle(ctx, skateObstacles[i]);
+      // Skater
+      drawSkater(ctx, SKATER_X, skaterY);
+      // Floating score texts
+      ctx.font = 'bold 12px sans-serif';
+      for (var i = skateFloatingTexts.length - 1; i >= 0; i--) {
+        var ft = skateFloatingTexts[i];
+        ft.y -= 1.2; ft.life--;
+        ctx.fillStyle = t.accent + (Math.floor(ft.life * 255 / 40).toString(16).padStart(2, '0'));
+        ctx.fillText(ft.text, ft.x, ft.y);
+        if (ft.life <= 0) skateFloatingTexts.splice(i, 1);
+      }
+      // HUD
+      ctx.fillStyle = t.hud; ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(skateScore + ' / ' + SKATE_WIN_SCORE + ' PTS', 210, 14);
+      // Progress bar
+      var prog = Math.min(skateScore / SKATE_WIN_SCORE, 1);
+      ctx.fillStyle = t.progressBg; ctx.fillRect(210, 18, 90, 4);
+      ctx.fillStyle = t.progressFill; ctx.fillRect(210, 18, 90 * prog, 4);
     }
-    ctx.fillStyle = '#1a1a1a';
-  }
-  // Ground line
-  ctx.fillStyle = '#fff'; ctx.fillRect(0, SKATE_GROUND_Y, W, 1);
-  ctx.fillStyle = '#333';
-  for (var x = -(skateGroundOffset % 20); x < W; x += 20) ctx.fillRect(x, SKATE_GROUND_Y + 3, 10, 1);
-  // Obstacles
-  for (var i = 0; i < skateObstacles.length; i++) drawObstacle(ctx, skateObstacles[i]);
-  // Skater
-  drawSkater(ctx, SKATER_X, skaterY);
-  // Floating score texts
-  ctx.font = 'bold 12px sans-serif';
-  for (var i = skateFloatingTexts.length - 1; i >= 0; i--) {
-    var ft = skateFloatingTexts[i];
-    ft.y -= 1.2; ft.life--;
-    ctx.fillStyle = 'rgba(255,255,255,' + (ft.life / 40) + ')';
-    ctx.fillText(ft.text, ft.x, ft.y);
-    if (ft.life <= 0) skateFloatingTexts.splice(i, 1);
-  }
-  // HUD
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif';
-  ctx.fillText(skateScore + ' / ' + SKATE_WIN_SCORE + ' PTS', 210, 14);
-  // Progress bar
-  var prog = Math.min(skateScore / SKATE_WIN_SCORE, 1);
-  ctx.fillStyle = '#333'; ctx.fillRect(210, 18, 90, 4);
-  ctx.fillStyle = '#fff'; ctx.fillRect(210, 18, 90 * prog, 4);
-}
 
 function drawSkater(ctx, x, y) {
-  // Head
-  ctx.fillStyle = '#fff'; ctx.fillRect(x + 6, y, 8, 8);
-  // Cap
-  ctx.fillStyle = '#888'; ctx.fillRect(x + 4, y - 2, 12, 3);
-  // Body
-  ctx.fillStyle = '#ddd'; ctx.fillRect(x + 6, y + 8, 8, 10);
-  // Arms
-  if (skateGrinding) { ctx.fillRect(x + 14, y + 8, 6, 3); ctx.fillRect(x, y + 6, 6, 3); }
-  else { ctx.fillRect(x + 2, y + 10, 4, 3); ctx.fillRect(x + 14, y + 10, 4, 3); }
-  // Legs
-  ctx.fillStyle = '#999'; ctx.fillRect(x + 5, y + 18, 4, 5); ctx.fillRect(x + 11, y + 18, 4, 5);
-  // Skateboard
-  ctx.fillStyle = '#fff'; ctx.fillRect(x, y + 23, 20, 2);
-  // Wheels
-  ctx.fillStyle = '#666'; ctx.fillRect(x + 1, y + 25, 3, 2); ctx.fillRect(x + 16, y + 25, 3, 2);
-  // Grind sparks
-  if (skateGrinding) {
-    ctx.fillStyle = '#fff';
-    for (var s = 0; s < 3; s++) {
-      var sx = x + 5 + Math.random() * 10, sy = y + 24 + Math.random() * 3;
-      ctx.fillRect(sx, sy, 2, 1);
+      var t = SKATE_PRESETS[skatePresetIdx];
+      // Head
+      ctx.fillStyle = t.skater; ctx.fillRect(x + 6, y, 8, 8);
+      // Eyes
+      ctx.fillStyle = t.sky2; ctx.fillRect(x + 8, y + 3, 2, 2); ctx.fillRect(x + 11, y + 3, 2, 2);
+      // Cap
+      ctx.fillStyle = t.cap; ctx.fillRect(x + 4, y - 2, 12, 3);
+      ctx.fillRect(x + 14, y - 1, 3, 2);
+      // Body (shirt)
+      ctx.fillStyle = t.skaterBody; ctx.fillRect(x + 6, y + 8, 8, 10);
+      // Arms
+      if (skateGrinding) {
+        ctx.fillRect(x + 14, y + 8, 6, 3); ctx.fillRect(x, y + 6, 6, 3);
+      } else if (!skaterOnGround) {
+        ctx.fillRect(x + 2, y + 6, 4, 3); ctx.fillRect(x + 14, y + 6, 4, 3);
+      } else {
+        ctx.fillRect(x + 2, y + 10, 4, 3); ctx.fillRect(x + 14, y + 10, 4, 3);
+      }
+      // Legs
+      ctx.fillStyle = t.skaterLegs; ctx.fillRect(x + 5, y + 18, 4, 5); ctx.fillRect(x + 11, y + 18, 4, 5);
+      // Skateboard
+      ctx.fillStyle = t.accent; ctx.fillRect(x - 1, y + 23, 22, 2);
+      // Wheels
+      ctx.fillStyle = t.progressBg; ctx.fillRect(x + 1, y + 25, 3, 2); ctx.fillRect(x + 16, y + 25, 3, 2);
+      // Grind sparks
+      if (skateGrinding) {
+        var colors = [t.accent, t.skater, t.ground];
+        for (var s = 0; s < 5; s++) {
+          var sx = x + 3 + Math.random() * 14, sy = y + 24 + Math.random() * 4;
+          ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+          ctx.fillRect(sx, sy, 2, 1);
+        }
+      }
+      // Jump trail
+      if (!skaterOnGround && !skateGrinding) {
+        ctx.fillStyle = t.accent + '44';
+        ctx.fillRect(x + 8, y + 26, 4, 2);
+        ctx.fillStyle = t.accent + '22';
+        ctx.fillRect(x + 8, y + 29, 4, 2);
+      }
     }
-  }
-}
 
 function drawObstacle(ctx, ob) {
-  if (ob.type === 'hydrant') {
-    // Fire hydrant - white/gray
-    ctx.fillStyle = '#ccc'; ctx.fillRect(ob.x + 3, ob.y + 2, 8, 14);
-    ctx.fillStyle = '#999'; ctx.fillRect(ob.x + 1, ob.y + 5, 12, 4);
-    ctx.fillStyle = '#fff'; ctx.fillRect(ob.x + 4, ob.y, 6, 3);
-  } else if (ob.type === 'rail') {
-    // Corrimão - horizontal rail on posts
-    ctx.fillStyle = '#888';
-    ctx.fillRect(ob.x, ob.y, ob.w, 3); // rail bar
-    ctx.fillRect(ob.x + 5, ob.y, 2, SKATE_GROUND_Y - ob.y); // left post
-    ctx.fillRect(ob.x + ob.w - 7, ob.y, 2, SKATE_GROUND_Y - ob.y); // right post
-    ctx.fillStyle = '#aaa'; ctx.fillRect(ob.x, ob.y, ob.w, 1); // highlight
-  } else if (ob.type === 'combo') {
-    // Hydrant then rail
-    // Hydrant part
-    ctx.fillStyle = '#ccc'; ctx.fillRect(ob.x + 3, ob.hy + 2, 8, 14);
-    ctx.fillStyle = '#999'; ctx.fillRect(ob.x + 1, ob.hy + 5, 12, 4);
-    ctx.fillStyle = '#fff'; ctx.fillRect(ob.x + 4, ob.hy, 6, 3);
-    // Rail part (after hydrant)
-    ctx.fillStyle = '#888';
-    var rx = ob.x + 30;
-    ctx.fillRect(rx, ob.ry, ob.rw, 3);
-    ctx.fillRect(rx + 5, ob.ry, 2, SKATE_GROUND_Y - ob.ry);
-    ctx.fillRect(rx + ob.rw - 7, ob.ry, 2, SKATE_GROUND_Y - ob.ry);
-    ctx.fillStyle = '#aaa'; ctx.fillRect(rx, ob.ry, ob.rw, 1);
-  }
-}
+      var t = SKATE_PRESETS[skatePresetIdx];
+      if (ob.type === 'hydrant') {
+        // Fire hydrant body
+        ctx.fillStyle = t.obstacle; ctx.fillRect(ob.x + 3, ob.y + 2, 8, 14);
+        // Side caps
+        ctx.fillStyle = t.obstacleAlt; ctx.fillRect(ob.x + 1, ob.y + 5, 12, 4);
+        // Top cap
+        ctx.fillStyle = t.accent; ctx.fillRect(ob.x + 4, ob.y, 6, 3);
+        // Highlight
+        ctx.fillStyle = t.ground + '33'; ctx.fillRect(ob.x + 5, ob.y + 3, 2, 10);
+      } else if (ob.type === 'rail') {
+        // Rail bar with glow
+        ctx.fillStyle = t.rail;
+        ctx.fillRect(ob.x, ob.y, ob.w, 3);
+        // Posts
+        ctx.fillRect(ob.x + 5, ob.y, 2, SKATE_GROUND_Y - ob.y);
+        ctx.fillRect(ob.x + ob.w - 7, ob.y, 2, SKATE_GROUND_Y - ob.y);
+        // Highlight on rail
+        ctx.fillStyle = t.railHL; ctx.fillRect(ob.x, ob.y, ob.w, 1);
+        // Rail glow
+        ctx.fillStyle = t.accent + '11'; ctx.fillRect(ob.x - 1, ob.y - 2, ob.w + 2, 7);
+      } else if (ob.type === 'combo') {
+        // Hydrant
+        ctx.fillStyle = t.obstacle; ctx.fillRect(ob.x + 3, ob.hy + 2, 8, 14);
+        ctx.fillStyle = t.obstacleAlt; ctx.fillRect(ob.x + 1, ob.hy + 5, 12, 4);
+        ctx.fillStyle = t.accent; ctx.fillRect(ob.x + 4, ob.hy, 6, 3);
+        // Rail after hydrant
+        var rx = ob.x + 30;
+        ctx.fillStyle = t.rail;
+        ctx.fillRect(rx, ob.ry, ob.rw, 3);
+        ctx.fillRect(rx + 5, ob.ry, 2, SKATE_GROUND_Y - ob.ry);
+        ctx.fillRect(rx + ob.rw - 7, ob.ry, 2, SKATE_GROUND_Y - ob.ry);
+        ctx.fillStyle = t.railHL; ctx.fillRect(rx, ob.ry, ob.rw, 1);
+      }
+    }
 
 function skateJump() {
   if (!skateRunning || !skaterOnGround) return;
@@ -4239,7 +4332,7 @@ function spawnSkateObstacle() {
 
 function skateGameOver(score) {
   skateRunning = false; cancelAnimationFrame(skateAnimId);
-  if (skateCtx) { skateCtx.fillStyle = 'rgba(255,0,0,.2)'; skateCtx.fillRect(0, 0, 310, 170); }
+  if (skateCtx) { skateCtx.fillStyle = SKATE_PRESETS[skatePresetIdx].accent + '33'; skateCtx.fillRect(0, 0, 310, 170); }
   document.getElementById('skateStartBtn').disabled = false;
   document.getElementById('skateStartBtn').textContent = 'TENTAR DE NOVO';
 }
